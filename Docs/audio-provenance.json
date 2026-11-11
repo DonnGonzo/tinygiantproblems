@@ -1,0 +1,32 @@
+[
+  {
+    "file": "Music/MossbackMeadow.mp3",
+    "provider": "ElevenLabs",
+    "prompt": "Instrumental whimsical storybook adventure underscore, warm felt piano, pizzicato strings, wooden flute and soft marimba, gentle walking pace 88 BPM, curious tiny caretakers exploring a gentle enormous moss creature, pastoral wonder, playful and cozy, restrained dynamics, no vocals, no dramatic percussion",
+    "bytes": 1080620
+  },
+  {
+    "file": "SFX/Sneeze.mp3",
+    "provider": "ElevenLabs",
+    "prompt": "One huge friendly fantasy animal sneeze: a rising breathy nasal inhale for three seconds then a comical deep fluffy achoo with a gust of air, warm non scary cartoon creature, clean isolated sound, no music or speech",
+    "bytes": 81127
+  },
+  {
+    "file": "SFX/Shake.mp3",
+    "provider": "ElevenLabs",
+    "prompt": "A giant furry friendly creature shakes its thick leafy fur, low warning rumble followed by rustling leaves and rattling wooden harness, comical and soft, no music or speech",
+    "bytes": 81127
+  },
+  {
+    "file": "SFX/CareComplete.mp3",
+    "provider": "ElevenLabs",
+    "prompt": "Short warm magical success chime, three ascending wooden marimba notes with delicate sparkles, cozy fantasy game completed care task, clean isolated, no speech",
+    "bytes": 33061
+  },
+  {
+    "file": "SFX/Spray.mp3",
+    "provider": "ElevenLabs",
+    "prompt": "Gentle handheld soothing mist sprayer, soft airy spray and tiny watery bubbles, clean isolated game tool loop, no music or voices",
+    "bytes": 33061
+  }
+]
