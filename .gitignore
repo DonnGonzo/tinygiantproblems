@@ -27,3 +27,7 @@ Recordings/
 Screenshots/
 TestResults/
 *.tmp
+__pycache__/
+tmp/
+builtNrun/
+output/

@@ -22,8 +22,16 @@ namespace TinyGiantProblems
             File.WriteAllText(output,"PASS connected client "+NetworkManager.Singleton.LocalClientId+"\n");
             yield return new WaitForSeconds(3);
             File.AppendAllText(output,"phase="+game.Phase+" comfort="+game.Comfort+"\n");
+            float initialElapsed=game.Elapsed;
+            if(args.Contains("--tgp-work"))
+            {
+                game.player.Warp(game.jobs[0].transform.position+new Vector3(0,.2f,-1));
+                game.player.selected=CareTool.Vacuum; game.player.UseOverride=true;
+            }
             yield return new WaitForSeconds(12);
-            File.AppendAllText(output,"progress="+game.Completed+" comfort="+game.Comfort+" elapsed="+game.Elapsed+"\nPASS remained connected="+NetworkManager.Singleton.IsConnectedClient+"\n");
+            game.player.UseOverride=false;
+            bool pass=NetworkManager.Singleton.IsConnectedClient && game.Elapsed>initialElapsed+8 && (!args.Contains("--tgp-work") || game.jobs[0].state.Complete && game.Comfort==58);
+            File.AppendAllText(output,"progress="+game.Completed+" comfort="+game.Comfort+" elapsed="+game.Elapsed+"\n"+(pass?"PASS":"FAIL")+" synchronized state and shared care\n");
             Debug.Log("TGP_PROBE_COMPLETE "+output);
         }
     }

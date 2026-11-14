@@ -28,11 +28,23 @@ namespace TinyGiantProblems
             yield return new WaitForSeconds(90);
             Time.timeScale = 1;
             Check(Time.frameCount > frame + 100, "Live player loop advances");
-            Check(Vector3.Distance(local,g.creature.transform.InverseTransformPoint(p.transform.position)) < .25f && p.recoveries == 0, "90-second moving-frame attachment drift under 0.25m");
+            Check(Vector3.Distance(local,g.creature.transform.InverseTransformPoint(p.transform.position)) < .25f && p.recoveries == 0, "90-second moving-frame attachment drift under 0.25 creature-local units");
             p.yaw = g.creature.transform.eulerAngles.y; p.MoveOverride = Vector3.forward;
             yield return new WaitForSeconds(1.2f);
             p.MoveOverride = Vector3.zero;
-            Check(g.creature.transform.InverseTransformPoint(p.transform.position).z > local.z + 4, "Motor walks forward across zone boundary");
+            Check(g.creature.transform.InverseTransformPoint(p.transform.position).z > local.z + 4/g.creature.transform.lossyScale.z, "Motor walks forward more than four world metres");
+            float endZ=g.jobs[g.jobs.Length-1].transform.localPosition.z+.7f, until=Time.time+25;
+            p.MoveOverride=Vector3.forward;
+            while(g.creature.transform.InverseTransformPoint(p.transform.position).z<endZ && Time.time<until)
+            { p.yaw=g.creature.transform.eulerAngles.y; yield return null; }
+            p.MoveOverride=Vector3.zero;
+            yield return new WaitForSeconds(.2f);
+            Check(g.creature.transform.InverseTransformPoint(p.transform.position).z>=endZ && p.grounded && p.recoveries==0,"Entire modular route is walkable across every ramp and seam");
+            p.Warp(g.creature.transform.TransformPoint(new Vector3(5.5f+.6f/g.creature.transform.lossyScale.x,6,0)));
+            p.yaw=g.creature.transform.eulerAngles.y-90; p.MoveOverride=Vector3.forward; p.BraceOverride=true;
+            yield return new WaitForSeconds(2.5f);
+            Check(g.creature.transform.InverseTransformPoint(p.transform.position).y>6+4/g.creature.transform.lossyScale.y,"Grip climbs four world metres on the authored flank");
+            p.MoveOverride=Vector3.zero; p.BraceOverride=false; p.Warp(p.checkpoint.position);
             p.grace=0; p.braced=true; p.velocity=Vector3.zero; p.Launch(new Vector3(4,10,5));
             Check(p.velocity == Vector3.zero, "Brace rejects launch");
             p.braced=false; p.Launch(new Vector3(40,100,50));

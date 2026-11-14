@@ -21,19 +21,24 @@ namespace TinyGiantProblems
         public Vector3 velocity;
         public Vector3 MoveOverride;
         public bool automate;
+        public bool UseOverride;
+        public bool BraceOverride;
+        bool BraceHeld => automate ? BraceOverride : brace.IsPressed();
         public float yaw = 20, pitch = 27, distance = 8;
         public bool cameraShake = true;
         Transform support, tether;
         Vector3 supportLocal, supportLast;
         float recoverHold;
         InputAction move, look, jump, sprint, brace, use, interact, reel;
-        public bool Using => use != null && use.IsPressed();
+        public bool Using => automate ? UseOverride : use != null && use.IsPressed();
         public bool InteractPressed => interact != null && interact.WasPressedThisFrame();
         public bool Active => Expedition.Instance && Expedition.Instance.IsPlaying && !Expedition.Instance.Paused;
 
         void Awake()
         {
             capsule = GetComponent<CharacterController>();
+            // Small moving-platform deltas must not be discarded at high frame rates.
+            capsule.minMoveDistance = 0;
             move = new InputAction("Move", InputActionType.Value);
             move.AddCompositeBinding("2DVector").With("Up", "<Keyboard>/w").With("Down", "<Keyboard>/s").With("Left", "<Keyboard>/a").With("Right", "<Keyboard>/d");
             move.AddBinding("<Gamepad>/leftStick");
@@ -86,9 +91,10 @@ namespace TinyGiantProblems
                 if (zone) ZoneName = zone.zoneName;
             }
             else SetSupport(null);
+            bool wasClimbing = climbing;
             climbing = false;
             var wallDirection = direction.sqrMagnitude > .01f ? direction.normalized : model.forward;
-            if (brace.IsPressed() && grip > 0 && Physics.Raycast(transform.position + Vector3.up, wallDirection, out var wall, 1.2f) && wall.collider.GetComponentInParent<ClimbableZone>())
+            if (BraceHeld && grip > 0 && Physics.Raycast(transform.position + Vector3.up, wallDirection, out var wall, 1.2f) && wall.collider.GetComponentInParent<ClimbableZone>())
             {
                 climbing = true;
                 SetSupport(wall.collider.transform);
@@ -96,7 +102,8 @@ namespace TinyGiantProblems
                 direction = Vector3.up * input.y * .65f + Vector3.Cross(Vector3.up, wall.normal) * input.x * .65f;
                 grip = Mathf.Max(0, grip - dt * 7);
             }
-            braced = brace.IsPressed() && grounded && !climbing && grip > 0;
+            if (wasClimbing && !climbing && BraceHeld && input.y > 0) { capsule.Move(Vector3.up * .8f + wallDirection * .7f); velocity.y = 2; }
+            braced = BraceHeld && grounded && !climbing && grip > 0;
             if (braced) grip = Mathf.Max(0, grip - dt * 4);
             else if (!climbing) grip = Mathf.Min(100, grip + dt * 12);
             if (jump.WasPressedThisFrame() && (grounded || climbing)) { velocity.y = 7; climbing = false; SetSupport(null); }
@@ -166,7 +173,7 @@ namespace TinyGiantProblems
             float best = 12;
             foreach (var a in anchors) { var d = Vector3.Distance(a.position, transform.position); if (d < best) { best = d; tether = a; } }
             tethered = tether && best < 12;
-            Expedition.Instance.Caption = tethered ? "[Rope clipped] Hold R / LT to reel to the anchor." : "Move within 12m of a gold anchor.";
+            Expedition.Instance.Caption = tethered ? "[Rope clipped] Hold R / LT to reel to the anchor." : "Move within 12m of a tether winch.";
         }
         public void Launch(Vector3 impulse)
         {

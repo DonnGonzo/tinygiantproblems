@@ -1,0 +1,35 @@
+{
+  "source": "Extraction beacon.glb",
+  "sha256": "029ba19f7173f51ca60056ca4148fb2c7c4e18ce59d4dc6854d93e2d65abceb9",
+  "material": {
+    "pbrMetallicRoughness": {
+      "metallicFactor": 1.0,
+      "roughnessFactor": 1.0,
+      "baseColorFactor": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "baseColorTexture": {
+        "index": 0,
+        "texCoord": 0
+      },
+      "metallicRoughnessTexture": {
+        "index": 1,
+        "texCoord": 0
+      }
+    },
+    "doubleSided": true,
+    "occlusionTexture": {
+      "index": 1,
+      "texCoord": 0,
+      "strength": 1.0
+    },
+    "normalTexture": {
+      "index": 2,
+      "texCoord": 0,
+      "scale": 1.0
+    }
+  }
+}

@@ -130,6 +130,9 @@ namespace TinyGiantProblems.Editor
             game.sneeze=Clip("SFX/Sneeze"); game.shake=Clip("SFX/Shake"); game.complete=Clip("SFX/CareComplete"); game.spray=Clip("SFX/Spray");
             PlayerSettings.productName="Tiny Giant Problems"; PlayerSettings.companyName="Small Works Guild"; PlayerSettings.runInBackground=true;
             PlayerSettings.defaultScreenWidth=1600; PlayerSettings.defaultScreenHeight=900; PlayerSettings.fullScreenMode=FullScreenMode.Windowed;
+            MossbackModelInstaller.Apply(frame);
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(GiantTinyAssets.Root + "/mossback/mossback.prefab"))
+                GiantTinyAssets.Apply();
             EditorSceneManager.SaveScene(scene,Root+"Scenes/Mossback_FirstPlayable.unity");
             EditorBuildSettings.scenes=new[] {new EditorBuildSettingsScene(Root+"Scenes/Mossback_FirstPlayable.unity",true)};
             AssetDatabase.SaveAssets();

@@ -6,7 +6,8 @@ living fantasy animals. Built from the supplied v0.1 design document.
 ## Open and play
 
 - Unity **6000.3.26f1** (Unity 6.3 LTS), URP.
-- Open this repository as a Unity project.
+- Install Git LFS and run `git lfs pull` after cloning to download the models,
+  textures, generated meshes and audio. Then open this repository as a Unity project.
 - Open `Assets/_TinyGiantProblems/Scenes/Mossback_FirstPlayable.unity`.
 - Press Play, then **Board Mossback / Solo**.
 - Complete three care jobs and return to the turquoise harness beacon to extract.
@@ -40,13 +41,20 @@ not yet a production movement-authority or anti-cheat implementation.
 - `ExpeditionSmokeTest.Run()` explicitly runs integrated gameplay checks in Play
   mode and writes `TestResults/expedition-smoke.txt`.
 - Generated binaries, Library, caches, logs and credentials are ignored.
-- Audio uses Git LFS. Run `git lfs pull` after cloning.
+- Large art assets and audio use Git LFS; keep LFS enabled when committing replacements.
+- `MossbackReactionSmokeTest.Run()` checks the Animator behaviors, random reactions,
+  braced attachment and animated collision in Play mode.
 - `Tools/generate_audio.py` generates only missing audio and reads the API key
   from `ELEVENLABS_API_KEY`; prompts are recorded in `Docs/audio-provenance.json`.
 
 ## Scope and roadmap
 
-This is the first Mossback graybox expedition: five zones, three care jobs,
+The current Mossback expedition includes imported scenery and equipment, a fitted
+harness, solid animated body collision and a 21-joint creature skeleton. An Animator
+drives head turns, sneeze wind-up/release and random wet-dog shakes; the eyes stay rigid
+to the skull. See [animation notes](Docs/Mossback-Animator-Behaviors.md).
+
+The playable loop includes five zones, three care jobs,
 warned sneeze/shake, bracing, a socket tether/reel, checkpoint recovery, extraction,
 debrief, replay, keyboard/gamepad controls, and generated prototype audio.
 

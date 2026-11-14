@@ -1,0 +1,35 @@
+{
+  "source": "spare canister.glb",
+  "sha256": "96f1d1886461cf406fe3db79f58560a4f73b199946752b964b25a9142bd53ab5",
+  "material": {
+    "pbrMetallicRoughness": {
+      "metallicFactor": 1.0,
+      "roughnessFactor": 1.0,
+      "baseColorFactor": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "baseColorTexture": {
+        "index": 0,
+        "texCoord": 0
+      },
+      "metallicRoughnessTexture": {
+        "index": 1,
+        "texCoord": 0
+      }
+    },
+    "doubleSided": true,
+    "occlusionTexture": {
+      "index": 1,
+      "texCoord": 0,
+      "strength": 1.0
+    },
+    "normalTexture": {
+      "index": 2,
+      "texCoord": 0,
+      "scale": 1.0
+    }
+  }
+}

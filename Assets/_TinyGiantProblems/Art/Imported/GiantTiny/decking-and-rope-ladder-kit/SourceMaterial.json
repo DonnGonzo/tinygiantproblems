@@ -1,0 +1,35 @@
+{
+  "source": "Decking and rope ladder kit.glb",
+  "sha256": "f37218cfb54a55960b4477df01ac7f194c56b6ffda6bd6e95d3e1011ef1359ad",
+  "material": {
+    "pbrMetallicRoughness": {
+      "metallicFactor": 1.0,
+      "roughnessFactor": 1.0,
+      "baseColorFactor": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "baseColorTexture": {
+        "index": 0,
+        "texCoord": 0
+      },
+      "metallicRoughnessTexture": {
+        "index": 1,
+        "texCoord": 0
+      }
+    },
+    "doubleSided": true,
+    "occlusionTexture": {
+      "index": 1,
+      "texCoord": 0,
+      "strength": 1.0
+    },
+    "normalTexture": {
+      "index": 2,
+      "texCoord": 0,
+      "scale": 1.0
+    }
+  }
+}

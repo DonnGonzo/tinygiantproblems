@@ -137,7 +137,7 @@ namespace TinyGiantProblems
             if(Host || sender!=NetworkManager.ServerClientId) return;
             reader.ReadValueSafe(out string json); var s=JsonUtility.FromJson<Snapshot>(json); if(s==null||s.progress==null||s.progress.Length!=game.jobs.Length)return;
             if(receivedEpoch!=s.epoch) { receivedEpoch=s.epoch; game.Begin(true); }
-            if(s.warning>0 && game.WarningRemaining<=0) { game.effects.PlayOneShot(s.reaction=="SNEEZE"?game.sneeze:game.shake,.75f); game.Caption="[Creature warning] Hold F / B to brace!"; }
+            if(s.warning>0 && game.WarningRemaining<=0) { game.creature.GetComponent<MossbackMotion>()?.Warn(s.reaction,4-s.warning); game.Caption="[Creature warning] Hold F / B to brace!"; }
             if(s.warning<=0 && game.WarningRemaining>0) game.Impact();
             game.Comfort=s.comfort; game.Irritation=s.irritation; game.Elapsed=s.elapsed; game.creature.clock=s.clock; game.WarningRemaining=s.warning; game.Reaction=s.reaction;
             for(int i=0;i<s.progress.Length;i++)
@@ -158,13 +158,17 @@ namespace TinyGiantProblems
             {
                 model=Instantiate(game.player.model,game.creature.transform); model.name="Crewmate "+pose.id; models[pose.id]=model;
             }
-            model.localPosition=pose.position; model.rotation=Quaternion.Euler(0,pose.yaw,0); model.localScale=new Vector3(1,pose.braced?.65f:1,1);
+            model.localPosition=pose.position; model.rotation=Quaternion.Euler(0,pose.yaw,0);
+            var parentScale=game.creature.transform.lossyScale;
+            model.localScale=new Vector3(1/parentScale.x,(pose.braced?.65f:1)/parentScale.y,1/parentScale.z);
+            var tools=model.GetComponentInChildren<TechnicianToolVisuals>();
+            if(tools) { tools.motor=null; tools.Show((CareTool)pose.tool); }
         }
         void Send(string name,ulong client,object value)
         {
             var json=JsonUtility.ToJson(value);
             using(var writer=new FastBufferWriter(16384,Allocator.Temp))
-            { writer.WriteValueSafe(json); manager.CustomMessagingManager.SendNamedMessage(name,client,writer,NetworkDelivery.ReliableSequenced); }
+            { writer.WriteValueSafe(json); manager.CustomMessagingManager.SendNamedMessage(name,client,writer,NetworkDelivery.ReliableFragmentedSequenced); }
         }
     }
 }

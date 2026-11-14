@@ -77,14 +77,20 @@ namespace TinyGiantProblems
         }
         public void Warn()
         {
-            Reaction = reactionCount++ % 2 == 0 ? "FULL-BODY SHAKE" : "SNEEZE";
+            if(WarningRemaining>0) return;
+            reactionCount++;
+            Reaction = Random.value < .55f ? "FULL-BODY SHAKE" : "SNEEZE";
             WarningRemaining = 4;
-            nextReaction = 30;
+            nextReaction = float.PositiveInfinity;
+            creature.GetComponent<MossbackMotion>()?.Warn(Reaction);
             Caption = Reaction == "SNEEZE" ? "[A huge inhale] Hold F / B to brace, or clip your tether!" : "[Low rumble, rustling fur] Hold F / B to brace!";
-            effects.PlayOneShot(Reaction == "SNEEZE" ? sneeze : shake, .75f);
         }
         public void Impact()
         {
+            creature.GetComponent<MossbackMotion>()?.Impact(Reaction);
+            effects.PlayOneShot(Reaction == "SNEEZE" ? sneeze : shake, .75f);
+            nextReaction=Random.Range(26f,43f);
+            creature.reactionPulse=1.2f;
             WarningRemaining = 0;
             player.Launch(new Vector3(Reaction == "SNEEZE" ? 4 : -4, 10, 5));
             Caption = player.braced || player.tethered ? "[Secure!] Nice bracing. Back to work." : "[Whoooosh!] Clip a tether or let the safety winch catch you.";
@@ -94,11 +100,13 @@ namespace TinyGiantProblems
         public void Begin(bool replicated = false)
         {
             if (IsRemote && !replicated) { Caption = "The host starts the next expedition."; return; }
-            Phase = ExpeditionPhase.Working; Comfort = 38; Irritation = 30; Elapsed = 0; nextReaction = 32;
+            Phase = ExpeditionPhase.Working; Comfort = 38; Irritation = 30; Elapsed = 0; nextReaction = Random.Range(26f,39f);
+            creature.reactionPulse=0;creature.GetComponent<MossbackMotion>()?.ResetMotion();
+            creature.ResetFramePose();
             WarningRemaining = 0; reactionCount = 0; Reaction = "";
             foreach (var job in jobs) job.state.Progress = 0;
             player.ResetMotor(); SetPause(false);
-            Caption = "Follow the gold trail. Hold the correct tool on each care site.";
+            Caption = "Follow the wooden walkway. Use the matching tool at each care site.";
             MissionBegan?.Invoke();
         }
         public void Finish(bool authoritative = false)
