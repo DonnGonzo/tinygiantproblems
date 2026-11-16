@@ -26,12 +26,15 @@ namespace TinyGiantProblems
         public System.Action<CareJob,float> CareRequested;
         public System.Action ExtractionRequested;
         public System.Action MissionBegan;
+        // Multicast hooks for economy, mess and debris systems (MissionBegan is owned by CrewSession).
+        public event System.Action Began;
+        public event System.Action<string> ReactionImpact;
         public bool IsRemote;
         void Awake() { Instance = this; Application.runInBackground = true; }
         void Update()
         {
             if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame || Gamepad.current != null && Gamepad.current.startButton.wasPressedThisFrame)
-            { if (IsPlaying) SetPause(!Paused); }
+            { if (GameUI.CloseTopmost()) { } else if (IsPlaying) SetPause(!Paused); }
             if (!IsPlaying || Paused) return;
             var dt = Time.deltaTime;
             Elapsed += dt;
@@ -63,7 +66,15 @@ namespace TinyGiantProblems
         public void ApplyCare(CareJob job, CareTool tool, float distance, float dt)
         {
             if (!IsPlaying || Paused || job == null) return;
-            if (tool != job.tool) { Caption = "This job needs the " + job.tool + ". Select its tool slot."; return; }
+            if (tool != job.tool)
+            {
+                var needed = ItemCatalog.Get(ItemCatalog.ForCareTool(job.tool));
+                var economy = GuildEconomy.Instance;
+                Caption = needed == null ? "This job needs the " + job.tool + "."
+                    : economy && !economy.Owns(needed.id) ? $"This job needs the {needed.name}. Buy it at the Guild Tool Locker for {needed.price} coins."
+                    : $"This job needs the {needed.name}. Scroll or press its hotbar number.";
+                return;
+            }
             if (job.state.Apply(job.tool, tool, distance, false, dt))
             {
                 Comfort = Mathf.Min(100, Comfort + 20); Irritation = Mathf.Max(0, Irritation - 15);
@@ -94,6 +105,7 @@ namespace TinyGiantProblems
             WarningRemaining = 0;
             player.Launch(new Vector3(Reaction == "SNEEZE" ? 4 : -4, 10, 5));
             Caption = player.braced || player.tethered ? "[Secure!] Nice bracing. Back to work." : "[Whoooosh!] Clip a tether or let the safety winch catch you.";
+            ReactionImpact?.Invoke(Reaction);
             Reaction = "";
             Irritation = Mathf.Max(0, Irritation - 10);
         }
@@ -108,6 +120,7 @@ namespace TinyGiantProblems
             player.ResetMotor(); SetPause(false);
             Caption = "Follow the wooden walkway. Use the matching tool at each care site.";
             MissionBegan?.Invoke();
+            Began?.Invoke();
         }
         public void Finish(bool authoritative = false)
         {
@@ -121,6 +134,7 @@ namespace TinyGiantProblems
         {
             Paused = value;
             Time.timeScale = value && !IsRemote && CareRequested == null ? 0 : 1;
+            if (!value && GameUI.CapturesInput) return;
             Cursor.lockState = value ? CursorLockMode.None : CursorLockMode.Locked; Cursor.visible = value;
         }
         void OnDestroy() { Time.timeScale = 1; Cursor.lockState = CursorLockMode.None; Cursor.visible = true; if (Instance == this) Instance = null; }

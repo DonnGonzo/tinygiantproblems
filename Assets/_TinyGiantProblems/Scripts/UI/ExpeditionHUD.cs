@@ -34,14 +34,17 @@ namespace TinyGiantProblems
             jobs = Label(left, "", 18, cream, new Vector2(20, -108), new Vector2(305, 124));
             var right = Panel(root, "Vitals", new Vector2(1, 1), new Vector2(-28, -26), new Vector2(290, 150));
             status = Label(right, "", 18, cream, new Vector2(18, -16), new Vector2(255, 125));
-            var bottom = Panel(root, "Tools", new Vector2(.5f, 0), new Vector2(0, 22), new Vector2(830, 92));
-            tools = Label(bottom, "", 20, cream, new Vector2(20, -15), new Vector2(790, 35));
-            Label(bottom, "WASD move  ·  SPACE jump  ·  F grip / brace  ·  E extract  ·  R reel  ·  ESC menu", 15, new Color(.7f,.81f,.77f), new Vector2(20,-55), new Vector2(790,25));
-            caption = Label(root, "", 19, cream, new Vector2(0, 135), new Vector2(1080, 52), new Vector2(.5f, 0)); caption.alignment = TextAlignmentOptions.Center;
-            prompt = Label(root, "", 21, gold, new Vector2(0, 195), new Vector2(850, 55), new Vector2(.5f, 0)); prompt.alignment = TextAlignmentOptions.Center;
+            // Tool selection moved to the hotbar (HotbarUI); this strip keeps the control reminder.
+            var bottom = Panel(root, "Controls", new Vector2(.5f, 0), new Vector2(0, 102), new Vector2(980, 26));
+            bottom.GetComponent<UnityEngine.UI.Image>().color = new Color(0, 0, 0, 0);
+            tools = Label(bottom, "", 1, cream, new Vector2(0, 0), new Vector2(1, 1));
+            var hint = Label(bottom, "WASD move · SPACE jump · F grip/brace · SCROLL or 1-9 tools · TAB bag · E interact · Q drop · R reel · CTRL+SCROLL zoom · ESC menu", 14, new Color(.7f,.81f,.77f), new Vector2(0,-2), new Vector2(980,24));
+            hint.alignment = TextAlignmentOptions.Center;
+            caption = Label(root, "", 19, cream, new Vector2(0, 165), new Vector2(1080, 52), new Vector2(.5f, 0)); caption.alignment = TextAlignmentOptions.Center;
+            prompt = Label(root, "", 21, gold, new Vector2(0, 212), new Vector2(850, 40), new Vector2(.5f, 0)); prompt.alignment = TextAlignmentOptions.Center;
             warning = Label(root, "", 33, gold, new Vector2(0, -35), new Vector2(720, 85), new Vector2(.5f, 1)); warning.alignment = TextAlignmentOptions.Center;
             gameplayPanels=new[] {left.gameObject,right.gameObject,bottom.gameObject,caption.gameObject,prompt.gameObject,warning.gameObject};
-            briefingPanel = Modal("Briefing", "TINY GIANT\nPROBLEMS", "A little care. A very big adventure.\n\nMossback has three troublesome itches. Board his back,\nchoose the matching tool, and hold USE at each care site.\nWhen he rumbles, hold BRACE. Then return to the harness.", out var briefing);
+            briefingPanel = Modal("Briefing", "TINY GIANT\nPROBLEMS", "A little care. A very big adventure.\n\nMossback is covered in grime, burrs and Bramblemites. Scrub and\nvacuum them off, finish work orders for coins, and haul salvage to\nthe yard below. Buy better tools at the Guild Tool Locker.\nWhen he rumbles, hold BRACE.", out var briefing);
             Place(briefing,new Vector2(0,.5f),new Vector2(32,0),new Vector2(640,650));
             Button(briefing, "BOARD MOSSBACK  /  SOLO", -370, () => { FindAnyObjectByType<CrewSession>()?.Shutdown(); NetworkStatus="Solo expedition"; game.Begin(); });
             Button(briefing, "HOST CREW (LAN)", -430, () => { if (HostRequested != null) HostRequested(); else NetworkStatus = "Network is preparing..."; });
@@ -53,12 +56,14 @@ namespace TinyGiantProblems
             address = field.GetComponent<TMP_InputField>();
             var addressText = Label(fr, "127.0.0.1", 18, cream, new Vector2(12,-4), new Vector2(390,30));
             address.textViewport = fr; address.textComponent = addressText; address.text = "127.0.0.1";
+            Button(briefing, "GUILD TOOL LOCKER", -608, () => GuildShopUI.Instance?.Open());
             pausePanel = Modal("Pause", "TAKE A BREATHER", "Mossback appreciates a careful technician.\n\nMouse to orbit · scroll to zoom · gamepad supported\nHold BACKSPACE to recover to the harness.", out var pause);
             Button(pause, "RESUME", -300, () => game.SetPause(false));
             Button(pause, "RECOVER TO HARNESS", -360, () => { game.player.Recover(); game.SetPause(false); });
             Button(pause, "MUSIC ON / OFF", -420, () => game.music.mute = !game.music.mute);
             Button(pause, "FIELD OF VIEW 60 / 80", -480, () => game.player.orbitCamera.fieldOfView = game.player.orbitCamera.fieldOfView < 70 ? 80 : 60);
             Button(pause, "RETURN TO BRIEFING", -540, ReturnToGuild);
+            Button(pause, "RESET GUILD PROGRESS (COINS + TOOLS)", -600, () => GuildEconomy.Instance?.ResetProgress());
             debriefPanel = Modal("Debrief", "SMALL WORK.\nGIANT DIFFERENCE.", "", out var result);
             debrief = Label(result, "", 22, cream, new Vector2(45,-225), new Vector2(550,150)); debrief.alignment = TextAlignmentOptions.Center;
             Button(result, "ANOTHER EXPEDITION", -430, () => game.Begin());
@@ -75,13 +80,21 @@ namespace TinyGiantProblems
             status.text = $"MOSSBACK  /  {game.player.ZoneName}\nComfort   {game.Comfort:0}%\nGrip          {game.player.grip:0}%\n{NetworkStatus}";
             jobs.text = "";
             for (int i = 0; i < game.jobs.Length; i++)
-            { var j = game.jobs[i]; jobs.text += $"{(j.state.Complete ? "<color=#86D8A0>DONE" : "0" + (i + 1))}  {j.title}{(j.state.Complete ? "</color>" : "")}\n"; }
+            {
+                var j = game.jobs[i];
+                var order = GuildEconomy.Instance && GuildEconomy.Instance.Board != null ? GuildEconomy.Instance.Board.CareOrder(i) : null;
+                string bounty = order != null ? $"  <color=#FFBC4A>{order.bounty}</color>" : "";
+                jobs.text += $"{(j.state.Complete ? "<color=#86D8A0>DONE" : "0" + (i + 1))}  {j.title}{(j.state.Complete ? "</color>" : "")}{bounty}\n";
+            }
             tools.text = "";
-            for (int i = 0; i < 4; i++) tools.text += (i == (int)game.player.selected ? "<color=#FFBC4A>" : "<color=#B7C9BF>") + $"[{i+1}] {(CareTool)i}   </color>";
             caption.text = game.Caption;
             prompt.text = game.Nearest ? $"{game.Nearest.title}  ·  {game.Nearest.tool}  ·  HOLD USE  {game.Nearest.state.Progress:P0}" : game.Phase == ExpeditionPhase.Extraction ? "All better! Return to the harness and press E / X to extract." : game.player.tethered ? "Tether secured  ·  hold R / LT to reel" : "";
             warning.text = game.WarningRemaining > 0 ? $"{game.Reaction} IN {Mathf.CeilToInt(game.WarningRemaining)}\n<size=21>HOLD F / B TO BRACE</size>" : "";
-            debrief.text = $"Mossback comfort  {game.Comfort:0}%\nCare jobs  {game.Completed}/3   ·   Safety rescues  {game.player.recoveries}\nGuild pay  {game.Reward}   ·   Best  {PlayerPrefs.GetInt("GuildBest")}\nExpedition time  {game.Elapsed / 60:0}:{game.Elapsed % 60:00}";
+            var econ = GuildEconomy.Instance;
+            var mess = MessField.Instance;
+            string coins = econ ? $"\nCoins earned this run  {econ.RunEarnings}   ·   Wallet  {econ.Coins}" : "";
+            string clean = mess ? $"   ·   Coat cleaned  {mess.Cleanliness:P0}" : "";
+            debrief.text = $"Mossback comfort  {game.Comfort:0}%{clean}\nCare jobs  {game.Completed}/3   ·   Safety rescues  {game.player.recoveries}\nGuild pay  {game.Reward}   ·   Best  {PlayerPrefs.GetInt("GuildBest")}{coins}\nExpedition time  {Mathf.FloorToInt(game.Elapsed / 60)}:{game.Elapsed % 60:00}";
         }
         GameObject Modal(string name, string title, string body, out RectTransform panel)
         {
