@@ -31,7 +31,8 @@ namespace TinyGiantProblems
         float recoverHold;
         InputAction move, look, jump, sprint, brace, use, interact, reel;
         public bool Using => automate ? UseOverride : use != null && use.IsPressed() && !GameUI.CapturesInput;
-        public bool UsePressedThisFrame => !automate && use != null && use.WasPressedThisFrame() && !GameUI.CapturesInput;
+        public bool UsePressedThisFrame => automate ? useOverrideEdge : use != null && use.WasPressedThisFrame() && !GameUI.CapturesInput;
+        bool useOverrideEdge, lastUseOverride;
         public bool Moving => capsule && new Vector2(capsule.velocity.x, capsule.velocity.z).sqrMagnitude > .4f;
         public bool InteractPressed => interact != null && interact.WasPressedThisFrame();
         public bool Active => Expedition.Instance && Expedition.Instance.IsPlaying && !Expedition.Instance.Paused;
@@ -59,6 +60,7 @@ namespace TinyGiantProblems
 
         void Update()
         {
+            useOverrideEdge = automate && UseOverride && !lastUseOverride; lastUseOverride = automate && UseOverride;
             if (!Active) { braced = false; return; }
             var dt = Time.deltaTime;
             grace = Mathf.Max(0, grace - dt);

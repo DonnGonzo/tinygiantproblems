@@ -31,6 +31,7 @@ namespace TinyGiantProblems
         InputAction scrollPad;
 
         public bool IsOpen => pack && pack.gameObject.activeSelf;
+        public void Open() { if (pack && !pack.gameObject.activeSelf) { pack.gameObject.SetActive(true); GameUI.RefreshCursor(); } }
         public void Close() { if (pack && pack.gameObject.activeSelf) { pack.gameObject.SetActive(false); EndDrag(); HideTooltip(); GameUI.MarkClosed(); GameUI.RefreshCursor(); } }
 
         void Awake() { Instance = this; GameUI.Register(this); }
@@ -149,7 +150,7 @@ namespace TinyGiantProblems
             bool shopOpen = GuildShopUI.Instance && GuildShopUI.Instance.IsOpen;
             if (scrollPad.WasPressedThisFrame() && !shopOpen)
             {
-                if (IsOpen) Close(); else { pack.gameObject.SetActive(true); GameUI.RefreshCursor(); }
+                if (IsOpen) Close(); else Open();
             }
             if (GameUI.CapturesInput) return;
             var kb = Keyboard.current; var mouse = Mouse.current; var pad = Gamepad.current;
