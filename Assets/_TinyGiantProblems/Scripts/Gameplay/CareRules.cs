@@ -1,7 +1,7 @@
 using System;
 namespace TinyGiantProblems
 {
-    public enum CareTool { Vacuum, Groomer, Sprayer, Tether }
+    public enum CareTool { Vacuum, Groomer, Sprayer, Tether, Hands }
     public enum ExpeditionPhase { Briefing, Working, Extraction, Debrief }
     [Serializable]
     public sealed class CareProgress

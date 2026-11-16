@@ -30,7 +30,10 @@ namespace TinyGiantProblems
         Vector3 supportLocal, supportLast;
         float recoverHold;
         InputAction move, look, jump, sprint, brace, use, interact, reel;
-        public bool Using => automate ? UseOverride : use != null && use.IsPressed();
+        public bool Using => automate ? UseOverride : use != null && use.IsPressed() && !GameUI.CapturesInput;
+        public bool UsePressedThisFrame => automate ? useOverrideEdge : use != null && use.WasPressedThisFrame() && !GameUI.CapturesInput;
+        bool useOverrideEdge, lastUseOverride;
+        public bool Moving => capsule && new Vector2(capsule.velocity.x, capsule.velocity.z).sqrMagnitude > .4f;
         public bool InteractPressed => interact != null && interact.WasPressedThisFrame();
         public bool Active => Expedition.Instance && Expedition.Instance.IsPlaying && !Expedition.Instance.Paused;
 
@@ -57,6 +60,7 @@ namespace TinyGiantProblems
 
         void Update()
         {
+            useOverrideEdge = automate && UseOverride && !lastUseOverride; lastUseOverride = automate && UseOverride;
             if (!Active) { braced = false; return; }
             var dt = Time.deltaTime;
             grace = Mathf.Max(0, grace - dt);
@@ -66,19 +70,8 @@ namespace TinyGiantProblems
                 capsule.Move(next - supportLast);
             }
             var kb = Keyboard.current;
-            if (kb != null)
-            {
-                if (kb.digit1Key.wasPressedThisFrame) selected = CareTool.Vacuum;
-                if (kb.digit2Key.wasPressedThisFrame) selected = CareTool.Groomer;
-                if (kb.digit3Key.wasPressedThisFrame) selected = CareTool.Sprayer;
-                if (kb.digit4Key.wasPressedThisFrame) selected = CareTool.Tether;
-            }
-            if (Gamepad.current != null)
-            {
-                if (Gamepad.current.rightShoulder.wasPressedThisFrame) selected = (CareTool)(((int)selected + 1) % 4);
-                if (Gamepad.current.leftShoulder.wasPressedThisFrame) selected = (CareTool)(((int)selected + 3) % 4);
-            }
-            if (selected == CareTool.Tether && use.WasPressedThisFrame()) ToggleTether();
+            // Tool selection lives in the hotbar (HotbarUI); it writes `selected`.
+            if (selected == CareTool.Tether && UsePressedThisFrame) ToggleTether();
             var input = automate ? new Vector2(MoveOverride.x, MoveOverride.z) : move.ReadValue<Vector2>();
             var turn = Quaternion.Euler(0, yaw, 0);
             var direction = turn * new Vector3(input.x, 0, input.y);
@@ -145,12 +138,19 @@ namespace TinyGiantProblems
                 orbitCamera.transform.LookAt(frame.TransformPoint(new Vector3(0,6,5))-orbitCamera.transform.right*12);
                 return;
             }
-            if (Active && !automate)
+            if (Active && !automate && !GameUI.CapturesInput)
             {
                 var d = look.ReadValue<Vector2>() * .12f;
                 if (Gamepad.current != null) d += Gamepad.current.rightStick.ReadValue() * Time.deltaTime * 110;
                 yaw += d.x; pitch = Mathf.Clamp(pitch - d.y, -12, 65);
-                if (Mouse.current != null) distance = Mathf.Clamp(distance - Mouse.current.scroll.ReadValue().y * .005f, 4, 15);
+                // Plain scroll belongs to the hotbar; hold Ctrl (or use - / =) to zoom.
+                bool zoomHeld = Keyboard.current != null && Keyboard.current.ctrlKey.isPressed;
+                if (Mouse.current != null && zoomHeld) distance = Mathf.Clamp(distance - Mouse.current.scroll.ReadValue().y * .005f, 4, 15);
+                if (Keyboard.current != null)
+                {
+                    if (Keyboard.current.minusKey.isPressed) distance = Mathf.Clamp(distance + Time.deltaTime * 6, 4, 15);
+                    if (Keyboard.current.equalsKey.isPressed) distance = Mathf.Clamp(distance - Time.deltaTime * 6, 4, 15);
+                }
             }
             Vector3 focus = transform.position + Vector3.up * 1.3f;
             var rotation = Quaternion.Euler(pitch, yaw, 0);

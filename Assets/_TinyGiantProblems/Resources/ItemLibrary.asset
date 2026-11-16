@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71aef833d3754daa9075e76d73b0ffed, type: 3}
+  m_Name: ItemLibrary
+  m_EditorClassIdentifier: 
+  entries:
+  - key: grooming-brush/grooming-brush
+    prefab: {fileID: 2762711522050629686, guid: f6637cafca1ec144193609615da0b01f, type: 3}
+  - key: pest-vacuum/pest-vacuum
+    prefab: {fileID: 4526165604776639607, guid: f38e28b477792fc46958b24c99b5c5c7, type: 3}
+  - key: soothing-sprayer/soothing-sprayer
+    prefab: {fileID: 943172800064454462, guid: 306a81cfe852c734fb115f328f99f12c, type: 3}
+  - key: rope-launcher/rope-launcher
+    prefab: {fileID: 8807966346081391069, guid: acb5c5354ffd5824db19b8de1ae3af67, type: 3}
+  - key: multi-grabber-tool/multi-grabber-tool
+    prefab: {fileID: 5377350985352040403, guid: 51e349835b51eec49bd8fc3d6258932e, type: 3}
+  - key: portable-scanner/portable-scanner
+    prefab: {fileID: 4614998929864384982, guid: 5dd013764ad912e4aaa7195356487011, type: 3}
+  - key: snack-launcher/snack-launcher
+    prefab: {fileID: 3376459035336974787, guid: 1f83f1449563eca4b92b26ad8530ebcf, type: 3}
+  - key: glider/glider
+    prefab: {fileID: 1456362532258971135, guid: a8ee30a482fcb984eb01dc2997c12e74, type: 3}
+  - key: plants/moss
+    prefab: {fileID: 1835147294326217921, guid: 35438389c62ef664f9cefe43344b8781, type: 3}
+  - key: burr-cluster/burr-cluster
+    prefab: {fileID: 2951261264970963555, guid: 4cf9f340baa0a854493c50a34c265db6, type: 3}
+  - key: branch/branch
+    prefab: {fileID: 2461444360897628943, guid: 9172be3388b0b174e842172314124e96, type: 3}
+  - key: spare-canister/spare-canister
+    prefab: {fileID: 1107735673406470195, guid: 146d95c7abc536549a74cb56c92ac670, type: 3}
+  - key: rocks/small-rock
+    prefab: {fileID: 6362984881147700471, guid: b82203553d65fc54597e62c0b632f4fb, type: 3}
+  - key: survey-drone/survey-drone
+    prefab: {fileID: 7680272034267890815, guid: 43fca81b942692d4f9571bd68d1aab3d, type: 3}
+  - key: bramblenmite/bramblenmite
+    prefab: {fileID: 5023422972970162693, guid: 2dd2d5ef218f4894f81439e40ecb657a, type: 3}
+  - key: tangled-fur-clump/tangled-fur-clump
+    prefab: {fileID: 3857098440837136572, guid: f05cb4404a3379c41aef5ebefa1e6f46, type: 3}
+  - key: guild-workshop-furniture-kit/workbench
+    prefab: {fileID: 3695065142687306861, guid: 637fc3966bea20842bcec50a038af153, type: 3}
+  - key: guild-workshop-furniture-kit/shelf
+    prefab: {fileID: 4805305183608209677, guid: d2ae564c7bfa7eb40b95b47a728a39e1, type: 3}
+  - key: chest/open-chest
+    prefab: {fileID: 7704465037949845603, guid: 060274084e53a334191df3057f167135, type: 3}
+  - key: chest/closed-chest
+    prefab: {fileID: 2560057447736513045, guid: fe8b09e9e3c9c794d992d5cb9cc35e7b, type: 3}
+  - key: tool-case/tool-case
+    prefab: {fileID: 2117701991260401960, guid: 773f447b6bb5b2a45b6a7c1f0c0ae299, type: 3}
+  - key: rescue-winch/rescue-winch
+    prefab: {fileID: 419147286712575915, guid: d5ed94c9108dc0843a294ed0c77d0797, type: 3}
+  - key: treatment-bottle/treatment-bottle
+    prefab: {fileID: 5683628989612344333, guid: 9baf3ffc1a3a0cb4bb0b5578c503de9a, type: 3}
+  baseMaterial: {fileID: 2100000, guid: e73e344b6685131438e6081d8cfbc28b, type: 2}
+  particleMaterial: {fileID: 2100000, guid: 16872c3f1092b1743a5b0631c47b83af, type: 2}
