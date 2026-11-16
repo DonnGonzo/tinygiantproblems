@@ -231,7 +231,7 @@ namespace TinyGiantProblems
             File.WriteAllBytes($"{Folder}/{name}.png", tex.EncodeToPNG());
             RenderTexture.active = prev; cam.targetTexture = prevTarget;
             Destroy(tex); rt.Release(); Destroy(rt);
-            foreach (var (c, mode, wc, pd) in modes) { c.renderMode = mode; c.worldCamera = wc; c.planeDistance = pd; }
+            foreach (var m in modes) { m.Item1.renderMode = m.Item2; m.Item1.worldCamera = m.Item3; m.Item1.planeDistance = m.Item4; }
             cam.transform.SetPositionAndRotation(oldPos, oldRot);
         }
     }
