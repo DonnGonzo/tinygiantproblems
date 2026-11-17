@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2358090985454670814}
+  - component: {fileID: 3961123675767162930}
   m_Layer: 0
   m_Name: large-rock
   m_TagString: Untagged
@@ -32,6 +33,21 @@ Transform:
   - {fileID: 1418117960200897764}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3961123675767162930
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2360650757326469765}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a4c7a03ef806324a94b93809723a6a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TinyGiantProblems.PropCollisionPolicy
+  surfaces:
+  - {fileID: 5699871666605417139}
+  traversalArt: 0
 --- !u!1001 &1451447398636004111
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -103,10 +119,40 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8164078558771037576, guid: e3a85af93f3ab65429a4b59f43f09c97, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5699871666605417139}
   m_SourcePrefab: {fileID: 100100000, guid: e3a85af93f3ab65429a4b59f43f09c97, type: 3}
 --- !u!4 &1418117960200897764 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: e3a85af93f3ab65429a4b59f43f09c97, type: 3}
   m_PrefabInstance: {fileID: 1451447398636004111}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &7307144862576633479 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8164078558771037576, guid: e3a85af93f3ab65429a4b59f43f09c97, type: 3}
+  m_PrefabInstance: {fileID: 1451447398636004111}
+  m_PrefabAsset: {fileID: 0}
+--- !u!64 &5699871666605417139
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7307144862576633479}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -2432090755550338912, guid: ec26d76600ca2d54c90b2f9094e60521, type: 3}

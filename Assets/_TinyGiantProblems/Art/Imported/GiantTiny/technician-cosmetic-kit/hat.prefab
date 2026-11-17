@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5555408068286813535}
+  - component: {fileID: 7595430905705607769}
   m_Layer: 0
   m_Name: hat
   m_TagString: Untagged
@@ -32,6 +33,21 @@ Transform:
   - {fileID: 6474609843210385642}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7595430905705607769
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6151029481134450853}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a4c7a03ef806324a94b93809723a6a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TinyGiantProblems.PropCollisionPolicy
+  surfaces:
+  - {fileID: 5071141785977415094}
+  traversalArt: 0
 --- !u!1001 &6796167289108438785
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -103,8 +119,38 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8164078558771037576, guid: 608047cbdd21a0b4a919cae9ac8002f4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5071141785977415094}
   m_SourcePrefab: {fileID: 100100000, guid: 608047cbdd21a0b4a919cae9ac8002f4, type: 3}
+--- !u!1 &3394715856442120841 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8164078558771037576, guid: 608047cbdd21a0b4a919cae9ac8002f4, type: 3}
+  m_PrefabInstance: {fileID: 6796167289108438785}
+  m_PrefabAsset: {fileID: 0}
+--- !u!64 &5071141785977415094
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3394715856442120841}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -2432090755550338912, guid: f35471ac7fcc7e94f92fef5a8fab3da3, type: 3}
 --- !u!4 &6474609843210385642 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 608047cbdd21a0b4a919cae9ac8002f4, type: 3}
