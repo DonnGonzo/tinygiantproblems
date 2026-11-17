@@ -15,6 +15,11 @@ namespace TinyGiantProblems
         public float grip = 100;
         public float grace;
         public bool braced, climbing, grounded, tethered;
+        // True while the Climbing Claw (not a harness rung) is holding on.
+        public bool clawing;
+        float pinned, swingT = -1;
+        Vector3 swingFrom, swingTo;
+        public bool Swinging => swingT >= 0;
         public int recoveries;
         public CareTool selected;
         public string ZoneName { get; private set; } = "Guild harness";
@@ -67,6 +72,16 @@ namespace TinyGiantProblems
             if (!Active) { braced = false; return; }
             var dt = Time.deltaTime;
             grace = Mathf.Max(0, grace - dt);
+            if (swingT >= 0)
+            {
+                // Arc out and over the bulge, claw first.
+                swingT = Mathf.Min(1, swingT + dt / .55f);
+                var arc = Vector3.Lerp(swingFrom, swingTo, Mathf.SmoothStep(0, 1, swingT)) + Vector3.up * Mathf.Sin(swingT * Mathf.PI) * .8f;
+                capsule.enabled = false; transform.position = arc; capsule.enabled = true;
+                velocity = Vector3.zero; climbing = true; clawing = true; SetSupport(null);
+                if (swingT >= 1) swingT = -1;
+                return;
+            }
             if (support)
             {
                 var next = support.TransformPoint(supportLocal);
@@ -90,9 +105,24 @@ namespace TinyGiantProblems
             }
             else SetSupport(null);
             bool wasClimbing = climbing;
-            climbing = false;
+            bool wasClawing = clawing;
+            climbing = false; clawing = false;
             var wallDirection = direction.sqrMagnitude > .01f ? direction.normalized : model.forward;
-            if (BraceHeld && grip > 0 && Physics.Raycast(transform.position + Vector3.up, wallDirection, out var wall, 1.2f) && wall.collider.GetComponentInParent<ClimbableZone>())
+            var claw = ClimbingClaw.For(this);
+            if (claw && claw.TryGrip(wallDirection, input, dt, out var clawWall))
+            {
+                // Climbing Claw: scale any steep part of Mossback. Up follows the
+                // surface, a light push keeps the claw dug in.
+                climbing = true; clawing = true;
+                SetSupport(clawWall.collider.transform);
+                velocity = Vector3.zero;
+                var surfaceUp = Vector3.ProjectOnPlane(Vector3.up, clawWall.normal).normalized;
+                var side = Vector3.Cross(clawWall.normal, surfaceUp).normalized;
+                direction = surfaceUp * input.y * .6f + side * input.x * .6f - clawWall.normal * .25f;
+                var face = -clawWall.normal; face.y = 0;
+                if (face.sqrMagnitude > .01f) model.rotation = Quaternion.Slerp(model.rotation, Quaternion.LookRotation(face), dt * 10);
+            }
+            else if (BraceHeld && grip > 0 && Physics.Raycast(transform.position + Vector3.up, wallDirection, out var wall, 1.2f) && wall.collider.GetComponentInParent<ClimbableZone>())
             {
                 climbing = true;
                 SetSupport(wall.collider.transform);
@@ -100,7 +130,8 @@ namespace TinyGiantProblems
                 direction = Vector3.up * input.y * .65f + Vector3.Cross(Vector3.up, wall.normal) * input.x * .65f;
                 grip = Mathf.Max(0, grip - dt * 7);
             }
-            if (wasClimbing && !climbing && BraceHeld && input.y > 0) { capsule.Move(Vector3.up * .8f + wallDirection * .7f); velocity.y = 2; }
+            // Pull up over the lip when a climb runs out at the top.
+            if (wasClimbing && !climbing && (BraceHeld || wasClawing && claw && !claw.Exhausted) && input.y > 0) { capsule.Move(Vector3.up * .8f + wallDirection * .7f); velocity.y = 2; }
             braced = BraceHeld && grounded && !climbing && grip > 0;
             if (braced) grip = Mathf.Max(0, grip - dt * 4);
             else if (!climbing) grip = Mathf.Min(100, grip + dt * 12);
@@ -120,6 +151,14 @@ namespace TinyGiantProblems
                 }
             }
             capsule.Move((planar + velocity) * dt);
+            // Claw under a bulge: once the head has been pinned by the overhang for
+            // a moment, reach around it and swing up to the face above.
+            pinned = clawing && input.y > 0 && (capsule.collisionFlags & CollisionFlags.Above) != 0 ? pinned + dt : 0;
+            if (pinned > .35f && claw && claw.FindSwingTarget(out var swingTarget))
+            {
+                swingFrom = transform.position; swingTo = swingTarget; swingT = 0; pinned = 0;
+                ProceduralSfx.Play(ProceduralSfx.Whoosh, .5f);
+            }
             velocity.x = Mathf.MoveTowards(velocity.x, 0, 8 * dt);
             velocity.z = Mathf.MoveTowards(velocity.z, 0, 8 * dt);
             if (planar.sqrMagnitude > .05f && !climbing)
@@ -185,7 +224,7 @@ namespace TinyGiantProblems
             if (!CareRules.LaunchAllowed(braced, tethered, grace)) return;
             velocity = Vector3.ClampMagnitude(impulse, 15); SetSupport(null); grace = 3;
         }
-        public void Warp(Vector3 position) { capsule.enabled = false; transform.position = position; capsule.enabled = true; velocity = Vector3.zero; SetSupport(null); }
+        public void Warp(Vector3 position) { capsule.enabled = false; transform.position = position; capsule.enabled = true; velocity = Vector3.zero; SetSupport(null); var fall = GetComponent<FallHurt>(); if (fall) fall.ResetApex(); }
         public void Recover() { recoveries++; Warp(checkpoint.position); tethered = false; climbing = false; grace = 6; Expedition.Instance.Caption = "[Safety winch] Back on the harness. Your work is safe."; }
         public void ResetMotor() { recoveries = 0; grip = 100; grace = 6; tethered = false; braced = false; stunned = 0; selected = CareTool.Vacuum; Warp(checkpoint.position); }
     }

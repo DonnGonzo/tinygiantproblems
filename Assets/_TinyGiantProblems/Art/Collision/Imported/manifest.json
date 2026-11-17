@@ -1,0 +1,287 @@
+{
+  "baby-creature/baby-creature.obj": {
+    "sha256": "992e95e38d4649eb3650c7b988633d51f23247dedf67ae83a9f401965f13b558",
+    "sourceTriangles": 40000,
+    "collisionTriangles": 2500
+  },
+  "boarding-dock/boarding-dock.obj": {
+    "sha256": "8244746ec6a270a8f2b2230aa1e58dc2ec4c64a2f42fc16ab2496a54814d0286",
+    "sourceTriangles": 40000,
+    "collisionTriangles": 2500
+  },
+  "bramblenmite/bramblenmite.obj": {
+    "sha256": "01b8852d600eff99d585b1a1a4e1cc72eea90eab1e7cb2553c67653073a7adc0",
+    "sourceTriangles": 40000,
+    "collisionTriangles": 2500
+  },
+  "branch/branch.obj": {
+    "sha256": "16a76b1a5ec86eb7392fc055f61cde932e42750b594e6b61d3366864bc06a760",
+    "sourceTriangles": 40000,
+    "collisionTriangles": 2500
+  },
+  "burr-cluster/burr-cluster.obj": {
+    "sha256": "fb76df23711dad48f0d87058ac4c10ee2d7edc0748812a37dc6d4f6afd1085d6",
+    "sourceTriangles": 40000,
+    "collisionTriangles": 2500
+  },
+  "chest/chest.obj": {
+    "sha256": "48f8910dcf209133355612575458110a3f35ad37e6a4effdb3cc3bced4b9e6fb",
+    "sourceTriangles": 40000,
+    "collisionTriangles": 2500
+  },
+  "chest/closed-chest.obj": {
+    "sha256": "ee7eca0f29d8453235d9d5d92d321b70d211cf817e7ac9c79d0413f3314b1aaa",
+    "sourceTriangles": 16526,
+    "collisionTriangles": 2500
+  },
+  "chest/open-chest.obj": {
+    "sha256": "ed4bb854e697799fc0c9d42c41f31a5be47ae3c3850dff9f2f557088a3274890",
+    "sourceTriangles": 23474,
+    "collisionTriangles": 2500
+  },
+  "decking-and-rope-ladder-kit/decking-and-rope-ladder-kit.obj": {
+    "sha256": "725cfe868684a1a7ebcff6584498292a56f7d3d1679206ae85572f897a09b24a",
+    "sourceTriangles": 699602,
+    "collisionTriangles": 2500
+  },
+  "decking-and-rope-ladder-kit/plain-deck.obj": {
+    "sha256": "f537d06873c57c62f55fb497aecab052560b4f84f409acb6453addcea96871fc",
+    "sourceTriangles": 264308,
+    "collisionTriangles": 2500
+  },
+  "decking-and-rope-ladder-kit/railed-deck.obj": {
+    "sha256": "121462ed0fc1618846c776dee6bb517b32b6541f216086e511cb8ccb304e5589",
+    "sourceTriangles": 329288,
+    "collisionTriangles": 2500
+  },
+  "decking-and-rope-ladder-kit/rope-ladder.obj": {
+    "sha256": "fb5484dd77f2a9a947ab48fcde205c76521a5fd634d33231e0da735132c34b22",
+    "sourceTriangles": 106006,
+    "collisionTriangles": 2500
+  },
+  "extraction-beacon/beacon-clean.obj": {
+    "sha256": "8d2117946f64573597357d2cd99ad678a76057db0fc082b6251a08acecf69ae6",
+    "sourceTriangles": 699710,
+    "collisionTriangles": 2500
+  },
+  "extraction-beacon/extraction-beacon.obj": {
+    "sha256": "f29cc179ce3b9b38adf76a04ad3fadba4d75b3a61276aa6247047f7ba27f815b",
+    "sourceTriangles": 699710,
+    "collisionTriangles": 2500
+  },
+  "glider/glider.obj": {
+    "sha256": "3e5fffb29d416b9470e3af13b537133bef89364cc3f40e65dc3bcf007c4c5d62",
+    "sourceTriangles": 699994,
+    "collisionTriangles": 2500
+  },
+  "grooming-brush/grooming-brush.obj": {
+    "sha256": "ef2f6fec01029d132cd9dd99a72ed89db3a23e09478b4ada9584997ce5e202b3",
+    "sourceTriangles": 40000,
+    "collisionTriangles": 2500
+  },
+  "guild-workshop-furniture-kit/guild-workshop-furniture-kit.obj": {
+    "sha256": "4bb4cfc3c4d82b139a82afa31019b7ea46a3ab567a44cf0f6dcea6a5702da747",
+    "sourceTriangles": 40000,
+    "collisionTriangles": 2500
+  },
+  "guild-workshop-furniture-kit/shelf.obj": {
+    "sha256": "d6b6ac27c853613864b0bb64984d27b8f2d83b32769fd1ba6d17e8e9b7ee15b5",
+    "sourceTriangles": 17056,
+    "collisionTriangles": 2500
+  },
+  "guild-workshop-furniture-kit/stool.obj": {
+    "sha256": "0860424ec269b0f650538116ed4a6c3fe388409fab80b48810419ba3b119dfc4",
+    "sourceTriangles": 6750,
+    "collisionTriangles": 2500
+  },
+  "guild-workshop-furniture-kit/workbench.obj": {
+    "sha256": "c52709c06ee56293750ac1b1fa0d3baf4f330a94342d41b3245ac430310e0a5b",
+    "sourceTriangles": 16194,
+    "collisionTriangles": 2500
+  },
+  "multi-grabber-tool/multi-grabber-tool.obj": {
+    "sha256": "44a1457c1190cf452c24d5e56c75b40df6ceafd3bb70dc8b97a048c87a02a482",
+    "sourceTriangles": 40000,
+    "collisionTriangles": 2500
+  },
+  "pest-vacuum/pest-vacuum.obj": {
+    "sha256": "32246bb39b2091a7175539c14e9d923169fc71da2ffe9bd116243e175d9adc24",
+    "sourceTriangles": 40000,
+    "collisionTriangles": 2500
+  },
+  "plants/fern.obj": {
+    "sha256": "3741cd3d38e0dc38c2caa91806f82825d72874538fb5f374aecc7cb4b52ccc51",
+    "sourceTriangles": 7108,
+    "collisionTriangles": 2500
+  },
+  "plants/flowers.obj": {
+    "sha256": "8c2fc7f451db8bfe432f16aa59fe1b7333b48a0d9dce10776cc98304be44e21f",
+    "sourceTriangles": 4398,
+    "collisionTriangles": 2500
+  },
+  "plants/moss.obj": {
+    "sha256": "092d8d21406952c4195a259976fc8fb9857f36421ba51ef808d4c639f18e9ba0",
+    "sourceTriangles": 3502,
+    "collisionTriangles": 2500
+  },
+  "plants/plant-group.obj": {
+    "sha256": "349ee3a541165f19c17f78dc390362dda1e20a3709941ce191eaec3b7db7bee0",
+    "sourceTriangles": 24992,
+    "collisionTriangles": 2500
+  },
+  "plants/plants.obj": {
+    "sha256": "42729d0c271293b9909d7a29e674353f99b1d6e211d3d1e59ab9c9f707226377",
+    "sourceTriangles": 40000,
+    "collisionTriangles": 2500
+  },
+  "platforrms/lower-platform.obj": {
+    "sha256": "842834ec842e9eb2121d27d8d45e9318f873d636bbf32766d7cfcc9841805fdf",
+    "sourceTriangles": 23030,
+    "collisionTriangles": 2500
+  },
+  "platforrms/platforrms.obj": {
+    "sha256": "5a073b492bd1dc2af9881e386b9d7644c1eafda365fe8790ef7cc1fbbdd49fc6",
+    "sourceTriangles": 40000,
+    "collisionTriangles": 2500
+  },
+  "platforrms/upper-platform.obj": {
+    "sha256": "fa210682c465cf12a3a91307b3311f24e23e210268c63980ce947bbccb1aca2f",
+    "sourceTriangles": 16970,
+    "collisionTriangles": 2500
+  },
+  "portable-scanner/portable-scanner.obj": {
+    "sha256": "da5a7aa0f8ac370fa86299ec62159ad72e4d462312854e36d7ac56e2e987b74f",
+    "sourceTriangles": 40000,
+    "collisionTriangles": 2500
+  },
+  "rescue-winch/rescue-winch.obj": {
+    "sha256": "04f1f5f72f7d4b903b58b9aefd2146562a7d3b882fb4f8f7ad913085c3a1862c",
+    "sourceTriangles": 40000,
+    "collisionTriangles": 2500
+  },
+  "rocks/large-rock.obj": {
+    "sha256": "aa62b2982d5f67d028e61725959cade50b9e28dacbd24fc33fae4eb6213dcbe4",
+    "sourceTriangles": 5958,
+    "collisionTriangles": 2500
+  },
+  "rocks/medium-rock.obj": {
+    "sha256": "91bfd158b2c093364e0d35c8cd7ffb3169f0a0966812c7b4bbcb968c61d72eb7",
+    "sourceTriangles": 4392,
+    "collisionTriangles": 2500
+  },
+  "rocks/rock-arch.obj": {
+    "sha256": "d773845dbd48a65156ebf67a0f9ccab2e49861848b8cc30d6ba42cf56d5f2b42",
+    "sourceTriangles": 26978,
+    "collisionTriangles": 2500
+  },
+  "rocks/rocks.obj": {
+    "sha256": "f4c8c1e8594984ae3b82e6b7bf9acf167f6b0e38398b40aa9c7d780748ae9f53",
+    "sourceTriangles": 40000,
+    "collisionTriangles": 2500
+  },
+  "rocks/small-rock.obj": {
+    "sha256": "25c08eb91bc706d6e955fc53d845c2a66a28ce4645762fda9cd14cc800a4e84a",
+    "sourceTriangles": 2672,
+    "collisionTriangles": 2500
+  },
+  "rope-launcher/rope-launcher.obj": {
+    "sha256": "f22b07cba5a8c3688ae6d09fed4cae2b03664ecd265e643ba6e4f472bf5236d7",
+    "sourceTriangles": 699676,
+    "collisionTriangles": 2500
+  },
+  "snack-launcher/snack-launcher.obj": {
+    "sha256": "c72bfecdada25d61b8c1672a8bb68c06a48ade2910fc614c1faf5fc0da4be3c3",
+    "sourceTriangles": 40000,
+    "collisionTriangles": 2500
+  },
+  "soothing-sprayer/soothing-sprayer.obj": {
+    "sha256": "2fef10478a1e96c46b8d47a4664ee199bb53d08234ea59766c542e8a5f40a408",
+    "sourceTriangles": 40000,
+    "collisionTriangles": 2500
+  },
+  "spare-canister/spare-canister.obj": {
+    "sha256": "6cd4f8d2ebf69080a74d5333d99c2c0adfb2e76a032a9ff1a2bafd5b237da7d4",
+    "sourceTriangles": 699268,
+    "collisionTriangles": 2500
+  },
+  "survey-drone/survey-drone.obj": {
+    "sha256": "cab4ebe61846be2796194fcad8608f6a262cb287de8691f3418a410135267577",
+    "sourceTriangles": 40000,
+    "collisionTriangles": 2500
+  },
+  "tangled-fur-clump/tangled-fur-clump.obj": {
+    "sha256": "39a0a4c40b1ae733e4c7b6eddb37fd3ed60b1c6fa7c38a3b3017c8504484e1ca",
+    "sourceTriangles": 699624,
+    "collisionTriangles": 2500
+  },
+  "technician-cosmetic-kit/hat.obj": {
+    "sha256": "15772bfa36071dc68e00d752a8575a3d7fc8217202d38638d8280edd18d41241",
+    "sourceTriangles": 20466,
+    "collisionTriangles": 2500
+  },
+  "technician-cosmetic-kit/pouch.obj": {
+    "sha256": "bf1a2c128df0ee825d53e4d24a91cdeb68e45e687eb9cc6df7a71e111c7d7bc8",
+    "sourceTriangles": 9638,
+    "collisionTriangles": 2500
+  },
+  "technician-cosmetic-kit/scarf.obj": {
+    "sha256": "a77a858b8331b555e9d804cf05a9aebc2be60787335463bb4c17a5b8d8ab0551",
+    "sourceTriangles": 9896,
+    "collisionTriangles": 2500
+  },
+  "technician-cosmetic-kit/technician-cosmetic-kit.obj": {
+    "sha256": "b05de7de11f67856563682e0ec74f558f7514fb3fed5b1515bc5e430b189f7f4",
+    "sourceTriangles": 40000,
+    "collisionTriangles": 2500
+  },
+  "textured_mesh/textured_mesh.obj": {
+    "sha256": "e96a0d1a58cd3641fbf5d61b433924ca189a86143f4e90757d48afefd74e710b",
+    "sourceTriangles": 40000,
+    "collisionTriangles": 2500
+  },
+  "tool-case/tool-case.obj": {
+    "sha256": "f59075dbfeba8fea4cf5010c177964ff268d71b45a73c571bfe692028816cc24",
+    "sourceTriangles": 40000,
+    "collisionTriangles": 2500
+  },
+  "treatment-bottle/treatment-bottle.obj": {
+    "sha256": "8e6c688df533bfcca0de180f267832db8b4e753574bc5f73aa814e7b62972c9f",
+    "sourceTriangles": 40000,
+    "collisionTriangles": 2500
+  },
+  "trees/bent-tree.obj": {
+    "sha256": "2153417a301959b94c872123dd3c8b1b8e075488816ede0c476cd4a05e8a0fc5",
+    "sourceTriangles": 6904,
+    "collisionTriangles": 2500
+  },
+  "trees/broad-tree.obj": {
+    "sha256": "12c3ac70996624102ec50858d8bc7089136f0397d40bb54d6334d96ffd23b95d",
+    "sourceTriangles": 21722,
+    "collisionTriangles": 2500
+  },
+  "trees/tall-tree.obj": {
+    "sha256": "703f0bfb08cc098d9fba21e3252c5c48ea9420b0c6bbed5d30021cc00c0acdad",
+    "sourceTriangles": 11374,
+    "collisionTriangles": 2500
+  },
+  "trees/trees.obj": {
+    "sha256": "9c2343ae3cbcd33ea4be13c7b2e229ede5073be46951e7cd2cb2e6815c3adcaa",
+    "sourceTriangles": 40000,
+    "collisionTriangles": 2500
+  },
+  "climbing-claw/climbing-claw.obj": {
+    "sha256": "afd309852a41e224f2a1d65ba6037fc21b97deacbe0784b2b851a02d9226ad83",
+    "sourceTriangles": 4998,
+    "collisionTriangles": 2500
+  },
+  "mountain/mountain.obj": {
+    "sha256": "98221584d30ee7a896c64b033394c046f032c19f4c3e952c9a5b8ebc6f442f55",
+    "sourceTriangles": 10000,
+    "collisionTriangles": 2500
+  },
+  "technician/technician.obj": {
+    "sha256": "ae7258be20b2d86e50d3f9cde2553c69b40002c630860d4522e5594e61a37ba5",
+    "sourceTriangles": 21998,
+    "collisionTriangles": 2500
+  }
+}

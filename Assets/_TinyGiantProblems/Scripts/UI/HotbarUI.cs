@@ -55,7 +55,7 @@ namespace TinyGiantProblems
             selectionFrame = UIKit.Panel(hotbarBar, "Selection", new Vector2(0, .5f), Vector2.zero, Vector2.one * (Slot + 10), UIKit.Gold);
             for (int i = 0; i < Inventory.HotbarSize; i++)
                 views.Add(MakeSlot(hotbarBar, i, new Vector2(10 + i * (Slot + Gap), 0), true));
-            selectedName = UIKit.Label(root, "", 20, UIKit.Cream, new Vector2(.5f, 0), new Vector2(0, 100), new Vector2(600, 30), TextAlignmentOptions.Center);
+            selectedName = UIKit.Label(root, "", 20, UIKit.Cream, new Vector2(.5f, 0), new Vector2(0, 132), new Vector2(600, 30), TextAlignmentOptions.Center);
             selectedGroup = selectedName.gameObject.AddComponent<CanvasGroup>();
 
             // Backpack window
@@ -266,6 +266,7 @@ namespace TinyGiantProblems
                     else if (def.id == ItemId.Scanner) text = ab.ScanReady > 0 ? $"Scanner recharging {ab.ScanReady:0}s" : "USE to ping nearby mess and finds";
                     else if (def.id == ItemId.SnackLauncher) text = ab.SnackReady > 0 ? $"Snack launcher reloading {ab.SnackReady:0}s" : "USE to lob a snack toward Mossback's mouth";
                     else if (def.id == ItemId.Glider) text = ab.Gliding ? "Gliding..." : "Equipped: falls become gentle glides";
+                    else if (def.id == ItemId.Claw) { var claw = ClimbingClaw.For(p); text = claw && claw.Exhausted ? "Claw stamina spent: rest on solid ground" : claw && claw.Active ? $"Clawing up · stamina {claw.stamina:0}%" : "Walk into Mossback's flanks to climb · SPACE to let go"; }
                 }
             }
             prompt.text = text;

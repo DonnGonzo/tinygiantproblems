@@ -151,10 +151,31 @@ namespace TinyGiantProblems
         public static Vector3 lockerLocal = new Vector3(-2.7f, 12.12f, -13f);
         public static Vector3 yardWorld = new Vector3(-42f, 0, -8f);
 
+        // The harness layout differs between scene versions: stand the lift top
+        // on the left side arm of the harness deck and the locker on the right
+        // arm, measured from the scene's own deck colliders.
+        static void FitToHarness(Transform frame)
+        {
+            foreach (var zone in frame.GetComponentsInChildren<ClimbableZone>())
+            {
+                if (zone.zoneName != "Harness") continue;
+                foreach (var c in zone.GetComponentsInChildren<BoxCollider>())
+                {
+                    if (c.name != "Side access collision") continue;
+                    var a = frame.InverseTransformPoint(c.bounds.min); var b = frame.InverseTransformPoint(c.bounds.max);
+                    var min = Vector3.Min(a, b); var max = Vector3.Max(a, b);
+                    float midZ = (min.z + max.z) * .5f;
+                    if (max.x < 0) liftTopLocal = new Vector3(min.x + 1.6f, max.y + .02f, midZ);
+                    else lockerLocal = new Vector3(min.x + 2.1f, max.y + .02f, midZ);
+                }
+            }
+        }
+
         public static void Build(Expedition game)
         {
             var frame = game.creature.transform;
             var root = new GameObject("Guild stations").transform;
+            FitToHarness(frame);
 
             // Tool locker on the harness, at the existing supply chest.
             var locker = new GameObject("Guild Tool Locker").AddComponent<ToolLocker>();

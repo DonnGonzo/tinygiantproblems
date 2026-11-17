@@ -7,7 +7,7 @@ namespace TinyGiantProblems
     {
         None = 0,
         // Tools
-        Brush = 1, Vacuum = 2, Sprayer = 3, RopeLauncher = 4, Grabber = 5, Scanner = 6, SnackLauncher = 7, Glider = 8,
+        Brush = 1, Vacuum = 2, Sprayer = 3, RopeLauncher = 4, Grabber = 5, Scanner = 6, SnackLauncher = 7, Glider = 8, Claw = 9,
         // Upgrades (owned, never placed in a slot)
         BigSack = 30, TurboBristles = 31,
         // Debris and finds (stackable, sold at the salvage station)
@@ -49,6 +49,7 @@ namespace TinyGiantProblems
             Tool(ItemId.Grabber, "Multi-Grabber", "GR", "Hold USE to pull loose debris from 10 m away.", CareTool.Hands, 150, false, new Color(.55f, .62f, .86f), "multi-grabber-tool/multi-grabber-tool");
             Tool(ItemId.Scanner, "Portable Scanner", "SC", "Pings every mess and hidden find nearby.", CareTool.Hands, 180, false, new Color(.45f, .86f, .95f), "portable-scanner/portable-scanner");
             Tool(ItemId.SnackLauncher, "Snack Launcher", "SN", "Lob a treat: big comfort, delays the next sneeze.", CareTool.Hands, 250, false, new Color(.98f, .55f, .3f), "snack-launcher/snack-launcher");
+            Tool(ItemId.Claw, "Climbing Claw", "CL", "Walk into Mossback's flanks to climb anywhere. Watch the claw stamina bar.", CareTool.Hands, 200, false, new Color(.86f, .66f, .25f), "climbing-claw/climbing-claw");
             Tool(ItemId.Glider, "Wind Glider", "GL", "Equip while falling to float down gently.", CareTool.Hands, 300, false, new Color(.72f, .9f, .55f), "glider/glider");
             Upgrade(ItemId.BigSack, "Big Debris Sack", "+S", "Debris stacks hold 32 instead of 16.", 100, new Color(.75f, .58f, .38f));
             Upgrade(ItemId.TurboBristles, "Turbo Bristles", "+T", "Brush and vacuum work 50% faster.", 220, new Color(.98f, .8f, .3f));

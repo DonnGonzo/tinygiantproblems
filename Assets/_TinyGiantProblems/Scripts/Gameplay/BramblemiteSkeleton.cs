@@ -17,12 +17,16 @@ namespace TinyGiantProblems
         void Update()
         {
             bool complete=job && job.state.Complete;
-            solid.enabled=!complete;
+            // Copies spawned through GameArt.Model (mess field, debris) have their
+            // colliders stripped; they still animate, just without posed collision.
+            bool hasCollision=solid && physicsSkin;
+            if(hasCollision)solid.enabled=!complete;
             if(complete){ResetPose();return;}
             var game=Expedition.Instance;
             bool vacuuming=job && game && game.IsPlaying && !game.Paused && game.Nearest==job && game.player.Using && game.player.selected==CareTool.Vacuum;
             clock+=Time.deltaTime*(vacuuming?2.4f:1);
             Pose(clock,vacuuming?1.7f:1);
+            if(!hasCollision)return;
             if(Time.unscaledTime>=nextBake){physicsSkin.BakeMesh(posedCollision,true);solid.sharedMesh=null;solid.sharedMesh=posedCollision;nextBake=Time.unscaledTime+.05f;}
             Physics.SyncTransforms();
         }
