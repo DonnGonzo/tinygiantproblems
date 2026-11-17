@@ -41,6 +41,7 @@ namespace TinyGiantProblems
             squash = Mathf.MoveTowards(squash, 0, dt * 4);
             float stretch = !motor.grounded && !motor.climbing ? Mathf.Clamp(motor.velocity.y * .015f, -.08f, .1f) : 0;
             float bob = Mathf.Abs(Mathf.Sin(phase)) * .07f * walk - squash * .12f;
+            if (motor.stunned > 0) bob += Mathf.Sin(Time.time * 70) * .025f;
             float lean = walk * 3;
             foreach (var b in body)
             {

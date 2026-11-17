@@ -30,7 +30,10 @@ namespace TinyGiantProblems
         Vector3 supportLocal, supportLast;
         float recoverHold;
         InputAction move, look, jump, sprint, brace, use, interact, reel;
-        public bool Using => automate ? UseOverride : use != null && use.IsPressed() && !GameUI.CapturesInput;
+        public bool Using => stunned <= 0 && (automate ? UseOverride : use != null && use.IsPressed() && !GameUI.CapturesInput);
+        // Paralysis from a Bramblemite sting: no movement, jumping or tool use.
+        public float stunned;
+        public void Stun(float seconds) { if (grace <= 0) stunned = Mathf.Max(stunned, seconds); }
         public bool UsePressedThisFrame => automate ? useOverrideEdge : use != null && use.WasPressedThisFrame() && !GameUI.CapturesInput;
         bool useOverrideEdge, lastUseOverride;
         public bool Moving => capsule && new Vector2(capsule.velocity.x, capsule.velocity.z).sqrMagnitude > .4f;
@@ -73,6 +76,8 @@ namespace TinyGiantProblems
             // Tool selection lives in the hotbar (HotbarUI); it writes `selected`.
             if (selected == CareTool.Tether && UsePressedThisFrame) ToggleTether();
             var input = automate ? new Vector2(MoveOverride.x, MoveOverride.z) : move.ReadValue<Vector2>();
+            stunned = Mathf.Max(0, stunned - dt);
+            if (stunned > 0) input = Vector2.zero;
             var turn = Quaternion.Euler(0, yaw, 0);
             var direction = turn * new Vector3(input.x, 0, input.y);
             grounded = Physics.SphereCast(transform.position + Vector3.up * .55f, .26f, Vector3.down, out var ground, .42f, ~0, QueryTriggerInteraction.Ignore);
@@ -99,7 +104,7 @@ namespace TinyGiantProblems
             braced = BraceHeld && grounded && !climbing && grip > 0;
             if (braced) grip = Mathf.Max(0, grip - dt * 4);
             else if (!climbing) grip = Mathf.Min(100, grip + dt * 12);
-            if (jump.WasPressedThisFrame() && (grounded || climbing)) { velocity.y = 7; climbing = false; SetSupport(null); }
+            if (stunned <= 0 && jump.WasPressedThisFrame() && (grounded || climbing)) { velocity.y = 7; climbing = false; SetSupport(null); }
             if (!climbing) velocity.y = Mathf.Max(-28, velocity.y - 20 * dt);
             var planar = direction * (sprint.IsPressed() ? 8 : 5);
             if (braced) planar = Vector3.zero;
@@ -182,6 +187,6 @@ namespace TinyGiantProblems
         }
         public void Warp(Vector3 position) { capsule.enabled = false; transform.position = position; capsule.enabled = true; velocity = Vector3.zero; SetSupport(null); }
         public void Recover() { recoveries++; Warp(checkpoint.position); tethered = false; climbing = false; grace = 6; Expedition.Instance.Caption = "[Safety winch] Back on the harness. Your work is safe."; }
-        public void ResetMotor() { recoveries = 0; grip = 100; grace = 6; tethered = false; braced = false; selected = CareTool.Vacuum; Warp(checkpoint.position); }
+        public void ResetMotor() { recoveries = 0; grip = 100; grace = 6; tethered = false; braced = false; stunned = 0; selected = CareTool.Vacuum; Warp(checkpoint.position); }
     }
 }
