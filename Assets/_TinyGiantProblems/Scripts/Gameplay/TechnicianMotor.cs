@@ -93,6 +93,7 @@ namespace TinyGiantProblems
             var input = automate ? new Vector2(MoveOverride.x, MoveOverride.z) : move.ReadValue<Vector2>();
             stunned = Mathf.Max(0, stunned - dt);
             if (stunned > 0) input = Vector2.zero;
+            if (tumbling) input *= .15f;
             var turn = Quaternion.Euler(0, yaw, 0);
             var direction = turn * new Vector3(input.x, 0, input.y);
             grounded = Physics.SphereCast(transform.position + Vector3.up * .55f, .26f, Vector3.down, out var ground, .42f, ~0, QueryTriggerInteraction.Ignore);
@@ -104,6 +105,7 @@ namespace TinyGiantProblems
                 if (zone) ZoneName = zone.zoneName;
             }
             else SetSupport(null);
+            if (tumbling && (grounded && Time.time - launchedAt > .35f || Time.time - launchedAt > 12)) tumbling = false;
             bool wasClimbing = climbing;
             bool wasClawing = clawing;
             climbing = false; clawing = false;
@@ -159,8 +161,10 @@ namespace TinyGiantProblems
                 swingFrom = transform.position; swingTo = swingTarget; swingT = 0; pinned = 0;
                 ProceduralSfx.Play(ProceduralSfx.Whoosh, .5f);
             }
-            velocity.x = Mathf.MoveTowards(velocity.x, 0, 8 * dt);
-            velocity.z = Mathf.MoveTowards(velocity.z, 0, 8 * dt);
+            // A thrown body keeps its momentum; normal movement settles fast.
+            float drag = tumbling ? 1.5f : 8;
+            velocity.x = Mathf.MoveTowards(velocity.x, 0, drag * dt);
+            velocity.z = Mathf.MoveTowards(velocity.z, 0, drag * dt);
             if (planar.sqrMagnitude > .05f && !climbing)
                 model.rotation = Quaternion.Slerp(model.rotation, Quaternion.LookRotation(new Vector3(planar.x, 0, planar.z)), dt * 12);
             model.localScale = new Vector3(1, braced ? .65f : 1, 1);
@@ -204,6 +208,14 @@ namespace TinyGiantProblems
                 desired = focus + ray.normalized * Mathf.Max(.6f, hit.distance - .15f);
             orbitCamera.transform.position = desired;
             orbitCamera.transform.rotation = rotation;
+            if (shakeTime > 0)
+            {
+                shakeTime -= Time.deltaTime;
+                float k = shakeAmp * Mathf.Clamp01(shakeTime / shakeLength);
+                float t = Time.time * 31;
+                orbitCamera.transform.position += orbitCamera.transform.rotation * new Vector3(Mathf.PerlinNoise(t, 1) - .5f, Mathf.PerlinNoise(2, t) - .5f, 0) * k * 1.2f;
+                orbitCamera.transform.rotation *= Quaternion.Euler((Mathf.PerlinNoise(t, 5) - .5f) * k * 4, 0, (Mathf.PerlinNoise(7, t) - .5f) * k * 5);
+            }
         }
         void SetSupport(Transform next)
         {
@@ -222,10 +234,18 @@ namespace TinyGiantProblems
         public void Launch(Vector3 impulse)
         {
             if (!CareRules.LaunchAllowed(braced, tethered, grace)) return;
-            velocity = Vector3.ClampMagnitude(impulse, 15); SetSupport(null); grace = 3;
+            velocity = Vector3.ClampMagnitude(impulse, 28); SetSupport(null); grace = 3;
+            climbing = false; clawing = false;
+            // Big throws send the body tumbling until it lands (TechnicianRig).
+            if (impulse.magnitude > 9) { tumbling = true; launchedAt = Time.time; Shake(.5f, .35f); }
         }
+        // Thrown by a sneeze/shake: limp tumble, almost no air control.
+        public bool tumbling;
+        public float launchedAt = -10;
+        float shakeAmp, shakeTime, shakeLength = 1;
+        public void Shake(float amplitude, float seconds) { shakeAmp = Mathf.Max(shakeAmp * (shakeTime / Mathf.Max(.01f, shakeLength)), amplitude); shakeTime = shakeLength = seconds; }
         public void Warp(Vector3 position) { capsule.enabled = false; transform.position = position; capsule.enabled = true; velocity = Vector3.zero; SetSupport(null); var fall = GetComponent<FallHurt>(); if (fall) fall.ResetApex(); }
-        public void Recover() { recoveries++; Warp(checkpoint.position); tethered = false; climbing = false; grace = 6; Expedition.Instance.Caption = "[Safety winch] Back on the harness. Your work is safe."; }
+        public void Recover() { recoveries++; Warp(checkpoint.position); tethered = false; climbing = false; grace = 6; Expedition.Instance.Caption = "[Safety winch] Hauled back up onto Mossback. Your work is safe."; }
         public void ResetMotor() { recoveries = 0; grip = 100; grace = 6; tethered = false; braced = false; stunned = 0; selected = CareTool.Vacuum; Warp(checkpoint.position); }
     }
 }

@@ -131,7 +131,8 @@ namespace TinyGiantProblems
                 return false;
             }
             Coins -= d.price;
-            Owned.Add(d.id);
+            // Placeables are consumables: one per purchase, never re-granted on load.
+            if (!d.placeable) Owned.Add(d.id);
             if (d.IsTool) Inventory.Add(d.id, 1);
             ApplyUpgrades();
             Toast?.Invoke("Bought " + d.name, -d.price);
@@ -140,11 +141,13 @@ namespace TinyGiantProblems
             return true;
         }
 
-        public int SellAll(out int pieces)
+        // rate < 1: remote sale (platform Supply Crate) at a reduced price.
+        public int SellAll(out int pieces, float rate = 1f)
         {
             var breakdown = new Dictionary<ItemId, int>();
             int value = Inventory.TakeAllDebris(out pieces, breakdown);
             if (pieces == 0) return 0;
+            value = Mathf.RoundToInt(value * rate);
             AddCoins(value);
             Toast?.Invoke($"Sold {pieces} salvage", value);
             ProceduralSfx.Play(ProceduralSfx.Sell, 1);
@@ -218,6 +221,7 @@ namespace TinyGiantProblems
         public void ResetProgress()
         {
             PlayerPrefs.DeleteKey(SaveKey);
+            PlacementSystem.ClearSaved();
             var changed = Inventory.Changed;
             Load();
             Inventory.Changed = changed;

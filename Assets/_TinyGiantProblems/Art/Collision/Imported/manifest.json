@@ -283,5 +283,10 @@
     "sha256": "ae7258be20b2d86e50d3f9cde2553c69b40002c630860d4522e5594e61a37ba5",
     "sourceTriangles": 21998,
     "collisionTriangles": 2500
+  },
+  "floating-platform/floating-platform.obj": {
+    "sha256": "e3feee5060bb239b44b0e1903fb4710c087e3f11ea2ff696239bfb0fa3a98682",
+    "sourceTriangles": 12000,
+    "collisionTriangles": 2500
   }
 }

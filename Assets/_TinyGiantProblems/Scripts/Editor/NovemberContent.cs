@@ -14,7 +14,7 @@ namespace TinyGiantProblems.Editor
     // re-exporting any of the GLBs.
     public static class NovemberContent
     {
-        public static readonly string[] Folders = { "technician", "climbing-claw", "mountain" };
+        public static readonly string[] Folders = { "technician", "climbing-claw", "mountain", "floating-platform" };
 
         [MenuItem("Tiny Giant Problems/November content/Rebuild all")]
         public static void RebuildAll()
@@ -35,7 +35,9 @@ namespace TinyGiantProblems.Editor
                 var importer = (ModelImporter)AssetImporter.GetAtPath(path);
                 if (!importer) throw new InvalidOperationException("Run Tools/import_new_models.py first: " + path);
                 importer.globalScale = 1;
-                importer.materialImportMode = ModelImporterMaterialImportMode.None;
+                // The technician's OBJ groups (usemtl) only become separate
+                // submeshes when material import is on; its materials are replaced below.
+                importer.materialImportMode = slug == "technician" ? ModelImporterMaterialImportMode.ImportStandard : ModelImporterMaterialImportMode.None;
                 importer.isReadable = slug == "technician";
                 importer.indexFormat = ModelImporterIndexFormat.UInt32;
                 // Decimation leaves the source normals stale; smooth fresh ones.
@@ -44,24 +46,49 @@ namespace TinyGiantProblems.Editor
                 importer.importTangents = ModelImporterTangents.CalculateMikk;
                 importer.SaveAndReimport();
                 var material = Surface(folder);
+                var regionMaterials = slug == "technician" ? TechnicianMaterials(folder) : null;
                 var root = new GameObject(slug);
                 var model = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(path), root.transform);
-                foreach (var r in model.GetComponentsInChildren<Renderer>()) r.sharedMaterial = material;
+                foreach (var r in model.GetComponentsInChildren<Renderer>())
+                    if (regionMaterials != null) r.sharedMaterials = regionMaterials; else r.sharedMaterial = material;
                 var b = GiantTinyAssets.BoundsOf(model);
                 float scale = 1f / Mathf.Max(b.size.x, b.size.y, b.size.z);
                 model.transform.localScale = Vector3.one * scale;
                 model.transform.localPosition = -new Vector3(b.center.x, b.min.y, b.center.z) * scale;
-                if (slug == "mountain")
+                if (slug == "mountain" || slug == "floating-platform")
                 {
                     var filter = model.GetComponentInChildren<MeshFilter>();
                     var collider = filter.gameObject.AddComponent<MeshCollider>();
-                    collider.sharedMesh = WorldCollisionBuilder.CollisionMesh("mountain/mountain");
+                    collider.sharedMesh = WorldCollisionBuilder.CollisionMesh(slug + "/" + slug);
                     root.AddComponent<PropCollisionPolicy>().surfaces = new Collider[] { collider };
                 }
                 PrefabUtility.SaveAsPrefabAsset(root, folder + "/" + slug + ".prefab");
                 Object.DestroyImmediate(root);
             }
             AssetDatabase.SaveAssets();
+        }
+
+        // One soft, flat-coloured material per technician colour region
+        // (Tools/import_new_models.py REGIONS order). The Guild Member editor
+        // tints these per region at runtime.
+        static Material[] TechnicianMaterials(string folder)
+        {
+            var mats = new Material[TechnicianLook.RegionNames.Length];
+            for (int i = 0; i < mats.Length; i++)
+            {
+                string path = folder + "/Technician " + TechnicianLook.RegionNames[i] + ".mat";
+                var m = AssetDatabase.LoadAssetAtPath<Material>(path);
+                if (!m) { m = new Material(Shader.Find("Universal Render Pipeline/Lit")); AssetDatabase.CreateAsset(m, path); }
+                m.SetColor("_BaseColor", TechnicianLook.Defaults[i]);
+                m.SetTexture("_BaseMap", null);
+                m.SetFloat("_Metallic", 0);
+                m.SetFloat("_Smoothness", i == TechnicianLook.Goggles ? .75f : i == TechnicianLook.Accents ? .45f : .2f);
+                m.SetFloat("_Cull", 0);
+                m.enableInstancing = true;
+                EditorUtility.SetDirty(m);
+                mats[i] = m;
+            }
+            return mats;
         }
 
         static Material Surface(string folder)
@@ -91,7 +118,7 @@ namespace TinyGiantProblems.Editor
         {
             var lib = Resources.Load<ItemLibrary>("ItemLibrary");
             var list = lib.entries.ToList();
-            foreach (var key in new[] { "climbing-claw/climbing-claw", "mountain/mountain", TechnicianRigBuilder.Key })
+            foreach (var key in new[] { "climbing-claw/climbing-claw", "mountain/mountain", "floating-platform/floating-platform", "extraction-beacon/beacon-clean", TechnicianRigBuilder.Key })
             {
                 var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(GiantTinyAssets.Root + "/" + key + ".prefab");
                 if (!prefab) throw new InvalidOperationException("Missing prefab " + key);
@@ -151,6 +178,41 @@ namespace TinyGiantProblems.Editor
             var inv = GuildEconomy.Instance.Inventory;
             for (int i = 0; i < Inventory.Size; i++)
                 if (inv.slots[i].id == id) { if (i >= Inventory.HotbarSize) { inv.MoveOrSwap(i, 8); i = 8; } inv.Select(i); return; }
+        }
+
+
+        public const string IconFolder = "Assets/_TinyGiantProblems/Resources/ItemIcons";
+
+        // Renders every item with a model to a 256 px transparent PNG for the UI.
+        [MenuItem("Tiny Giant Problems/Bake item icons")]
+        public static string BakeIcons()
+        {
+            Directory.CreateDirectory(IconFolder);
+            int n = 0;
+            foreach (var def in ItemCatalog.All)
+            {
+                if (!ItemIcons.HasPicture(def)) continue;
+                var tex = ItemIcons.Render(def, 256);
+                if (!tex) continue;
+                string path = IconFolder + "/" + def.id + ".png";
+                var png = tex.EncodeToPNG();
+                // Unity can briefly hold an imported texture open; retry the write.
+                for (int attempt = 0; ; attempt++)
+                {
+                    try { File.WriteAllBytes(path, png); break; }
+                    catch (IOException) when (attempt < 5) { System.Threading.Thread.Sleep(250); }
+                }
+                Object.DestroyImmediate(tex);
+                n++;
+            }
+            AssetDatabase.Refresh();
+            foreach (var file in Directory.GetFiles(IconFolder, "*.png"))
+            {
+                var ti = (TextureImporter)AssetImporter.GetAtPath(file.Replace(Path.DirectorySeparatorChar, '/'));
+                ti.textureType = TextureImporterType.Default; ti.alphaIsTransparency = true; ti.mipmapEnabled = false;
+                ti.wrapMode = TextureWrapMode.Clamp; ti.maxTextureSize = 256; ti.SaveAndReimport();
+            }
+            return n + " icons baked to " + IconFolder;
         }
 
         // Turntable previews of a prefab to Screenshots/<name>-<angle>.png.

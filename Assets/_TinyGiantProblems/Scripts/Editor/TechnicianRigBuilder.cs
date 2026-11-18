@@ -138,35 +138,40 @@ namespace TinyGiantProblems.Editor
                 var points = mesh.vertices; var normals = mesh.normals;
                 var normalMatrix = matrix.inverse.transpose;
                 var weights = new BoneWeight[points.Length];
-                var uvs = mesh.uv;
-                var albedoTex = new Texture2D(2, 2);
-                albedoTex.LoadImage(File.ReadAllBytes(Folder + "/BaseColor.png"));
-                // Cloth class per triangle (corners are unshared), so a face never
-                // splits between arm and trousers and stretches into a sliver.
-                var tris = mesh.triangles; var trouser = new bool[points.Length];
-                for (int t = 0; t < tris.Length; t += 3)
-                {
-                    var c = Color.clear;
-                    for (int k = 0; k < 3; k++) { int v = tris[t + k]; c += v < uvs.Length ? albedoTex.GetPixelBilinear(uvs[v].x, uvs[v].y) : Color.gray; }
-                    c /= 3;
-                    bool cloth = c.r > c.g * 1.9f && c.b > c.g * .8f && c.r < .8f;
-                    for (int k = 0; k < 3; k++) trouser[tris[t + k]] = cloth;
-                }
+                // Trouser cloth is its own colour region (submesh 2), so faces pressed
+                // against a glove never follow the arm and stretch into slivers.
+                var trouser = new bool[points.Length];
+                if (mesh.subMeshCount > TechnicianLook.Trousers)
+                    foreach (var v in mesh.GetTriangles(TechnicianLook.Trousers)) trouser[v] = true;
                 for (int i = 0; i < points.Length; i++)
                 {
                     points[i] = matrix.MultiplyPoint3x4(points[i]);
                     if (i < normals.Length) normals[i] = normalMatrix.MultiplyVector(normals[i]).normalized;
                     weights[i] = Weight(points[i], trouser[i]);
                 }
-                Object.DestroyImmediate(albedoTex);
                 mesh.vertices = points; if (normals.Length > 0) mesh.normals = normals;
                 mesh.boneWeights = weights;
                 mesh.bindposes = bones.Select(b => b.worldToLocalMatrix * skeleton.localToWorldMatrix).ToArray();
                 mesh.RecalculateBounds(); mesh.RecalculateTangents();
                 string meshPath = Folder + "/Technician skin.asset";
+                // Rewrite the existing asset field by field and mark it dirty: a plain
+                // CopySerialized left Play mode with stale data once the submesh
+                // layout changed, and delete/recreate broke the prefab reference.
                 var saved = AssetDatabase.LoadAssetAtPath<Mesh>(meshPath);
-                if (saved) { EditorUtility.CopySerialized(mesh, saved); Object.DestroyImmediate(mesh); mesh = saved; }
+                if (saved)
+                {
+                    saved.Clear();
+                    saved.indexFormat = mesh.indexFormat;
+                    saved.vertices = mesh.vertices; saved.normals = mesh.normals; saved.tangents = mesh.tangents; saved.uv = mesh.uv;
+                    saved.subMeshCount = mesh.subMeshCount;
+                    for (int sm = 0; sm < mesh.subMeshCount; sm++) saved.SetTriangles(mesh.GetTriangles(sm), sm);
+                    saved.boneWeights = mesh.boneWeights; saved.bindposes = mesh.bindposes;
+                    saved.RecalculateBounds();
+                    EditorUtility.SetDirty(saved);
+                    Object.DestroyImmediate(mesh); mesh = saved;
+                }
                 else AssetDatabase.CreateAsset(mesh, meshPath);
+                AssetDatabase.SaveAssets();
 
                 var body = new GameObject("Technician body").AddComponent<SkinnedMeshRenderer>();
                 body.transform.SetParent(skeleton, false);

@@ -44,8 +44,8 @@ namespace TinyGiantProblems
             prompt = Label(root, "", 21, gold, new Vector2(0, 212), new Vector2(850, 40), new Vector2(.5f, 0)); prompt.alignment = TextAlignmentOptions.Center;
             warning = Label(root, "", 33, gold, new Vector2(0, -35), new Vector2(720, 85), new Vector2(.5f, 1)); warning.alignment = TextAlignmentOptions.Center;
             gameplayPanels=new[] {left.gameObject,right.gameObject,bottom.gameObject,caption.gameObject,prompt.gameObject,warning.gameObject};
-            briefingPanel = Modal("Briefing", "TINY GIANT\nPROBLEMS", "A little care. A very big adventure.\n\nMossback is covered in grime, burrs and Bramblemites. Scrub and\nvacuum them off, finish work orders for coins, and haul salvage to\nthe yard below. Buy better tools at the Guild Tool Locker.\nWhen he rumbles, hold BRACE.", out var briefing);
-            Place(briefing,new Vector2(0,.5f),new Vector2(32,0),new Vector2(640,650));
+            briefingPanel = Modal("Briefing", "TINY GIANT\nPROBLEMS", "A little care. A very big adventure.\n\nScrub, pick and vacuum the mess off Mossback.\nSell salvage at the yard, buy better tools.\nWhen he rumbles, hold BRACE or go flying!", out var briefing);
+            Place(briefing,new Vector2(0,.5f),new Vector2(32,0),new Vector2(640,712));
             Button(briefing, "BOARD MOSSBACK  /  SOLO", -370, () => { FindAnyObjectByType<CrewSession>()?.Shutdown(); NetworkStatus="Solo expedition"; game.Begin(); });
             Button(briefing, "HOST CREW (LAN)", -430, () => { if (HostRequested != null) HostRequested(); else NetworkStatus = "Network is preparing..."; });
             Button(briefing, "JOIN CREW", -490, () => { if (JoinRequested != null) JoinRequested(); });
@@ -57,9 +57,10 @@ namespace TinyGiantProblems
             var addressText = Label(fr, "127.0.0.1", 18, cream, new Vector2(12,-4), new Vector2(390,30));
             address.textViewport = fr; address.textComponent = addressText; address.text = "127.0.0.1";
             Button(briefing, "GUILD TOOL LOCKER", -608, () => GuildShopUI.Instance?.Open());
-            pausePanel = Modal("Pause", "TAKE A BREATHER", "Mossback appreciates a careful technician.\n\nMouse to orbit · scroll to zoom · gamepad supported\nHold BACKSPACE to recover to the harness.", out var pause);
+            Button(briefing, "GUILD MEMBER  (CLOTHES & COLOURS)", -666, () => GuildMemberEditor.Instance?.Open());
+            pausePanel = Modal("Pause", "TAKE A BREATHER", "Mossback appreciates a careful technician.\n\nMouse to orbit · scroll to zoom · gamepad supported\nHold BACKSPACE for the safety winch.", out var pause);
             Button(pause, "RESUME", -300, () => game.SetPause(false));
-            Button(pause, "RECOVER TO HARNESS", -360, () => { game.player.Recover(); game.SetPause(false); });
+            Button(pause, "SAFETY WINCH (BACK TO START)", -360, () => { game.player.Recover(); game.SetPause(false); });
             Button(pause, "MUSIC ON / OFF", -420, () => game.music.mute = !game.music.mute);
             Button(pause, "FIELD OF VIEW 60 / 80", -480, () => game.player.orbitCamera.fieldOfView = game.player.orbitCamera.fieldOfView < 70 ? 80 : 60);
             Button(pause, "RETURN TO BRIEFING", -540, ReturnToGuild);

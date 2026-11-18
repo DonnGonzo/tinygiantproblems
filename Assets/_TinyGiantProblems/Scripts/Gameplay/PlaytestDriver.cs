@@ -111,21 +111,16 @@ namespace TinyGiantProblems
             yield return new WaitForSeconds(1.5f);
             WideShot("11-debris-on-meadow");
 
-            // Ride the lift to the yard and sell.
+            // Glide down to the yard (no lift any more), sell, then winch back up.
             Select(econ, ItemId.Glider);
-            GuildLift top = null;
-            foreach (var s in Station.All) if (s is GuildLift l && l.atTop) top = l;
-            Check(top, "Guild Lift exists");
-            if (top)
+            WinchPost post = null;
+            foreach (var s in Station.All) if (s is WinchPost w) post = w;
+            Check(post, "Winch post exists in the yard");
+            if (post)
             {
-                p.Warp(top.transform.position + Vector3.up * .2f);
-                yield return new WaitForSeconds(.3f);
-                Capture("12-lift-top");
-                top.Interact();
-                yield return new WaitForSeconds(2f);
-                Capture("13-lift-ride");
-                yield return new WaitForSeconds(3f);
-                Check(p.transform.position.y < g.creature.transform.position.y - 5, "Lift delivers the technician to the meadow");
+                p.Warp(post.transform.position + Vector3.up * 14 + Vector3.back * 6);
+                yield return new WaitForSeconds(4f);
+                Check(p.transform.position.y < g.creature.transform.position.y - 5, "Glider brings the technician down to the meadow");
                 Capture("14-salvage-yard");
                 SellStation sell = null;
                 foreach (var s in Station.All) if (s is SellStation ss) sell = ss;
@@ -141,6 +136,11 @@ namespace TinyGiantProblems
                     Check(econ.Coins > coins && econ.Inventory.Count(ItemId.Twig) == 0, "Selling converts salvage to coins");
                     Capture("16-sold");
                 }
+                p.Warp(post.transform.position + Vector3.forward * 1.5f);
+                yield return new WaitForSeconds(.3f);
+                post.Interact();
+                yield return new WaitForSeconds(3.2f);
+                Check(p.transform.position.y > g.creature.transform.position.y + 20, "Winch post hauls the technician back onto Mossback");
             }
 
             p.automate = false; p.UseOverride = false;
@@ -182,6 +182,8 @@ namespace TinyGiantProblems
             if (dir.sqrMagnitude < .5f) { stand -= frame.forward * 1.6f; dir = target - stand; dir.y = 0; }
             else stand = target - dir.normalized * Mathf.Min(1.6f, dir.magnitude);
             stand.y = frame.TransformPoint(standLocal).y;
+            // No harness deck any more: stand on Mossback's back itself.
+            if (HarnessRemoval.Applied && HarnessRemoval.Surface(frame, stand, out var ground)) stand = ground.point;
             p.Warp(stand + Vector3.up * .3f);
             p.yaw = Quaternion.LookRotation(dir.sqrMagnitude > .01f ? dir : frame.forward).eulerAngles.y;
             p.pitch = 30;

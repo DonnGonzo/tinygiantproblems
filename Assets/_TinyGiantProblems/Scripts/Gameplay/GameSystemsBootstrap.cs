@@ -30,11 +30,14 @@ namespace TinyGiantProblems
             if (!player.GetComponent<ClimbingClaw>()) player.gameObject.AddComponent<ClimbingClaw>().motor = player;
             if (!player.GetComponent<FallHurt>()) player.gameObject.AddComponent<FallHurt>().motor = player;
             TechnicianModelInstaller.Install(player);
+            if (!player.GetComponent<PlacementSystem>()) player.gameObject.AddComponent<PlacementSystem>().motor = player;
+            HarnessRemoval.Apply(game);
             MapBoundary.Build(game);
 
             var ui = new GameObject("Guild UI");
             ui.AddComponent<HotbarUI>();
             ui.AddComponent<GuildShopUI>();
+            ui.AddComponent<GuildMemberEditor>();
             WorldStations.Build(game);
         }
     }

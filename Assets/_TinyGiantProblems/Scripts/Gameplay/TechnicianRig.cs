@@ -23,7 +23,8 @@ namespace TinyGiantProblems
         public TechnicianMotor motor;
 
         // Smoothed layer weights, public for tests and the playtest report.
-        public float walk, run, climb, air, brace, hurt, jolt, holdTool, getUp;
+        public float walk, run, climb, air, brace, hurt, jolt, holdTool, getUp, tumble;
+        Quaternion spin = Quaternion.identity; Vector3 spinRate; float lastLaunch = -10;
         float phase, hatSwing, hatVel, landSquash, lastVy, idleClock;
         bool wasGrounded = true;
         float airTime;
@@ -37,7 +38,11 @@ namespace TinyGiantProblems
             abilities = motor ? motor.GetComponent<ToolAbilities>() : null;
             lastPos = transform.position;
             if (transform.parent) baseScale = transform.parent.localScale.x;
+            TechnicianLook.Apply(body);
+            TechnicianLook.Changed += ApplyLook;
         }
+        void OnDestroy() { TechnicianLook.Changed -= ApplyLook; }
+        void ApplyLook() { if (body) TechnicianLook.Apply(body); }
         float baseScale = 1;
 
         static float Damp(float current, float target, float speed, float dt) => Mathf.Lerp(current, target, 1 - Mathf.Exp(-speed * dt));
@@ -73,7 +78,7 @@ namespace TinyGiantProblems
             jolt = Damp(jolt, stung ? 1 : 0, 16, dt);
             getUp = Mathf.Clamp01(hurt) * (fallHurt ? 0 : 1);
             var held = GuildEconomy.Instance ? GuildEconomy.Instance.Inventory.SelectedDef : null;
-            holdTool = Damp(holdTool, held != null && held.IsTool && held.id != ItemId.Glider && held.id != ItemId.Claw ? 1 : 0, 8, dt);
+            holdTool = Damp(holdTool, held != null && held.IsTool && held.id != ItemId.Glider && held.id != ItemId.Claw && !held.placeable ? 1 : 0, 8, dt);
 
             float cadence = climbing ? 5.5f * Mathf.Clamp01(Vector3.Distance(transform.position, lastPos) / dt / 1.2f + .15f)
                                      : 5.2f + speed * 1.15f;
@@ -192,6 +197,24 @@ namespace TinyGiantProblems
                 // Get-up: lean forward while the weight is leaving.
                 if (!fallHurt) { e[(int)Bone.Spine].x += 40 * h * (1 - h) * 4; }
             }
+            // Thrown by a sneeze/shake: limp ragdoll-style flailing. Every limb
+            // follows its own slow noise so nothing moves in sync; the head lolls.
+            tumble = Damp(tumble, motor.tumbling ? 1 : 0, motor.tumbling ? 14 : 6, dt);
+            if (tumble > .001f)
+            {
+                float f = tumble, t = Time.time * 2.3f;
+                float N(float seed) => (Mathf.PerlinNoise(t, seed) - .5f) * 2;
+                e[(int)Bone.UpperArmL].x += N(1) * 110 * f; e[(int)Bone.UpperArmL].z += (-55 + N(2) * 60) * f;
+                e[(int)Bone.UpperArmR].x += N(3) * 110 * f; e[(int)Bone.UpperArmR].z += (55 + N(4) * 60) * f;
+                e[(int)Bone.ForeArmL].x += (-30 + N(5) * 50) * f; e[(int)Bone.ForeArmR].x += (-30 + N(6) * 50) * f;
+                e[(int)Bone.ThighL].x += (-30 + N(7) * 70) * f; e[(int)Bone.ThighR].x += (-30 + N(8) * 70) * f;
+                e[(int)Bone.ThighL].z += N(9) * 25 * f; e[(int)Bone.ThighR].z += N(10) * 25 * f;
+                e[(int)Bone.ShinL].x += (40 + N(11) * 45) * f; e[(int)Bone.ShinR].x += (40 + N(12) * 45) * f;
+                e[(int)Bone.Spine].x += N(13) * 25 * f; e[(int)Bone.Spine].z += N(14) * 20 * f;
+                e[(int)Bone.Head].x += N(15) * 40 * f; e[(int)Bone.Head].z += N(16) * 35 * f;
+                e[(int)Bone.HatTip].x += N(17) * 45 * f;
+            }
+
             // Landing squash.
             if (landSquash > .001f)
             {
@@ -226,7 +249,24 @@ namespace TinyGiantProblems
             // The motor squashes its model while bracing; the rig crouches instead.
             var instance = transform.parent;
             if (motor.model && instance && instance.parent == motor.model)
+            {
                 instance.localScale = new Vector3(baseScale, baseScale / Mathf.Max(.01f, motor.model.localScale.y), baseScale);
+                // Whole-body tumble around the belly while thrown, then right itself.
+                if (motor.tumbling)
+                {
+                    if (motor.launchedAt != lastLaunch)
+                    {
+                        lastLaunch = motor.launchedAt;
+                        spinRate = new Vector3(Random.Range(380f, 560f) * (Random.value < .5f ? -1 : 1), Random.Range(-120f, 120f), Random.Range(-260f, 260f));
+                    }
+                    spin = spin * Quaternion.Euler(spinRate * dt);
+                    spinRate *= 1 - .25f * dt;
+                }
+                else spin = Quaternion.Slerp(spin, Quaternion.identity, 1 - Mathf.Exp(-12 * dt));
+                var pivot = Vector3.up * .8f;
+                instance.localRotation = spin;
+                instance.localPosition = pivot - spin * pivot;
+            }
         }
     }
 }

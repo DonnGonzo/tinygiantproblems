@@ -56,6 +56,19 @@ namespace TinyGiantProblems.Editor
             foreach (var d in ItemCatalog.All)
                 if (!string.IsNullOrEmpty(d.model)) Check(ItemLibrary.Instance && ItemLibrary.Instance.Prefab(d.model), "Item library has a model for " + d.name);
             Check(ItemLibrary.Instance && ItemLibrary.Instance.baseMaterial && ItemLibrary.Instance.particleMaterial, "Item library materials are assigned");
+            int placeables = 0, kits = 0;
+            foreach (var d in ItemCatalog.All) if (d.placeable) { placeables++; if (d.needsPlatform) kits++; }
+            Check(placeables == 5 && kits == 4 && !ItemCatalog.Get(ItemId.Platform).needsPlatform, "Platform goes on Mossback, four kits go on a platform");
+            Check(ItemCatalog.ShopOrder.Contains(ItemCatalog.Get(ItemId.Platform)) && ItemCatalog.Get(ItemId.Platform).price > ItemCatalog.Get(ItemId.Glider).price, "Floating Platform is sold and priced above the glider");
+            var crateInv = new Inventory(); crateInv.Add(ItemId.Burr, 4);
+            int full = crateInv.TakeAllDebris(out int crated);
+            Check(crated == 4 && Mathf.RoundToInt(full * SupplyCrate.Rate) == 27, "Supply Crate pays 75% of the yard price");
+            Check(System.Type.GetType("TinyGiantProblems.GuildLift, Assembly-CSharp") == null && System.Type.GetType("TinyGiantProblems.WinchPost, Assembly-CSharp") != null, "Guild Lift is gone; the yard winch post replaces it");
+            var look = (Color[])TechnicianLook.Defaults.Clone(); look[TechnicianLook.Trousers] = new Color(.1f, .2f, .6f);
+            var lookBack = TechnicianLook.FromJson(TechnicianLook.ToJson(look));
+            Check(lookBack[TechnicianLook.Trousers] == look[TechnicianLook.Trousers] && lookBack.Length == TechnicianLook.RegionNames.Length, "Guild member colours survive a save round trip");
+            Check(TechnicianLook.FromJson("not json")[TechnicianLook.Hat] == TechnicianLook.Defaults[TechnicianLook.Hat], "Broken colour save falls back to defaults");
+            foreach (var d in ItemCatalog.All) if (ItemIcons.HasPicture(d)) Check(Resources.Load<Texture2D>("ItemIcons/" + d.id), "Baked icon for " + d.name);
 
             Directory.CreateDirectory("TestResults");
             File.WriteAllLines("TestResults/economy-checks.txt", results);

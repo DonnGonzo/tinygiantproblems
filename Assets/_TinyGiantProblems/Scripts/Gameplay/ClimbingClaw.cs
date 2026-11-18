@@ -35,7 +35,7 @@ namespace TinyGiantProblems
             hit = default;
             bool was = Active;
             Active = false;
-            if (!Equipped || Exhausted || stamina <= 0 || motor.stunned > 0) return false;
+            if (!Equipped || Exhausted || stamina <= 0 || motor.stunned > 0 || motor.tumbling && Time.time - motor.launchedAt < .8f) return false;
             var game = Expedition.Instance;
             if (!game || !game.creature) return false;
             // Stay on while already climbing; otherwise the player must push into the surface.

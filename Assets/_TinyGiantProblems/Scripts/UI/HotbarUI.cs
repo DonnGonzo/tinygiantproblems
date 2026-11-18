@@ -163,7 +163,7 @@ namespace TinyGiantProblems
             {
                 for (int i = 0; i < 9; i++) if (kb[(Key)((int)Key.Digit1 + i)].wasPressedThisFrame) inv.Select(i);
                 if (kb.qKey.wasPressedThisFrame) DropFromSlot(inv.selected, kb.ctrlKey.isPressed ? 999 : 1);
-                if (kb.eKey.wasPressedThisFrame && !GuildLift.Riding && !GameUI.JustClosed)
+                if (kb.eKey.wasPressedThisFrame && !WinchPost.Hauling && !GameUI.JustClosed)
                 {
                     var station = Station.Nearest(game.player.transform.position);
                     if (station) station.Interact();
@@ -173,7 +173,7 @@ namespace TinyGiantProblems
             {
                 if (pad.rightShoulder.wasPressedThisFrame) inv.Scroll(1);
                 if (pad.leftShoulder.wasPressedThisFrame) inv.Scroll(-1);
-                if (pad.buttonWest.wasPressedThisFrame && !GuildLift.Riding && !GameUI.JustClosed)
+                if (pad.buttonWest.wasPressedThisFrame && !WinchPost.Hauling && !GameUI.JustClosed)
                 {
                     var station = Station.Nearest(game.player.transform.position);
                     if (station) station.Interact();
@@ -207,9 +207,8 @@ namespace TinyGiantProblems
                 var s = inv.slots[v.index];
                 bool hidden = v.index == DragFrom;
                 var def = s.IsEmpty || hidden ? null : ItemCatalog.Get(s.id);
-                v.swatch.color = def != null ? def.color : new Color(0, 0, 0, 0);
-                v.swatch.transform.GetChild(0).gameObject.SetActive(def != null);
-                v.glyph.text = def != null ? def.glyph : "";
+                UIKit.SetIcon(v.swatch, v.glyph, def);
+                v.swatch.transform.GetChild(0).gameObject.SetActive(def != null && !ItemIcons.HasPicture(def));
                 v.count.text = def != null && s.count > 1 ? s.count.ToString() : "";
                 bool selected = v.index == inv.selected;
                 v.background.color = selected ? new Color(.2f, .36f, .34f, 1) : v.hover && IsOpen ? new Color(.18f, .31f, .31f, 1) : new Color(.13f, .24f, .25f, 1);
@@ -246,9 +245,9 @@ namespace TinyGiantProblems
             if (!playing) return;
             string text = "";
             var p = game.player;
-            var station = GuildLift.Riding ? null : Station.Nearest(p.transform.position);
+            var station = WinchPost.Hauling ? null : Station.Nearest(p.transform.position);
             var mess = MessField.Instance;
-            if (GuildLift.Riding) text = "Riding the Guild Lift...";
+            if (WinchPost.Hauling) text = "Winching up...";
             else if (station) text = station.Prompt;
             else if (!game.Nearest && mess && mess.Aimed)
             {
@@ -266,6 +265,7 @@ namespace TinyGiantProblems
                     else if (def.id == ItemId.Scanner) text = ab.ScanReady > 0 ? $"Scanner recharging {ab.ScanReady:0}s" : "USE to ping nearby mess and finds";
                     else if (def.id == ItemId.SnackLauncher) text = ab.SnackReady > 0 ? $"Snack launcher reloading {ab.SnackReady:0}s" : "USE to lob a snack toward Mossback's mouth";
                     else if (def.id == ItemId.Glider) text = ab.Gliding ? "Gliding..." : "Equipped: falls become gentle glides";
+                    else if (def.placeable && PlacementSystem.Instance) text = PlacementSystem.Instance.Hint;
                     else if (def.id == ItemId.Claw) { var claw = ClimbingClaw.For(p); text = claw && claw.Exhausted ? "Claw stamina spent: rest on solid ground" : claw && claw.Active ? $"Clawing up · stamina {claw.stamina:0}%" : "Walk into Mossback's flanks to climb · SPACE to let go"; }
                 }
             }
@@ -294,7 +294,7 @@ namespace TinyGiantProblems
             if (!IsOpen || inv.slots[index].IsEmpty) return;
             DragFrom = index;
             var def = ItemCatalog.Get(inv.slots[index].id);
-            ghostSwatch.color = def.color; ghostGlyph.text = def.glyph;
+            UIKit.SetIcon(ghostSwatch, ghostGlyph, def);
             ghostCount.text = inv.slots[index].count > 1 ? inv.slots[index].count.ToString() : "";
             ghost.gameObject.SetActive(true);
             ghost.SetAsLastSibling();

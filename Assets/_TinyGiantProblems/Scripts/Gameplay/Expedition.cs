@@ -94,6 +94,7 @@ namespace TinyGiantProblems
             WarningRemaining = 4;
             nextReaction = float.PositiveInfinity;
             creature.GetComponent<MossbackMotion>()?.Warn(Reaction);
+            player.Shake(.18f, 4f); // a low rumble you can feel while there is still time to brace
             Caption = Reaction == "SNEEZE" ? "[A huge inhale] Hold F / B to brace, or clip your tether!" : "[Low rumble, rustling fur] Hold F / B to brace!";
         }
         public void Impact()
@@ -103,12 +104,34 @@ namespace TinyGiantProblems
             nextReaction=Random.Range(26f,43f);
             creature.reactionPulse=1.2f;
             WarningRemaining = 0;
-            player.Launch(new Vector3(Reaction == "SNEEZE" ? 4 : -4, 10, 5));
-            Caption = player.braced || player.tethered ? "[Secure!] Nice bracing. Back to work." : "[Whoooosh!] Clip a tether or let the safety winch catch you.";
+            bool secure = player.braced || player.tethered;
+            if (secure) player.Shake(Reaction == "SNEEZE" ? .55f : .8f, .7f);
+            else player.Launch(ReactionThrow(Reaction));
+            Caption = secure ? "[Secure!] Nice bracing. Back to work." : Reaction == "SNEEZE" ? "[AAAH-CHOO!] Blasted off the back! Brace (F) when Mossback inhales." : "[Whoooosh!] Shaken loose! Brace (F) when the fur starts to rumble.";
             ReactionImpact?.Invoke(Reaction);
             Reaction = "";
             Irritation = Mathf.Max(0, Irritation - 10);
         }
+        // How hard an unprepared technician is thrown. Away from Mossback's spine
+        // and upward; a sneeze is strongest near the head, a shake everywhere.
+        public Vector3 ReactionThrow(string reaction)
+        {
+            var frame = creature.transform;
+            var local = frame.InverseTransformPoint(player.transform.position);
+            var outward = frame.TransformDirection(new Vector3(local.x, 0, 0)); outward.y = 0;
+            if (outward.sqrMagnitude < .01f) outward = frame.right * (Random.value < .5f ? -1 : 1);
+            outward.Normalize();
+            if (reaction == "SNEEZE")
+            {
+                // local z: head end is +z (about +11), tail end about -12.
+                float nearHead = Mathf.InverseLerp(-10, 11, local.z);
+                float power = Mathf.Lerp(13, 24, nearHead);
+                var forward = frame.forward;
+                return (outward * .55f + forward * .45f * nearHead).normalized * power + Vector3.up * Mathf.Lerp(9, 13, nearHead);
+            }
+            return outward * Random.Range(15f, 20f) + Vector3.up * Random.Range(10f, 13f) + frame.forward * Random.Range(-3f, 3f);
+        }
+
         public void Begin(bool replicated = false)
         {
             if (IsRemote && !replicated) { Caption = "The host starts the next expedition."; return; }
@@ -118,7 +141,7 @@ namespace TinyGiantProblems
             WarningRemaining = 0; reactionCount = 0; Reaction = "";
             foreach (var job in jobs) job.state.Progress = 0;
             player.ResetMotor(); SetPause(false);
-            Caption = "Follow the wooden walkway. Use the matching tool at each care site.";
+            Caption = "Walk Mossback's back to each care site and use the matching tool. A Floating Platform gives you somewhere steady to stand.";
             MissionBegan?.Invoke();
             Began?.Invoke();
         }

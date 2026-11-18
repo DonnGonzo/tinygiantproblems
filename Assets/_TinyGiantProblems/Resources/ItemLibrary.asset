@@ -63,6 +63,10 @@ MonoBehaviour:
     prefab: {fileID: 8233242841254319786, guid: 4638f83234176ee488b088829e37face, type: 3}
   - key: mountain/mountain
     prefab: {fileID: 627476803237861041, guid: 01927881406d25045b5c9d9f0e69659a, type: 3}
+  - key: floating-platform/floating-platform
+    prefab: {fileID: 7922416636585299382, guid: 6064c38f95dbb2c4fabe2aecd52a77ed, type: 3}
+  - key: extraction-beacon/beacon-clean
+    prefab: {fileID: 8345971039569311398, guid: a2ef380097f5e7743a3345467d32ca63, type: 3}
   - key: technician/technician-rigged
     prefab: {fileID: 5938245825986022655, guid: e8883b82eed266d49ad9fbf0effd80ae, type: 3}
   baseMaterial: {fileID: 2100000, guid: e73e344b6685131438e6081d8cfbc28b, type: 2}

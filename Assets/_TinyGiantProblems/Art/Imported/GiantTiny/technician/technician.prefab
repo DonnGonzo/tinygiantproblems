@@ -95,7 +95,35 @@ PrefabInstance:
     - target: {fileID: -7635826562936255635, guid: 87629dd643389834e829d2627c7df984, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 3aeaa61cbfc9b2848b895c037d6a2f6a, type: 2}
+      objectReference: {fileID: 2100000, guid: 43044d425db4c754e83bb08b079e6176, type: 2}
+    - target: {fileID: -7635826562936255635, guid: 87629dd643389834e829d2627c7df984, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 469fab71546225e4eb034ffd5eafdab4, type: 2}
+    - target: {fileID: -7635826562936255635, guid: 87629dd643389834e829d2627c7df984, type: 3}
+      propertyPath: 'm_Materials.Array.data[2]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 30c5f9cb69b0b054bbca4d9134c9f590, type: 2}
+    - target: {fileID: -7635826562936255635, guid: 87629dd643389834e829d2627c7df984, type: 3}
+      propertyPath: 'm_Materials.Array.data[3]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 647beeb5b3d84394e86f189988ab105a, type: 2}
+    - target: {fileID: -7635826562936255635, guid: 87629dd643389834e829d2627c7df984, type: 3}
+      propertyPath: 'm_Materials.Array.data[4]'
+      value: 
+      objectReference: {fileID: 2100000, guid: fb84965284f806f40a7e846eae3c8aab, type: 2}
+    - target: {fileID: -7635826562936255635, guid: 87629dd643389834e829d2627c7df984, type: 3}
+      propertyPath: 'm_Materials.Array.data[5]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 98626c5a9bea8314faa220c49c6d49c9, type: 2}
+    - target: {fileID: -7635826562936255635, guid: 87629dd643389834e829d2627c7df984, type: 3}
+      propertyPath: 'm_Materials.Array.data[6]'
+      value: 
+      objectReference: {fileID: 2100000, guid: e509ec68f10da6c4c9833bc9c2c95c79, type: 2}
+    - target: {fileID: -7635826562936255635, guid: 87629dd643389834e829d2627c7df984, type: 3}
+      propertyPath: 'm_Materials.Array.data[7]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 0d89698975553d849bc570a3cb90a4c1, type: 2}
     - target: {fileID: 919132149155446097, guid: 87629dd643389834e829d2627c7df984, type: 3}
       propertyPath: m_Name
       value: technician
