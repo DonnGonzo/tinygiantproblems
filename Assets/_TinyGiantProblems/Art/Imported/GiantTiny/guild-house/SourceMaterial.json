@@ -1,0 +1,35 @@
+{
+  "source": "house.glb",
+  "sha256": "0a3ee0757579cf0252e386179e91df9b0bc074726aa71965144f880d276d777c",
+  "material": {
+    "pbrMetallicRoughness": {
+      "metallicFactor": 1.0,
+      "roughnessFactor": 1.0,
+      "baseColorFactor": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "baseColorTexture": {
+        "index": 0,
+        "texCoord": 0
+      },
+      "metallicRoughnessTexture": {
+        "index": 1,
+        "texCoord": 0
+      }
+    },
+    "doubleSided": true,
+    "occlusionTexture": {
+      "index": 1,
+      "texCoord": 0,
+      "strength": 1.0
+    },
+    "normalTexture": {
+      "index": 2,
+      "texCoord": 0,
+      "scale": 1.0
+    }
+  }
+}

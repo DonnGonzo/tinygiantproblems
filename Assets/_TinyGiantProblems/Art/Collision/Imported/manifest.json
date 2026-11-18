@@ -280,13 +280,23 @@
     "collisionTriangles": 2500
   },
   "technician/technician.obj": {
-    "sha256": "ae7258be20b2d86e50d3f9cde2553c69b40002c630860d4522e5594e61a37ba5",
+    "sha256": "24ae5cec70398d25e55144a14a9e7acd9778b80fe2421fd1403c0670f082ecdf",
     "sourceTriangles": 21998,
     "collisionTriangles": 2500
   },
   "floating-platform/floating-platform.obj": {
     "sha256": "e3feee5060bb239b44b0e1903fb4710c087e3f11ea2ff696239bfb0fa3a98682",
     "sourceTriangles": 12000,
+    "collisionTriangles": 2500
+  },
+  "guild-house/guild-house.obj": {
+    "sha256": "4adb51fa8c54594aab11302e03b1a91c3fcb8ff21c794d3f81a14a7ec2ce228e",
+    "sourceTriangles": 89998,
+    "collisionTriangles": 2500
+  },
+  "guild-house-interior/guild-house-interior.obj": {
+    "sha256": "82687a59ea7b43b30de4609a0cea16b4189ac64af68abce82efacd0b9b817efe",
+    "sourceTriangles": 80000,
     "collisionTriangles": 2500
   }
 }

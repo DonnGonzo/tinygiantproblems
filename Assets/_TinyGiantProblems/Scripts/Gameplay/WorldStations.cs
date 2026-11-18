@@ -136,6 +136,18 @@ namespace TinyGiantProblems
             var yard = new GameObject("Salvage Yard").transform; yard.SetParent(root, false);
             yard.position = ground;
             yard.rotation = Quaternion.LookRotation(Vector3.ProjectOnPlane(frame.position - ground, Vector3.up).normalized, Vector3.up);
+            var toward = Vector3.ProjectOnPlane(frame.position - ground, Vector3.up).normalized;
+
+            // The Guild House holds the locker, sell counter and wardrobe; the free
+            // winch post stands just outside its front door.
+            var houseGround = GroundAt(ground - toward * 10, frame);
+            if (GuildHouse.Build(root, houseGround, toward))
+            {
+                var side = Vector3.Cross(Vector3.up, toward);
+                var postSpot = GroundAt(GuildHouse.DoorOutside.position + toward * 3.5f + side * 5.5f, frame);
+                BuildWinchPost(root, postSpot, toward);
+                return;
+            }
 
             var sell = new GameObject("Sell Station").AddComponent<SellStation>();
             sell.transform.SetParent(yard, false);
@@ -158,10 +170,18 @@ namespace TinyGiantProblems
             if (!chest) GameArt.Shape("Locker", PrimitiveType.Cube, yardLocker.transform, Vector3.up * .6f, new Vector3(1.2f, 1.2f, .8f), new Color(.98f, .63f, .16f));
             Sign(yardLocker.transform, "TOOL LOCKER", new Vector3(0, 2.3f, 0), UIKit.Gold);
 
-            // Winch post: the free way back up.
+            BuildWinchPost(yard, yard.position, toward);
+        }
+
+        public static void MakeSign(Transform parent, string text, Vector3 offset, Color color, float scale = 1) { Sign(parent, text, offset, color); if (scale != 1) parent.GetChild(parent.childCount - 1).localScale *= scale; }
+
+        // Winch post: the free way back up.
+        static void BuildWinchPost(Transform parent, Vector3 at, Vector3 toward)
+        {
             var post = new GameObject("Winch Post").AddComponent<WinchPost>();
-            post.transform.SetParent(yard, false);
-            post.transform.localPosition = Vector3.zero;
+            post.transform.SetParent(parent, false);
+            post.transform.position = at;
+            post.transform.rotation = Quaternion.LookRotation(toward);
             post.radius = 3f;
             var winch = GameArt.Model("rescue-winch/rescue-winch", post.transform, 1.6f);
             if (!winch) GameArt.Shape("Winch", PrimitiveType.Cylinder, post.transform, Vector3.up * .6f, new Vector3(.8f, .6f, .8f), new Color(.3f, .55f, .55f));

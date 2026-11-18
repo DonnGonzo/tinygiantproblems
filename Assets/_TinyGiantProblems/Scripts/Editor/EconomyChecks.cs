@@ -63,6 +63,7 @@ namespace TinyGiantProblems.Editor
             var crateInv = new Inventory(); crateInv.Add(ItemId.Burr, 4);
             int full = crateInv.TakeAllDebris(out int crated);
             Check(crated == 4 && Mathf.RoundToInt(full * SupplyCrate.Rate) == 27, "Supply Crate pays 75% of the yard price");
+            Check(ItemLibrary.Instance && ItemLibrary.Instance.Prefab(GuildHouse.ExteriorKey) && ItemLibrary.Instance.Prefab(GuildHouse.InteriorKey), "Guild House exterior and interior models are in the item library");
             Check(System.Type.GetType("TinyGiantProblems.GuildLift, Assembly-CSharp") == null && System.Type.GetType("TinyGiantProblems.WinchPost, Assembly-CSharp") != null, "Guild Lift is gone; the yard winch post replaces it");
             var look = (Color[])TechnicianLook.Defaults.Clone(); look[TechnicianLook.Trousers] = new Color(.1f, .2f, .6f);
             var lookBack = TechnicianLook.FromJson(TechnicianLook.ToJson(look));

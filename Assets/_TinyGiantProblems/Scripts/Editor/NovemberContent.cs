@@ -14,7 +14,7 @@ namespace TinyGiantProblems.Editor
     // re-exporting any of the GLBs.
     public static class NovemberContent
     {
-        public static readonly string[] Folders = { "technician", "climbing-claw", "mountain", "floating-platform" };
+        public static readonly string[] Folders = { "technician", "climbing-claw", "mountain", "floating-platform", "guild-house", "guild-house-interior" };
 
         [MenuItem("Tiny Giant Problems/November content/Rebuild all")]
         public static void RebuildAll()
@@ -37,8 +37,10 @@ namespace TinyGiantProblems.Editor
                 importer.globalScale = 1;
                 // The technician's OBJ groups (usemtl) only become separate
                 // submeshes when material import is on; its materials are replaced below.
-                importer.materialImportMode = slug == "technician" ? ModelImporterMaterialImportMode.ImportStandard : ModelImporterMaterialImportMode.None;
-                importer.isReadable = slug == "technician";
+                bool regions = slug == "technician" || File.Exists(folder + "/" + slug + ".palette.json");
+                importer.materialImportMode = regions ? ModelImporterMaterialImportMode.ImportStandard : ModelImporterMaterialImportMode.None;
+                // The guild house meshes are cut at runtime (doorway, inner floors), which needs CPU-readable data.
+                importer.isReadable = slug == "technician" || slug.StartsWith("guild-house");
                 importer.indexFormat = ModelImporterIndexFormat.UInt32;
                 // Decimation leaves the source normals stale; smooth fresh ones.
                 importer.importNormals = ModelImporterNormals.Calculate;
@@ -46,7 +48,7 @@ namespace TinyGiantProblems.Editor
                 importer.importTangents = ModelImporterTangents.CalculateMikk;
                 importer.SaveAndReimport();
                 var material = Surface(folder);
-                var regionMaterials = slug == "technician" ? TechnicianMaterials(folder) : null;
+                var regionMaterials = slug == "technician" ? TechnicianMaterials(folder) : PaletteMaterials(folder, slug);
                 var root = new GameObject(slug);
                 var model = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(path), root.transform);
                 foreach (var r in model.GetComponentsInChildren<Renderer>())
@@ -55,7 +57,7 @@ namespace TinyGiantProblems.Editor
                 float scale = 1f / Mathf.Max(b.size.x, b.size.y, b.size.z);
                 model.transform.localScale = Vector3.one * scale;
                 model.transform.localPosition = -new Vector3(b.center.x, b.min.y, b.center.z) * scale;
-                if (slug == "mountain" || slug == "floating-platform")
+                if (slug == "mountain" || slug == "floating-platform" || slug == "guild-house" || slug == "guild-house-interior")
                 {
                     var filter = model.GetComponentInChildren<MeshFilter>();
                     var collider = filter.gameObject.AddComponent<MeshCollider>();
@@ -71,6 +73,34 @@ namespace TinyGiantProblems.Editor
         // One soft, flat-coloured material per technician colour region
         // (Tools/import_new_models.py REGIONS order). The Guild Member editor
         // tints these per region at runtime.
+        [System.Serializable] sealed class Palette { public string[] names; public float[] flat; }
+
+        // Flat-colour materials from Tools/import_new_models.py's palette file
+        // (one per OBJ colour group), or null when the model keeps its texture.
+        static Material[] PaletteMaterials(string folder, string slug)
+        {
+            string path = folder + "/" + slug + ".palette.json";
+            if (!File.Exists(path)) return null;
+            var json = File.ReadAllText(path);
+            var names = JsonUtility.FromJson<Palette>(json).names;
+            // colours are a list of [r,g,b] lists, which JsonUtility cannot read: parse by hand.
+            var nums = System.Text.RegularExpressions.Regex.Matches(json.Substring(json.IndexOf("colors")), @"-?\d+(\.\d+)?(e-?\d+)?").Cast<System.Text.RegularExpressions.Match>().Select(m => float.Parse(m.Value, System.Globalization.CultureInfo.InvariantCulture)).ToArray();
+            var mats = new Material[names.Length];
+            for (int i = 0; i < names.Length; i++)
+            {
+                string mp = folder + "/" + slug + " " + names[i] + ".mat";
+                var m = AssetDatabase.LoadAssetAtPath<Material>(mp);
+                if (!m) { m = new Material(Shader.Find("Universal Render Pipeline/Lit")); AssetDatabase.CreateAsset(m, mp); }
+                var c = new Color(nums[i * 3], nums[i * 3 + 1], nums[i * 3 + 2]);
+                m.SetColor("_BaseColor", c); m.SetTexture("_BaseMap", null);
+                m.SetFloat("_Metallic", 0); m.SetFloat("_Smoothness", .15f); m.SetFloat("_Cull", 0);
+                m.enableInstancing = true;
+                EditorUtility.SetDirty(m);
+                mats[i] = m;
+            }
+            return mats;
+        }
+
         static Material[] TechnicianMaterials(string folder)
         {
             var mats = new Material[TechnicianLook.RegionNames.Length];
@@ -118,7 +148,7 @@ namespace TinyGiantProblems.Editor
         {
             var lib = Resources.Load<ItemLibrary>("ItemLibrary");
             var list = lib.entries.ToList();
-            foreach (var key in new[] { "climbing-claw/climbing-claw", "mountain/mountain", "floating-platform/floating-platform", "extraction-beacon/beacon-clean", TechnicianRigBuilder.Key })
+            foreach (var key in new[] { "climbing-claw/climbing-claw", "mountain/mountain", "floating-platform/floating-platform", "guild-house/guild-house", "guild-house-interior/guild-house-interior", "extraction-beacon/beacon-clean", "guild-workshop-furniture-kit/stool", "technician-cosmetic-kit/hat", "technician-cosmetic-kit/scarf", TechnicianRigBuilder.Key })
             {
                 var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(GiantTinyAssets.Root + "/" + key + ".prefab");
                 if (!prefab) throw new InvalidOperationException("Missing prefab " + key);

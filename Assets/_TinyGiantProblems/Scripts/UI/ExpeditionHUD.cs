@@ -70,6 +70,22 @@ namespace TinyGiantProblems
             Button(result, "ANOTHER EXPEDITION", -430, () => game.Begin());
             Button(result, "BACK TO GUILD", -495, ReturnToGuild);
         }
+        // Where the technician is: in the Guild House, out in the meadow, or on
+        // Mossback (his back, a flank while climbing, or a placed platform).
+        string ZoneLabel()
+        {
+            var p = game.player;
+            if (GuildHouse.PlayerInside) return "Guild House";
+            var frame = game.creature ? game.creature.transform : null;
+            if (frame && Physics.Raycast(p.transform.position + Vector3.up * .5f, Vector3.down, out var hit, 3f, ~0, QueryTriggerInteraction.Ignore))
+            {
+                if (hit.collider.GetComponentInParent<PlacedPlatform>()) return "Floating Platform";
+                if (hit.collider.transform.IsChildOf(frame)) return p.ZoneName == "Guild harness" ? "Back" : p.ZoneName;
+            }
+            if (p.climbing) return "Flank (climbing)";
+            return p.grounded ? "Meadow" : "In the air";
+        }
+
         void ReturnToGuild() { FindAnyObjectByType<CrewSession>()?.Shutdown(); game.SetPause(false); game.Phase=ExpeditionPhase.Briefing; Cursor.lockState=CursorLockMode.None; Cursor.visible=true; NetworkStatus="Solo expedition"; }
         void Update()
         {
@@ -78,7 +94,7 @@ namespace TinyGiantProblems
             pausePanel.SetActive(game.Paused);
             debriefPanel.SetActive(game.Phase == ExpeditionPhase.Debrief);
             foreach(var panel in gameplayPanels) panel.SetActive(game.IsPlaying && !game.Paused);
-            status.text = $"MOSSBACK  /  {game.player.ZoneName}\nComfort   {game.Comfort:0}%\nGrip          {game.player.grip:0}%\n{NetworkStatus}";
+            status.text = $"MOSSBACK  /  {ZoneLabel()}\nComfort   {game.Comfort:0}%\nGrip          {game.player.grip:0}%\n{NetworkStatus}";
             jobs.text = "";
             for (int i = 0; i < game.jobs.Length; i++)
             {

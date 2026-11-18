@@ -30,6 +30,8 @@ MODELS = {
     'claws.glb': ('climbing-claw', 5000, 'largest'),
     'mountain.glb': ('mountain', 10000, None),
     'floaring platform.glb': ('floating-platform', 12000, None),
+    'house.glb': ('guild-house', 90000, 'largest'),
+    'house interior.glb': ('guild-house-interior', 80000, None),
 }
 
 
@@ -177,7 +179,8 @@ def technician_regions(src_v, src_f, src_uv, texture, V, F):
     return label
 
 
-def export_obj_regions(path, vertices, normals, uvs, faces, labels):
+def export_obj_regions(path, vertices, normals, uvs, faces, labels, names=None):
+    names = names or REGIONS
     staging = path.with_suffix('.obj.tmp')
     with staging.open('w', newline='\n') as out:
         out.write('# Technician, decimated, one usemtl group per colour region\nmtllib ' + path.stem + '.mtl\no ' + path.stem + '\n')
@@ -185,7 +188,7 @@ def export_obj_regions(path, vertices, normals, uvs, faces, labels):
         uv = uvs.copy(); uv[:, 1] = 1 - uv[:, 1]
         np.savetxt(out, uv, fmt='vt %.9g %.9g')
         np.savetxt(out, normals, fmt='vn %.9g %.9g %.9g')
-        for i, name in enumerate(REGIONS):
+        for i, name in enumerate(names):
             sel = faces[labels == i]
             out.write('usemtl ' + name + '\n')
             if len(sel) == 0:
@@ -196,8 +199,94 @@ def export_obj_regions(path, vertices, normals, uvs, faces, labels):
     staging.replace(path)
     # Unity only splits OBJ groups into submeshes when a material library exists.
     with path.with_suffix('.mtl').open('w', newline='\n') as mtl:
-        for name in REGIONS:
+        for name in names:
             mtl.write('newmtl ' + name + '\nKd 0.8 0.8 0.8\n\n')
+
+
+# ---- palette regions for props (guild house) --------------------------------
+# Same speckle problem as the technician: cluster the source texture into a
+# small palette, give each decimated face the majority colour of its nearest
+# source faces, smooth, and export one usemtl group per palette colour.
+# The palette is written next to the OBJ (<slug>.palette.json) for Unity.
+PALETTE_MODELS = {'guild-house': 9, 'guild-house-interior': 8}
+ROOF_LINE = {'guild-house': .5}  # fraction of the height where the roof starts
+# The generated buildings sit rotated inside their own space. Turn them (degrees
+# about Y, found by minimising the footprint's bounding box) so walls line up
+# with the axes; the extra multiple of 90 puts the main door at +Z in Unity.
+ALIGN = {'guild-house': 28.5, 'guild-house-interior': 63.5}
+
+
+def align_yaw(v, n, degrees):
+    r = np.radians(degrees); c, s = np.cos(r), np.sin(r)
+    def turn(a):
+        a = a.copy(); x, z = a[:, 0].copy(), a[:, 2].copy()
+        a[:, 0] = x * c + z * s; a[:, 2] = -x * s + z * c
+        return a
+    return turn(v), turn(n)
+
+
+def palette_regions(src_v, src_f, src_uv, texture, V, F, k, roof=None):
+    import io
+    from PIL import Image
+    from scipy.spatial import cKDTree
+    from scipy.cluster.vq import kmeans2
+    from collections import defaultdict
+    im = np.asarray(Image.open(io.BytesIO(texture)).convert('RGB')).astype(np.float32) / 255
+    h, w, _ = im.shape
+    c = src_uv[src_f].mean(1)
+    col = im[np.clip((c[:, 1] * h).astype(int), 0, h - 1), np.clip((c[:, 0] * w).astype(int), 0, w - 1)]
+    rng = np.random.default_rng(3)
+    sample = col[rng.choice(len(col), min(60000, len(col)), replace=False)]
+    cent, _ = kmeans2(sample, k, minit='++', seed=4)
+    fam = cKDTree(cent).query(col)[1]
+    tree = cKDTree(src_v[src_f].mean(1))
+    _, near = tree.query(V[F].mean(1), k=24)
+    votes = np.zeros((len(F), k))
+    for j in range(near.shape[1]):
+        np.add.at(votes, (np.arange(len(F)), fam[near[:, j]]), 1)
+    label = votes.argmax(1)
+    corners = np.round(V[F].reshape(-1, 3), 5)
+    _, cid = np.unique(corners, axis=0, return_inverse=True)
+    cid = cid.reshape(-1, 3)
+    byc = defaultdict(list)
+    for fi, tri in enumerate(cid):
+        for cc in tri: byc[cc].append(fi)
+    nbrs = [sorted({o for cc in tri for o in byc[cc] if o != fi}) for fi, tri in enumerate(cid)]
+    # Roof: everything above the eaves that faces upward takes the main roof
+    # colour (removes the dark smears the generated texture left on the tiles).
+    if roof:
+        Fc = V[F].mean(1); lo, hi = V[:, 1].min(), V[:, 1].max()
+        fn = np.cross(V[F][:, 1] - V[F][:, 0], V[F][:, 2] - V[F][:, 0])
+        fn /= np.maximum(np.linalg.norm(fn, axis=1, keepdims=True), 1e-12)
+        up = (Fc[:, 1] > lo + roof * (hi - lo)) & (np.abs(fn[:, 1]) > .3)
+        if up.any():
+            label[up] = np.bincount(label[up], minlength=k).argmax()
+    # Majority smoothing: crisp, straight region borders.
+    for _ in range(5):
+        new = label.copy()
+        for fi in range(len(label)):
+            counts = np.bincount(label[nbrs[fi]], minlength=k) if nbrs[fi] else None
+            if counts is not None and counts[label[fi]] * 2 < counts.max(): new[fi] = counts.argmax()
+        label = new
+    # Small islands (< 60 faces) take the colour around them.
+    for _ in range(3):
+        seen = np.zeros(len(label), bool)
+        for start in range(len(label)):
+            if seen[start]: continue
+            comp = [start]; seen[start] = True; i = 0
+            while i < len(comp):
+                for o in nbrs[comp[i]]:
+                    if not seen[o] and label[o] == label[start]: seen[o] = True; comp.append(o)
+                i += 1
+            if len(comp) < 60:
+                border = [label[o] for f2 in comp for o in nbrs[f2] if label[o] != label[start]]
+                if border: label[comp] = np.bincount(border, minlength=k).argmax()
+    # Palette colour = median of the faces actually assigned to it.
+    colors = []
+    for i in range(k):
+        members = fam == i
+        colors.append(np.median(col[members], axis=0).tolist() if members.any() else cent[i].tolist())
+    return label, colors
 
 
 def main():
@@ -213,12 +302,20 @@ def main():
         used = np.unique(f)
         remap = np.zeros(len(v), dtype=np.int64); remap[used] = np.arange(len(used))
         v, n, uv, f = v[used], n[used], uv[used], remap[f]
+        if slug in ALIGN:
+            v, n = align_yaw(v, n, ALIGN[slug])
         src = (v, f, uv)
         v, n, uv, f = weld(v, n, uv, f)
         v, n, uv, f = decimate(v, n, uv, f, target)
         folder = DEST / slug
         folder.mkdir(parents=True, exist_ok=True)
-        if slug == 'technician':
+        if slug in PALETTE_MODELS:
+            labels, colors = palette_regions(src[0], src[1], src[2], texture, v, f, PALETTE_MODELS[slug], ROOF_LINE.get(slug))
+            names = ['Colour%d' % i for i in range(len(colors))]
+            export_obj_regions(folder / (slug + '.obj'), v, n, uv, f, labels, names)
+            (folder / (slug + '.palette.json')).write_text(json.dumps({'names': names, 'colors': colors}, indent=1))
+            print('palette', [[round(x, 2) for x in c] for c in colors], np.bincount(labels).tolist())
+        elif slug == 'technician':
             labels = technician_regions(src[0], src[1], src[2], texture, v, f)
             export_obj_regions(folder / (slug + '.obj'), v, n, uv, f, labels)
             print('regions', {name: int((labels == i).sum()) for i, name in enumerate(REGIONS)})

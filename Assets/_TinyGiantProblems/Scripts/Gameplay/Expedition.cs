@@ -104,10 +104,12 @@ namespace TinyGiantProblems
             nextReaction=Random.Range(26f,43f);
             creature.reactionPulse=1.2f;
             WarningRemaining = 0;
-            bool secure = player.braced || player.tethered;
+            // Only technicians actually standing on (or climbing) Mossback get thrown.
+            bool onMossback = player.climbing || Physics.Raycast(player.transform.position + Vector3.up * .5f, Vector3.down, out var under, 2.5f, ~0, QueryTriggerInteraction.Ignore) && under.collider.transform.IsChildOf(creature.transform);
+            bool secure = player.braced || player.tethered || !onMossback;
             if (secure) player.Shake(Reaction == "SNEEZE" ? .55f : .8f, .7f);
             else player.Launch(ReactionThrow(Reaction));
-            Caption = secure ? "[Secure!] Nice bracing. Back to work." : Reaction == "SNEEZE" ? "[AAAH-CHOO!] Blasted off the back! Brace (F) when Mossback inhales." : "[Whoooosh!] Shaken loose! Brace (F) when the fur starts to rumble.";
+            Caption = !onMossback ? "[Distant rumble] Mossback "+(Reaction == "SNEEZE" ? "sneezes" : "shakes")+" out in the meadow." : secure ? "[Secure!] Nice bracing. Back to work." : Reaction == "SNEEZE" ? "[AAAH-CHOO!] Blasted off the back! Brace (F) when Mossback inhales." : "[Whoooosh!] Shaken loose! Brace (F) when the fur starts to rumble.";
             ReactionImpact?.Invoke(Reaction);
             Reaction = "";
             Irritation = Mathf.Max(0, Irritation - 10);

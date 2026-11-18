@@ -65,8 +65,18 @@ MonoBehaviour:
     prefab: {fileID: 627476803237861041, guid: 01927881406d25045b5c9d9f0e69659a, type: 3}
   - key: floating-platform/floating-platform
     prefab: {fileID: 7922416636585299382, guid: 6064c38f95dbb2c4fabe2aecd52a77ed, type: 3}
+  - key: guild-house/guild-house
+    prefab: {fileID: 5066286000464710741, guid: 3fbf4f856e4e69b4bb1486f8a3ffcca9, type: 3}
+  - key: guild-house-interior/guild-house-interior
+    prefab: {fileID: 1106551919258077744, guid: 1209d703f62ceae48bbeaeb58f9e1c2e, type: 3}
   - key: extraction-beacon/beacon-clean
     prefab: {fileID: 8345971039569311398, guid: a2ef380097f5e7743a3345467d32ca63, type: 3}
+  - key: guild-workshop-furniture-kit/stool
+    prefab: {fileID: 8610962309212219777, guid: 686235c3e8f74284b93ee68fd6df3117, type: 3}
+  - key: technician-cosmetic-kit/hat
+    prefab: {fileID: 6151029481134450853, guid: 80ff65d973ddb45418564f802d07f25f, type: 3}
+  - key: technician-cosmetic-kit/scarf
+    prefab: {fileID: 5175373118513172988, guid: 4e4e13245a1468f4ab1a9e1a913fdc85, type: 3}
   - key: technician/technician-rigged
     prefab: {fileID: 5938245825986022655, guid: e8883b82eed266d49ad9fbf0effd80ae, type: 3}
   baseMaterial: {fileID: 2100000, guid: e73e344b6685131438e6081d8cfbc28b, type: 2}

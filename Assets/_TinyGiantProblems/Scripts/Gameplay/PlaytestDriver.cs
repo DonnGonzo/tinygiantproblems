@@ -122,6 +122,17 @@ namespace TinyGiantProblems
                 yield return new WaitForSeconds(4f);
                 Check(p.transform.position.y < g.creature.transform.position.y - 5, "Glider brings the technician down to the meadow");
                 Capture("14-salvage-yard");
+                // The sell counter is inside the Guild House: walk in through the open door.
+                Check(GuildHouse.DoorOutside, "Guild House stands in the meadow");
+                if (GuildHouse.DoorOutside)
+                {
+                    p.Warp(GuildHouse.DoorOutside.position + Vector3.up * .2f);
+                    p.yaw = Quaternion.LookRotation(-GuildHouse.Exterior.forward).eulerAngles.y;
+                    p.MoveOverride = new Vector3(0, 0, 1);
+                    yield return new WaitForSeconds(2.2f);
+                    p.MoveOverride = Vector3.zero;
+                }
+                Check(GuildHouse.PlayerInside, "Walking through the open door takes you inside the Guild House");
                 SellStation sell = null;
                 foreach (var s in Station.All) if (s is SellStation ss) sell = ss;
                 if (sell)
@@ -136,6 +147,11 @@ namespace TinyGiantProblems
                     Check(econ.Coins > coins && econ.Inventory.Count(ItemId.Twig) == 0, "Selling converts salvage to coins");
                     Capture("16-sold");
                 }
+                p.yaw = Quaternion.LookRotation(GuildHouse.Exterior.forward).eulerAngles.y;
+                p.MoveOverride = new Vector3(0, 0, 1);
+                yield return new WaitForSeconds(3f);
+                p.MoveOverride = Vector3.zero;
+                Check(!GuildHouse.PlayerInside, "Walking back out through the door returns you to the meadow");
                 p.Warp(post.transform.position + Vector3.forward * 1.5f);
                 yield return new WaitForSeconds(.3f);
                 post.Interact();
