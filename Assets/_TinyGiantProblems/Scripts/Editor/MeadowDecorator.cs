@@ -136,6 +136,7 @@ namespace TinyGiantProblems.Editor
             var skyPath=Folder+"/Meadow sky.mat";var sky=AssetDatabase.LoadAssetAtPath<Material>(skyPath);if(!sky) {sky=new Material(Shader.Find("Skybox/Procedural"));AssetDatabase.CreateAsset(sky,skyPath);}sky.SetColor("_SkyTint",new Color(.48f,.58f,.64f));sky.SetColor("_GroundColor",new Color(.52f,.62f,.57f));sky.SetFloat("_Exposure",1.1f);EditorUtility.SetDirty(sky);RenderSettings.skybox=sky;
             g.player.orbitCamera.clearFlags=CameraClearFlags.Skybox;g.player.orbitCamera.farClipPlane=800;
             MeadowPolish.Apply();
+            WorldCollisionBuilder.ApplyScene();
             AssetDatabase.SaveAssets();EditorSceneManager.MarkSceneDirty(g.gameObject.scene);EditorSceneManager.SaveScene(g.gameObject.scene);
         }
         static void FitTechnician(TechnicianMotor player)

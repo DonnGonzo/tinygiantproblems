@@ -77,7 +77,7 @@ namespace TinyGiantProblems
         {
             var go = GameObject.CreatePrimitive(type);
             go.name = name;
-            UnityEngine.Object.Destroy(go.GetComponent<Collider>());
+            if (Application.isPlaying) UnityEngine.Object.Destroy(go.GetComponent<Collider>()); else UnityEngine.Object.DestroyImmediate(go.GetComponent<Collider>());
             go.transform.SetParent(parent, false);
             go.transform.localPosition = localPos;
             go.transform.localScale = localScale;
@@ -95,7 +95,7 @@ namespace TinyGiantProblems
             if (!prefab) return null;
             var go = UnityEngine.Object.Instantiate(prefab, parent, false);
             go.name = key;
-            foreach (var c in go.GetComponentsInChildren<Collider>()) UnityEngine.Object.Destroy(c);
+            foreach (var c in go.GetComponentsInChildren<Collider>()) { if (Application.isPlaying) UnityEngine.Object.Destroy(c); else UnityEngine.Object.DestroyImmediate(c); }
             float parentScale = parent ? Mathf.Max(.0001f, parent.lossyScale.x) : 1;
             go.transform.localScale = Vector3.one * worldSize / parentScale;
             return go;

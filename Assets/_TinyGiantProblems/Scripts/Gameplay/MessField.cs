@@ -19,13 +19,132 @@ namespace TinyGiantProblems
         Transform frame;
 
         public CareTool Tool => kind == MessKind.Mite ? CareTool.Vacuum : CareTool.Groomer;
-        public float CleanSeconds => kind == MessKind.Grime ? 1.6f : kind == MessKind.Burr ? 2.1f : 1.1f;
+        public float CleanSeconds => kind == MessKind.Grime ? 1.6f : kind == MessKind.Burr ? 2.1f : 2.4f;
+
+        // ---- Bramblemite behaviour: roams Mossback only, flees the technician,
+        // and fights back once when the vacuum starts pulling it off. ----
+        public enum MiteState { Wander, Flee, Windup, Escape }
+        public MiteState State { get; private set; }
+        public float wanderSpeed = 1.3f, fleeSpeed = 3.3f, escapeSpeed = 5.5f, fearRadius = 7.5f;
+        Vector2 miteLocal, wanderTarget;
+        float stateTimer, surfaceTimer, attackCooldown, surfaceY;
+        bool attacked;
+        Vector3 surfaceNormal = Vector3.up;
+        static readonly Vector2 RoamMin = new Vector2(-5.8f, -9.5f), RoamMax = new Vector2(5.8f, 18f);
         public string Label => kind == MessKind.Grime ? "Grime patch" : kind == MessKind.Burr ? "Burr" : "Bramblemite";
 
         public void Init(MessKind k, Transform v, Transform creatureFrame, float seed)
         {
             kind = k; visual = v; frame = creatureFrame; phase = seed;
             restScale = v.localScale; homeLocal = transform.localPosition;
+            if (kind == MessKind.Mite && frame)
+            {
+                var l = frame.InverseTransformPoint(transform.position);
+                miteLocal = new Vector2(l.x, l.z); surfaceY = l.y; wanderTarget = miteLocal;
+                surfaceNormal = normal;
+            }
+        }
+
+        void TickMite(float t, bool worked)
+        {
+            float dt = Time.deltaTime;
+            var game = Expedition.Instance;
+            var player = game ? game.player : null;
+            Vector2 playerLocal = miteLocal + Vector2.one * 999;
+            float playerDist = 999;
+            if (player)
+            {
+                var pl = frame.InverseTransformPoint(player.transform.position);
+                playerLocal = new Vector2(pl.x, pl.z);
+                playerDist = Vector3.Distance(player.transform.position, transform.position);
+            }
+            attackCooldown -= dt; stateTimer -= dt;
+            float scale = Mathf.Max(.01f, frame.lossyScale.x);
+            float speed = 0; Vector2 dir = Vector2.zero;
+            bool playing = game && game.IsPlaying;
+            // The vacuum has a grip: rear up, then strike back once.
+            if (worked && !attacked && progress > .3f && State != MiteState.Windup && attackCooldown <= 0)
+            { State = MiteState.Windup; stateTimer = .55f; if (game) game.Caption = "[Angry chittering] The Bramblemite rears up. BRACE (F / B)!"; }
+            switch (State)
+            {
+                case MiteState.Windup:
+                    if (stateTimer <= 0)
+                    {
+                        Strike(player, game, playerDist);
+                        attacked = true; attackCooldown = 6;
+                        progress = Mathf.Min(progress, .45f);
+                        State = MiteState.Escape; stateTimer = 2.6f;
+                    }
+                    break;
+                case MiteState.Escape:
+                    dir = (miteLocal - playerLocal).normalized; speed = escapeSpeed;
+                    if (stateTimer <= 0) State = MiteState.Wander;
+                    break;
+                default:
+                    if (playing && playerDist < fearRadius && !worked)
+                    {
+                        State = MiteState.Flee;
+                        dir = (miteLocal - playerLocal).normalized;
+                        // Cornered at the edge of the coat: slide sideways instead of freezing.
+                        var ahead = miteLocal + dir * .8f;
+                        if (ahead.x < RoamMin.x || ahead.x > RoamMax.x || ahead.y < RoamMin.y || ahead.y > RoamMax.y)
+                            dir = new Vector2(-dir.y, dir.x) * (Mathf.Sin(phase) > 0 ? 1 : -1);
+                        speed = fleeSpeed;
+                    }
+                    else if (worked) { State = MiteState.Wander; speed = 0; }
+                    else
+                    {
+                        State = MiteState.Wander;
+                        if ((wanderTarget - miteLocal).sqrMagnitude < .05f || stateTimer <= 0)
+                        {
+                            wanderTarget = new Vector2(Mathf.Lerp(RoamMin.x, RoamMax.x, Mathf.PerlinNoise(t * .13f, phase)), Mathf.Lerp(RoamMin.y, RoamMax.y, Mathf.PerlinNoise(phase, t * .11f)));
+                            stateTimer = 6;
+                        }
+                        dir = (wanderTarget - miteLocal).normalized; speed = wanderSpeed;
+                    }
+                    break;
+            }
+            if (speed > 0 && dir.sqrMagnitude > .001f)
+            {
+                miteLocal += dir * speed / scale * dt;
+                miteLocal = new Vector2(Mathf.Clamp(miteLocal.x, RoamMin.x, RoamMax.x), Mathf.Clamp(miteLocal.y, RoamMin.y, RoamMax.y));
+            }
+            surfaceTimer -= dt;
+            if (surfaceTimer <= 0 && MessField.Instance)
+            {
+                surfaceTimer = .12f;
+                if (MessField.Instance.SurfaceAt(miteLocal, out var hit))
+                { surfaceY = frame.InverseTransformPoint(hit.point).y; surfaceNormal = hit.normal; }
+            }
+            normal = Vector3.Slerp(normal, surfaceNormal, dt * 8);
+            var local = new Vector3(miteLocal.x, Mathf.Lerp(frame.InverseTransformPoint(transform.position).y, surfaceY, dt * 12), miteLocal.y);
+            float hop = State == MiteState.Windup ? .35f : Mathf.Abs(Mathf.Sin(t * (speed > 2 ? 18 : 9))) * (speed > 0 ? .07f : .02f);
+            transform.position = frame.TransformPoint(local) + normal * hop;
+            var heading = frame.TransformDirection(new Vector3(dir.x, 0, dir.y));
+            if (State == MiteState.Windup && player) heading = player.transform.position - transform.position;
+            heading = Vector3.ProjectOnPlane(heading, normal);
+            if (heading.sqrMagnitude > .001f) transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(heading, normal), dt * 10);
+            if (visual && State == MiteState.Windup) visual.localRotation = Quaternion.Euler(-35, 0, Mathf.Sin(t * 60) * 8);
+            else if (visual) visual.localRotation = Quaternion.identity;
+        }
+
+        void Strike(TechnicianMotor player, Expedition game, float dist)
+        {
+            if (!player || dist > 5f) return;
+            ProceduralSfx.Play(ProceduralSfx.Pop, 1);
+            if (player.braced) { if (game) game.Caption = "[Thunk] Braced! The Bramblemite bounces off and bolts."; return; }
+            if (Random.value < .5f)
+            {
+                var away = player.transform.position - transform.position; away.y = 0;
+                player.grace = 0;
+                player.Launch(away.normalized * 7 + Vector3.up * 6);
+                if (game) game.Caption = "[Whack!] The Bramblemite headbutts you off balance and scurries away.";
+            }
+            else
+            {
+                player.Stun(2.2f);
+                if (game) game.Caption = "[Zzzt!] Bramblemite sting: you're paralyzed for a moment. It's getting away!";
+            }
         }
 
         public void AddGlint()
@@ -67,16 +186,7 @@ namespace TinyGiantProblems
             float jiggle = worked ? 1 + Mathf.Sin(t * 42) * .08f : 1;
             float pingPulse = ping > 0 ? 1 + Mathf.Sin(t * 10) * .15f : 1;
             if (visual) visual.localScale = restScale * shrink * jiggle * pingPulse;
-            if (kind == MessKind.Mite && !worked && frame)
-            {
-                // Mites wander in slow loops over the coat until vacuumed.
-                float a = t * .7f;
-                var offset = (frame.right * Mathf.Cos(a) + frame.forward * Mathf.Sin(a * 1.3f)) * .55f;
-                var home = transform.parent ? transform.parent.TransformPoint(homeLocal) : homeLocal;
-                transform.position = home + offset + normal * Mathf.Abs(Mathf.Sin(t * 9)) * .05f;
-                var heading = -frame.right * Mathf.Sin(a) + frame.forward * Mathf.Cos(a * 1.3f) * 1.3f;
-                if (heading.sqrMagnitude > .001f) transform.rotation = Quaternion.LookRotation(Vector3.ProjectOnPlane(heading, normal), normal);
-            }
+            if (kind == MessKind.Mite && frame) TickMite(t, worked);
             if (glint) glint.transform.localScale = Vector3.one * (.05f + Mathf.Max(0, Mathf.Sin(t * 3)) * .12f);
             if (ping > 0)
             {
@@ -219,6 +329,23 @@ namespace TinyGiantProblems
             return false;
         }
 
+        // Top-most walkable Mossback surface (deck or coat) under a creature-local XZ point.
+        public bool SurfaceAt(Vector2 localXZ, out RaycastHit best)
+        {
+            best = default;
+            var origin = frame.transform.TransformPoint(new Vector3(localXZ.x, 24, localXZ.y));
+            var hits = Physics.RaycastAll(origin, -frame.transform.up, 120, ~0, QueryTriggerInteraction.Ignore);
+            float d = float.MaxValue; bool found = false;
+            foreach (var h in hits)
+            {
+                if (h.distance >= d || !h.collider.transform.IsChildOf(frame.transform)) continue;
+                var n = h.collider.name;
+                if (n.StartsWith("AnchorSocket") || n.StartsWith("Guild supply")) continue;
+                d = h.distance; best = h; found = true;
+            }
+            return found;
+        }
+
         Transform Anchor(RaycastHit hit)
         {
             if (hit.collider.name.EndsWith(" traversal")) return hit.collider.transform.parent ? hit.collider.transform.parent : frame.transform;
@@ -235,7 +362,8 @@ namespace TinyGiantProblems
         {
             var go = new GameObject(kind + " mess");
             var t = go.transform;
-            t.SetParent(Anchor(hit), true);
+            // Mites roam the whole back, so they ride the creature frame rather than one joint or deck.
+            t.SetParent(kind == MessKind.Mite ? frame.transform : Anchor(hit), true);
             t.position = hit.point + hit.normal * .02f;
             t.rotation = Quaternion.FromToRotation(Vector3.up, hit.normal) * Quaternion.Euler(0, Range(rng, 0, 360), 0);
             var ls = t.parent.lossyScale;

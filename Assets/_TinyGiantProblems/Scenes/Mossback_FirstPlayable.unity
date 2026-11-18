@@ -179,6 +179,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4309326177870836427, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8246269019876577606, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
       propertyPath: m_Name
       value: rope-ladder
@@ -325,6 +329,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3412461623198704365, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4309326177870836427, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
+      propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8246269019876577606, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
@@ -1252,6 +1260,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 893246965}
     m_Modifications:
+    - target: {fileID: 3467613326599897152, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5081022186952868828, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
       propertyPath: m_LocalScale.x
       value: 2.6
@@ -1400,6 +1412,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 558291763}
     m_Modifications:
+    - target: {fileID: 3467613326599897152, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5081022186952868828, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
       propertyPath: m_LocalScale.x
       value: 1.2
@@ -1598,6 +1614,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3412461623198704365, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4309326177870836427, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
+      propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8246269019876577606, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
@@ -2044,6 +2064,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4309326177870836427, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8246269019876577606, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
       propertyPath: m_Name
       value: rope-ladder
@@ -2202,6 +2226,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 508196089}
     m_Modifications:
+    - target: {fileID: 3467613326599897152, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5081022186952868828, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
       propertyPath: m_LocalScale.x
       value: 2.6
@@ -3532,6 +3560,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 558291763}
     m_Modifications:
+    - target: {fileID: 3467613326599897152, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5081022186952868828, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
       propertyPath: m_LocalScale.x
       value: 1.2
@@ -3954,6 +3986,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4309326177870836427, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8246269019876577606, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
       propertyPath: m_Name
       value: rope-ladder
@@ -4217,6 +4253,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4309326177870836427, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8246269019876577606, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
       propertyPath: m_Name
       value: rope-ladder
@@ -4289,6 +4329,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3412461623198704365, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4309326177870836427, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
+      propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8246269019876577606, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
@@ -5286,6 +5330,7 @@ GameObject:
   - component: {fileID: 322942211}
   - component: {fileID: 322942213}
   - component: {fileID: 322942212}
+  - component: {fileID: 322942214}
   m_Layer: 0
   m_Name: Harness timber supports
   m_TagString: Untagged
@@ -5364,6 +5409,28 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 322942210}
+  m_Mesh: {fileID: 4300000, guid: fc4d568b5e0cefc42a1a1d9a21c8da07, type: 2}
+--- !u!64 &322942214
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 322942210}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
   m_Mesh: {fileID: 4300000, guid: fc4d568b5e0cefc42a1a1d9a21c8da07, type: 2}
 --- !u!1001 &325410777
 PrefabInstance:
@@ -5727,6 +5794,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2784430875304691670, guid: f6637cafca1ec144193609615da0b01f, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3912789274830065109, guid: f6637cafca1ec144193609615da0b01f, type: 3}
+      propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -6124,6 +6195,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: scarf
       objectReference: {fileID: 0}
+    - target: {fileID: 7699747330322367397, guid: 4e4e13245a1468f4ab1a9e1a913fdc85, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -6145,6 +6220,7 @@ GameObject:
   - component: {fileID: 356285382}
   - component: {fileID: 356285384}
   - component: {fileID: 356285383}
+  - component: {fileID: 356285385}
   m_Layer: 0
   m_Name: Harness tied ropes
   m_TagString: Untagged
@@ -6223,6 +6299,28 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 356285381}
+  m_Mesh: {fileID: 4300000, guid: 98857be0c3469254aa7cfdfa4b8a2385, type: 2}
+--- !u!64 &356285385
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 356285381}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
   m_Mesh: {fileID: 4300000, guid: 98857be0c3469254aa7cfdfa4b8a2385, type: 2}
 --- !u!1001 &356922221
 PrefabInstance:
@@ -8314,6 +8412,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5131721088615269805, guid: 306a81cfe852c734fb115f328f99f12c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -8411,6 +8513,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 64534654}
     m_Modifications:
+    - target: {fileID: 3467613326599897152, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5081022186952868828, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
       propertyPath: m_LocalScale.x
       value: 2.6
@@ -8892,6 +8998,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 558291763}
     m_Modifications:
+    - target: {fileID: 3467613326599897152, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5081022186952868828, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
       propertyPath: m_LocalScale.x
       value: 1.2
@@ -9236,6 +9346,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 558291763}
     m_Modifications:
+    - target: {fileID: 3467613326599897152, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5081022186952868828, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
       propertyPath: m_LocalScale.x
       value: 1.2
@@ -9384,6 +9498,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 64534654}
     m_Modifications:
+    - target: {fileID: 3467613326599897152, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5081022186952868828, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
       propertyPath: m_LocalScale.x
       value: 2.6
@@ -10225,6 +10343,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 64534654}
     m_Modifications:
+    - target: {fileID: 3467613326599897152, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5081022186952868828, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
       propertyPath: m_LocalScale.x
       value: 2.6
@@ -10423,6 +10545,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3412461623198704365, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4309326177870836427, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
+      propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8246269019876577606, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
@@ -11255,6 +11381,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1873206192}
     m_Modifications:
+    - target: {fileID: 3467613326599897152, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5081022186952868828, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
       propertyPath: m_LocalScale.x
       value: 1.2
@@ -11798,6 +11928,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 893246965}
     m_Modifications:
+    - target: {fileID: 3467613326599897152, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5081022186952868828, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
       propertyPath: m_LocalScale.x
       value: 2.6
@@ -12109,6 +12243,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3412461623198704365, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4309326177870836427, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
+      propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8246269019876577606, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
@@ -12491,6 +12629,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4309326177870836427, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8246269019876577606, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
       propertyPath: m_Name
       value: rope-ladder
@@ -12841,6 +12983,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 895060003}
     m_Modifications:
+    - target: {fileID: 5055314504714626593, guid: acb5c5354ffd5824db19b8de1ae3af67, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5634164526499360889, guid: acb5c5354ffd5824db19b8de1ae3af67, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.6
@@ -13388,6 +13534,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1873206192}
     m_Modifications:
+    - target: {fileID: 3467613326599897152, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5081022186952868828, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
       propertyPath: m_LocalScale.x
       value: 2.6
@@ -13536,6 +13686,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1873206192}
     m_Modifications:
+    - target: {fileID: 3467613326599897152, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5081022186952868828, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
       propertyPath: m_LocalScale.x
       value: 1.2
@@ -15102,6 +15256,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4309326177870836427, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8246269019876577606, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
       propertyPath: m_Name
       value: rope-ladder
@@ -15272,6 +15430,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1873206192}
     m_Modifications:
+    - target: {fileID: 3467613326599897152, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5081022186952868828, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
       propertyPath: m_LocalScale.x
       value: 2.6
@@ -15976,6 +16138,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6940903780191436883, guid: f38e28b477792fc46958b24c99b5c5c7, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8393408809696344297, guid: f38e28b477792fc46958b24c99b5c5c7, type: 3}
+      propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -16759,6 +16925,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4309326177870836427, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8246269019876577606, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
       propertyPath: m_Name
       value: rope-ladder
@@ -17425,6 +17595,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4309326177870836427, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8246269019876577606, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
       propertyPath: m_Name
       value: rope-ladder
@@ -17810,6 +17984,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3412461623198704365, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4309326177870836427, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
+      propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8246269019876577606, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
@@ -18278,6 +18456,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 508196089}
     m_Modifications:
+    - target: {fileID: 3467613326599897152, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5081022186952868828, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
       propertyPath: m_LocalScale.x
       value: 2.6
@@ -19074,6 +19256,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 558291763}
     m_Modifications:
+    - target: {fileID: 3467613326599897152, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5081022186952868828, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
       propertyPath: m_LocalScale.x
       value: 2.6
@@ -19336,6 +19522,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3412461623198704365, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4309326177870836427, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
+      propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8246269019876577606, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
@@ -19814,6 +20004,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1873206192}
     m_Modifications:
+    - target: {fileID: 3467613326599897152, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5081022186952868828, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
       propertyPath: m_LocalScale.x
       value: 1.2
@@ -21591,6 +21785,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 508196089}
     m_Modifications:
+    - target: {fileID: 3467613326599897152, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5081022186952868828, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
       propertyPath: m_LocalScale.x
       value: 2.6
@@ -22100,6 +22298,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: pouch
       objectReference: {fileID: 0}
+    - target: {fileID: 5431477303547513201, guid: ad0d4d01a1f98b44cbe82aa627106c3f, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7773218654763980612, guid: ad0d4d01a1f98b44cbe82aa627106c3f, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.55
@@ -22356,6 +22558,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1361336861}
     m_Modifications:
+    - target: {fileID: 5071141785977415094, guid: 80ff65d973ddb45418564f802d07f25f, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5555408068286813535, guid: 80ff65d973ddb45418564f802d07f25f, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.78
@@ -22704,6 +22910,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4309326177870836427, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8246269019876577606, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
       propertyPath: m_Name
       value: rope-ladder
@@ -23022,6 +23232,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1873206192}
     m_Modifications:
+    - target: {fileID: 3467613326599897152, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5081022186952868828, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
       propertyPath: m_LocalScale.x
       value: 1.2
@@ -24225,6 +24439,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4309326177870836427, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8246269019876577606, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
       propertyPath: m_Name
       value: rope-ladder
@@ -25007,6 +25225,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4309326177870836427, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8246269019876577606, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
       propertyPath: m_Name
       value: rope-ladder
@@ -25135,6 +25357,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 558291763}
     m_Modifications:
+    - target: {fileID: 3467613326599897152, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5081022186952868828, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
       propertyPath: m_LocalScale.x
       value: 1.2
@@ -25894,6 +26120,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4309326177870836427, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8246269019876577606, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
       propertyPath: m_Name
       value: rope-ladder
@@ -26529,6 +26759,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1873206192}
     m_Modifications:
+    - target: {fileID: 3467613326599897152, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5081022186952868828, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
       propertyPath: m_LocalScale.x
       value: 2.6
@@ -27116,6 +27350,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1873206192}
     m_Modifications:
+    - target: {fileID: 3467613326599897152, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5081022186952868828, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
       propertyPath: m_LocalScale.x
       value: 1.2
@@ -27415,6 +27653,7 @@ GameObject:
   - component: {fileID: 1762323479}
   - component: {fileID: 1762323481}
   - component: {fileID: 1762323480}
+  - component: {fileID: 1762323482}
   m_Layer: 0
   m_Name: Harness brass collars
   m_TagString: Untagged
@@ -27493,6 +27732,28 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1762323478}
+  m_Mesh: {fileID: 4300000, guid: ec7d79cc582cb3046a722c4244aa8184, type: 2}
+--- !u!64 &1762323482
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1762323478}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
   m_Mesh: {fileID: 4300000, guid: ec7d79cc582cb3046a722c4244aa8184, type: 2}
 --- !u!1001 &1778923265
 PrefabInstance:
@@ -27700,6 +27961,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3412461623198704365, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4309326177870836427, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
+      propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8246269019876577606, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
@@ -28244,6 +28509,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1873206192}
     m_Modifications:
+    - target: {fileID: 3467613326599897152, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5081022186952868828, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
       propertyPath: m_LocalScale.x
       value: 1.2
@@ -28437,6 +28706,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 558291763}
     m_Modifications:
+    - target: {fileID: 3467613326599897152, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5081022186952868828, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
       propertyPath: m_LocalScale.x
       value: 2.6
@@ -28766,6 +29039,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 558291763}
     m_Modifications:
+    - target: {fileID: 3467613326599897152, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5081022186952868828, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
       propertyPath: m_LocalScale.x
       value: 1.2
@@ -29053,6 +29330,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 558291763}
     m_Modifications:
+    - target: {fileID: 3467613326599897152, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5081022186952868828, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
       propertyPath: m_LocalScale.x
       value: 2.6
@@ -31521,7 +31802,7 @@ ParticleSystem:
           m_PostInfinity: 2
           m_RotationOrder: 4
       cycleCount: 1
-      repeatInterval: 0.0001
+      repeatInterval: 0.01
       probability: 1
   SizeModule:
     enabled: 0
@@ -35386,6 +35667,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 893246965}
     m_Modifications:
+    - target: {fileID: 3467613326599897152, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5081022186952868828, guid: 1a65041638b16304f9fa165c8d59364c, type: 3}
       propertyPath: m_LocalScale.x
       value: 2.6
@@ -35510,6 +35795,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3412461623198704365, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4309326177870836427, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
+      propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8246269019876577606, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
@@ -37190,6 +37479,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4309326177870836427, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8246269019876577606, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
       propertyPath: m_Name
       value: rope-ladder
@@ -37336,6 +37629,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3412461623198704365, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4309326177870836427, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
+      propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8246269019876577606, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
@@ -37567,6 +37864,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3412461623198704365, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4309326177870836427, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}
+      propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8246269019876577606, guid: 97a2740d6c42d16439726a8e4e74f7c3, type: 3}

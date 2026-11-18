@@ -62,6 +62,7 @@ namespace TinyGiantProblems.Editor
                 PrefabUtility.SaveAsPrefabAsset(root, Path.ChangeExtension(path, ".prefab"));
                 UnityEngine.Object.DestroyImmediate(root);
             }
+            if(File.Exists(WorldCollisionBuilder.CollisionRoot+"/manifest.json")) WorldCollisionBuilder.ApplyLibrary();
             AssetDatabase.SaveAssets();
         }
         public static Bounds BoundsOf(GameObject go)

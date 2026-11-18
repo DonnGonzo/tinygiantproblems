@@ -7,7 +7,9 @@ namespace TinyGiantProblems
     {
         None = 0,
         // Tools
-        Brush = 1, Vacuum = 2, Sprayer = 3, RopeLauncher = 4, Grabber = 5, Scanner = 6, SnackLauncher = 7, Glider = 8,
+        Brush = 1, Vacuum = 2, Sprayer = 3, RopeLauncher = 4, Grabber = 5, Scanner = 6, SnackLauncher = 7, Glider = 8, Claw = 9,
+        // Placeables: the Floating Platform goes on Mossback's back, the rest on a platform
+        Platform = 10, SupplyCrate = 11, StaminaSpring = 12, RespawnBeacon = 13, ToolRack = 14,
         // Upgrades (owned, never placed in a slot)
         BigSack = 30, TurboBristles = 31,
         // Debris and finds (stackable, sold at the salvage station)
@@ -24,6 +26,8 @@ namespace TinyGiantProblems
         public CareTool care = CareTool.Hands;
         public int price, sellValue, maxStack = 1;
         public bool starter;
+        // Placed into the world from the hotbar (PlacementSystem). needsPlatform: only on a Floating Platform.
+        public bool placeable, needsPlatform;
         public Color color;
         // ItemLibrary key for the in-world model; empty uses a primitive stand-in.
         public string model;
@@ -49,6 +53,12 @@ namespace TinyGiantProblems
             Tool(ItemId.Grabber, "Multi-Grabber", "GR", "Hold USE to pull loose debris from 10 m away.", CareTool.Hands, 150, false, new Color(.55f, .62f, .86f), "multi-grabber-tool/multi-grabber-tool");
             Tool(ItemId.Scanner, "Portable Scanner", "SC", "Pings every mess and hidden find nearby.", CareTool.Hands, 180, false, new Color(.45f, .86f, .95f), "portable-scanner/portable-scanner");
             Tool(ItemId.SnackLauncher, "Snack Launcher", "SN", "Lob a treat: big comfort, delays the next sneeze.", CareTool.Hands, 250, false, new Color(.98f, .55f, .3f), "snack-launcher/snack-launcher");
+            Tool(ItemId.Claw, "Climbing Claw", "CL", "Walk into Mossback's flanks to climb anywhere. Watch the claw stamina bar.", CareTool.Hands, 200, false, new Color(.86f, .66f, .25f), "climbing-claw/climbing-claw");
+            Placeable(ItemId.Platform, "Floating Platform", "FP", "Place it on Mossback's back: a steady deck to stand on and build on.", 350, false, new Color(.72f, .5f, .3f), "floating-platform/floating-platform");
+            Placeable(ItemId.SupplyCrate, "Supply Crate", "SC", "Platform kit. Drop salvage here for 75% value, no lift ride needed.", 160, true, new Color(.6f, .42f, .25f), "chest/closed-chest");
+            Placeable(ItemId.StaminaSpring, "Stamina Spring", "SS", "Platform kit. Stand close to refill claw stamina and grip fast.", 140, true, new Color(.45f, .85f, .75f), "treatment-bottle/treatment-bottle");
+            Placeable(ItemId.RespawnBeacon, "Respawn Beacon", "RB", "Platform kit. The safety winch returns you here instead of the start.", 120, true, new Color(.98f, .85f, .45f), "extraction-beacon/beacon-clean");
+            Placeable(ItemId.ToolRack, "Tool Rack", "TR", "Platform kit. Opens the Guild Tool Locker right where you work.", 180, true, new Color(.3f, .55f, .55f), "tool-case/tool-case");
             Tool(ItemId.Glider, "Wind Glider", "GL", "Equip while falling to float down gently.", CareTool.Hands, 300, false, new Color(.72f, .9f, .55f), "glider/glider");
             Upgrade(ItemId.BigSack, "Big Debris Sack", "+S", "Debris stacks hold 32 instead of 16.", 100, new Color(.75f, .58f, .38f));
             Upgrade(ItemId.TurboBristles, "Turbo Bristles", "+T", "Brush and vacuum work 50% faster.", 220, new Color(.98f, .8f, .3f));
@@ -65,6 +75,11 @@ namespace TinyGiantProblems
         {
             var d = new ItemDef { id = id, kind = ItemKind.Tool, name = name, glyph = glyph, blurb = blurb, care = care, price = price, starter = starter, color = color, model = model, maxStack = 1, size = .6f };
             defs[id] = d; if (!starter) ShopOrder.Add(d);
+        }
+        static void Placeable(ItemId id, string name, string glyph, string blurb, int price, bool needsPlatform, Color color, string model)
+        {
+            Tool(id, name, glyph, blurb, CareTool.Hands, price, false, color, model);
+            defs[id].placeable = true; defs[id].needsPlatform = needsPlatform;
         }
         static void Upgrade(ItemId id, string name, string glyph, string blurb, int price, Color color)
         {

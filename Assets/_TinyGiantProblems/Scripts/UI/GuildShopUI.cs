@@ -24,7 +24,7 @@ namespace TinyGiantProblems
         {
             var root = UIKit.MakeCanvas("Guild Tool Locker UI", 20, out _);
             root.SetParent(transform, false);
-            var panel = UIKit.Panel(root, "Locker window", new Vector2(.5f, .5f), Vector2.zero, new Vector2(860, 640), UIKit.Ink, true);
+            var panel = UIKit.Panel(root, "Locker window", new Vector2(.5f, .5f), Vector2.zero, new Vector2(1280, 690), UIKit.Ink, true);
             window = panel.gameObject;
             var t = panel.transform;
             UIKit.Label(t, "SMALL WORKS GUILD  /  TOOL LOCKER", 15, UIKit.Gold, new Vector2(0, 1), new Vector2(34, -24), new Vector2(500, 24));
@@ -33,12 +33,13 @@ namespace TinyGiantProblems
             var defs = ItemCatalog.ShopOrder;
             for (int i = 0; i < defs.Count; i++)
             {
-                int col = i % 2, row = i / 2;
-                var card = UIKit.Panel(t, defs[i].name, new Vector2(0, 1), new Vector2(34 + col * 404, -112 - row * 112), new Vector2(390, 102), UIKit.InkLight);
+                // Three columns so tools, upgrades and platform kits all fit at 1600x900.
+                int col = i % 3, row = i / 3;
+                var card = UIKit.Panel(t, defs[i].name, new Vector2(0, 1), new Vector2(34 + col * 404, -104 - row * 98), new Vector2(390, 90), UIKit.InkLight);
                 var iconHolder = UIKit.Rect(card.transform, "Icon", new Vector2(0, .5f), new Vector2(14, 0), new Vector2(64, 64));
                 UIKit.Icon(iconHolder, defs[i], 64, out _, out _);
                 UIKit.Label(card.transform, defs[i].name, 20, UIKit.Cream, new Vector2(0, 1), new Vector2(92, -10), new Vector2(180, 28));
-                UIKit.Label(card.transform, defs[i].blurb, 14, UIKit.Muted, new Vector2(0, 1), new Vector2(92, -38), new Vector2(180, 60));
+                UIKit.Label(card.transform, defs[i].blurb, 13, UIKit.Muted, new Vector2(0, 1), new Vector2(92, -36), new Vector2(180, 52));
                 var r = new Row { def = defs[i], card = card };
                 var def = defs[i];
                 r.buy = UIKit.MakeButton(card.transform, "", new Vector2(1, .5f), new Vector2(-12, 0), new Vector2(96, 54), () => Buy(def), out r.price);

@@ -11,7 +11,7 @@ namespace TinyGiantProblems
     {
         public TechnicianMotor motor;
         public GameObject vacuum, brush, sprayer, ropeLauncher;
-        public GameObject grabber, scanner, snackLauncher, glider;
+        public GameObject grabber, scanner, snackLauncher, glider, claw;
         readonly Dictionary<ItemId, GameObject> tools = new Dictionary<ItemId, GameObject>();
         readonly Dictionary<GameObject, (Vector3 pos, Quaternion rot, Vector3 scale)> rest = new Dictionary<GameObject, (Vector3, Quaternion, Vector3)>();
         GameObject current, heldDebris;
@@ -25,31 +25,43 @@ namespace TinyGiantProblems
         {
             if (!motor) motor = GetComponentInParent<TechnicianMotor>();
             abilities = motor ? motor.GetComponent<ToolAbilities>() : null;
-            Register(ItemId.Vacuum, ref vacuum, Vector3.zero, .6f);
-            Register(ItemId.Brush, ref brush, Vector3.zero, .4f);
-            Register(ItemId.Sprayer, ref sprayer, Vector3.zero, .45f);
-            Register(ItemId.RopeLauncher, ref ropeLauncher, new Vector3(0, 90, 0), .6f);
-            Register(ItemId.Grabber, ref grabber, Vector3.zero, .7f);
-            Register(ItemId.Scanner, ref scanner, Vector3.zero, .35f);
-            Register(ItemId.SnackLauncher, ref snackLauncher, Vector3.zero, .6f);
-            Register(ItemId.Glider, ref glider, Vector3.zero, 1.3f);
+            // Hold pose per tool, in hand space (x right, y up, z forward). The
+            // imported tool models lie along their +X axis, so most turn -90 deg
+            // to point their nozzle / barrel forward. Positions are metres.
+            Register(ItemId.Vacuum, ref vacuum, new Vector3(8, -90, 0), new Vector3(0, -.06f, .06f), .6f);
+            Register(ItemId.Brush, ref brush, new Vector3(70, 0, 0), new Vector3(0, -.02f, -.02f), .4f);
+            Register(ItemId.Sprayer, ref sprayer, new Vector3(0, -90, 0), new Vector3(0, -.12f, .02f), .45f);
+            Register(ItemId.RopeLauncher, ref ropeLauncher, new Vector3(0, -90, 0), new Vector3(0, -.1f, .04f), .6f);
+            Register(ItemId.Grabber, ref grabber, new Vector3(0, -90, 0), new Vector3(0, -.05f, .05f), .7f);
+            Register(ItemId.Scanner, ref scanner, new Vector3(0, 180, 0), new Vector3(0, -.08f, .04f), .35f);
+            Register(ItemId.SnackLauncher, ref snackLauncher, new Vector3(0, -90, 0), new Vector3(0, -.12f, .04f), .6f);
+            Register(ItemId.Glider, ref glider, new Vector3(0, 0, 0), new Vector3(0, -.2f, -.1f), 1.3f);
+            Register(ItemId.Claw, ref claw, new Vector3(0, 0, 0), new Vector3(0, -.15f, 0), .34f);
             foreach (var t in tools.Values) t.SetActive(false);
             mist = GameArt.Particles("Spray mist", null, new Color(.55f, .95f, .85f, .7f), .28f, 7, .55f);
             suction = GameArt.Particles("Suction swirl", null, new Color(.85f, .8f, .7f, .8f), .14f, 0, .35f);
             sparks = GameArt.Particles("Tool sparkle", null, new Color(1, .9f, .5f, 1), .12f, 2, .4f);
         }
 
-        void Register(ItemId id, ref GameObject go, Vector3 euler, float size)
+        void Register(ItemId id, ref GameObject go, Vector3 euler, Vector3 offset, float size)
         {
             if (!go)
             {
                 var def = ItemCatalog.Get(id);
                 go = GameArt.Model(def.model, transform, size);
                 if (!go) go = Placeholder(def, size);
-                go.transform.localRotation = Quaternion.Euler(euler);
             }
-            tools[id] = go;
-            rest[go] = (go.transform.localPosition, go.transform.localRotation, go.transform.localScale);
+            // Each tool sits in a grip wrapper: the wrapper carries the use
+            // motions in hand space, the model inside keeps its hold rotation.
+            float inv = 1 / Mathf.Max(.0001f, transform.lossyScale.x);
+            var grip = new GameObject(go.name + " grip").transform;
+            grip.SetParent(transform, false);
+            go.transform.SetParent(grip, false);
+            go.transform.localRotation = Quaternion.Euler(euler);
+            go.transform.localPosition = offset * inv;
+            go.SetActive(true);
+            tools[id] = grip.gameObject;
+            rest[grip.gameObject] = (Vector3.zero, Quaternion.identity, Vector3.one);
         }
 
         GameObject Placeholder(ItemDef def, float size)
@@ -172,6 +184,14 @@ namespace TinyGiantProblems
                     float lob = abilities ? Mathf.Clamp01(1 - (Time.time - abilities.LastUse) / .6f) : 0;
                     pos += new Vector3(0, lob * .1f, -lob * .15f) * inv;
                     rot *= Quaternion.Euler(-lob * 40, 0, 0);
+                    break;
+                case ItemId.Claw:
+                    // Worn on the hand; while climbing it rakes into the coat.
+                    bool clawing = motor.clawing;
+                    float rake = clawing ? Mathf.Max(0, Mathf.Sin(cycle * 11)) : 0;
+                    pos += new Vector3(0, .02f * rake, .05f * rake) * inv;
+                    rot *= Quaternion.Euler(-25 * rake, 0, 0);
+                    if (clawing && rake > .9f && Random.value < .3f) GameArt.Burst(sparks, current.transform.position, 1, Random.onUnitSphere, .3f);
                     break;
                 case ItemId.Glider:
                     bool gliding = abilities && abilities.Gliding;

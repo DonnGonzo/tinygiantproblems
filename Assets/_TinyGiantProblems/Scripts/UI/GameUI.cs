@@ -130,6 +130,22 @@ namespace TinyGiantProblems
             shade.rectTransform.pivot = new Vector2(.5f, 0);
             glyph = Label(swatch.transform, def != null ? def.glyph : "", size * .42f, new Color(.08f, .1f, .1f), new Vector2(.5f, .5f), Vector2.zero, Vector2.one * size, TextAlignmentOptions.Center);
             glyph.fontStyle = FontStyles.Bold;
+            var picture = Panel(swatch.transform, "Picture", new Vector2(.5f, .5f), Vector2.zero, Vector2.one * size * .96f, Color.white);
+            picture.preserveAspect = true; picture.enabled = false;
+            SetIcon(swatch, glyph, def);
+        }
+
+        // Shows the item's picture (ItemIcons) over a soft tint of its colour, or
+        // the letter tile when it has no model. Safe to call every refresh.
+        public static void SetIcon(Image swatch, TextMeshProUGUI glyph, ItemDef def)
+        {
+            var pictureT = swatch ? swatch.transform.Find("Picture") : null;
+            var picture = pictureT ? pictureT.GetComponent<Image>() : null;
+            var sprite = def != null ? ItemIcons.Get(def) : null;
+            if (picture) { picture.sprite = sprite; picture.enabled = sprite; }
+            if (def == null) { swatch.color = new Color(0, 0, 0, 0); glyph.text = ""; return; }
+            swatch.color = sprite ? new Color(def.color.r, def.color.g, def.color.b, .28f) : def.color;
+            glyph.text = sprite ? "" : def.glyph;
         }
 
         public static string Money(int coins) => $"<color=#FFBC4A>{coins:N0}</color>";

@@ -78,68 +78,45 @@ namespace TinyGiantProblems
     }
 
     // Cable gondola between the harness deck and the meadow salvage yard.
-    public sealed class GuildLift : Station
+    // Free winch post in the salvage yard: hauls the technician back up to the
+    // start point on Mossback's back (the Guild Lift and its top stop are gone).
+    // Getting down is up to you: jump, glide, climb down with the claw.
+    public sealed class WinchPost : Station
     {
-        public Transform top, bottom;
-        public bool atTop;
-        public GuildLift partner;
-        public static bool Riding { get; private set; }
-        LineRenderer cable;
-        Transform car;
-        public override bool Available => !Riding;
-        public override string Prompt => atTop ? "<color=#FFBC4A>E</color>  Ride the Guild Lift down to the salvage yard" : "<color=#FFBC4A>E</color>  Ride the Guild Lift up to Mossback's harness";
-
-        public void Setup(Transform topPoint, Transform bottomPoint, bool isTop, LineRenderer sharedCable, Transform gondola)
-        { top = topPoint; bottom = bottomPoint; atTop = isTop; cable = sharedCable; car = gondola; }
+        public static bool Hauling { get; private set; }
+        LineRenderer line;
+        public override bool Available => !Hauling;
+        public override string Prompt => "<color=#FFBC4A>E</color>  Winch up to Mossback's back (free)";
 
         public override void Interact()
         {
             var g = Expedition.Instance;
-            if (!g || Riding) return;
-            StartCoroutine(Ride(g.player, atTop));
+            if (!g || Hauling) return;
+            StartCoroutine(Haul(g.player));
         }
 
-        IEnumerator Ride(TechnicianMotor p, bool down)
+        IEnumerator Haul(TechnicianMotor p)
         {
-            Riding = true;
-            p.automate = true; p.MoveOverride = Vector3.zero; p.UseOverride = false; p.BraceOverride = false;
-            p.tethered = false;
-            ProceduralSfx.Play(ProceduralSfx.Whoosh, .5f);
-            float duration = 4.2f, t = 0;
+            Hauling = true;
+            bool wasAuto = p.automate;
+            p.automate = true; p.MoveOverride = Vector3.zero; p.UseOverride = false; p.BraceOverride = false; p.tethered = false;
+            ProceduralSfx.Play(ProceduralSfx.Whoosh, .6f);
+            var from = p.transform.position; var to = p.checkpoint.position + Vector3.up * .1f;
+            if (!line) { line = new GameObject("Winch line").AddComponent<LineRenderer>(); line.startWidth = line.endWidth = .05f; line.sharedMaterial = GameArt.Colored(new Color(.3f, .22f, .14f)); }
+            line.enabled = true; line.positionCount = 2;
+            float t = 0, duration = 2.6f;
             while (t < 1)
             {
                 t += Time.deltaTime / duration;
                 float k = Mathf.SmoothStep(0, 1, t);
-                var pos = PathPoint(down ? k : 1 - k);
+                var pos = Vector3.Lerp(from, to, k) + Vector3.up * Mathf.Sin(k * Mathf.PI) * 6;
                 p.Warp(pos);
-                if (car) car.position = pos + Vector3.up * .05f;
+                line.SetPosition(0, transform.position + Vector3.up * 2.4f); line.SetPosition(1, pos + Vector3.up * 1.4f);
                 yield return null;
             }
-            p.Warp((down ? bottom : top).position + Vector3.up * .1f);
-            p.grace = 2;
-            p.automate = false;
-            Riding = false;
-            if (Expedition.Instance) Expedition.Instance.Caption = down ? "Salvage yard. Sell what you carry, then ride back up." : "Back on the harness. Mind the itchy bits.";
-        }
-
-        // Curved route that swings wide of Mossback's flank.
-        public Vector3 PathPoint(float k)
-        {
-            var a = top.position; var b = bottom.position;
-            var g = Expedition.Instance;
-            var center = g && g.creature ? g.creature.transform.position : a;
-            var outward = Vector3.ProjectOnPlane(b - center, Vector3.up).normalized;
-            var control = (a + b) * .5f + outward * 16 + Vector3.up * 6;
-            float u = 1 - k;
-            return u * u * a + 2 * u * k * control + k * k * b;
-        }
-
-        void LateUpdate()
-        {
-            if (!atTop || !cable || !top || !bottom) return;
-            if (cable.positionCount != 20) cable.positionCount = 20;
-            for (int i = 0; i < 20; i++) cable.SetPosition(i, PathPoint(i / 19f) + Vector3.up * 2.2f);
-            if (car && !Riding) car.position = top.position + Vector3.up * .05f;
+            p.Warp(to); p.grace = 2; p.automate = wasAuto; line.enabled = false;
+            Hauling = false;
+            if (Expedition.Instance) Expedition.Instance.Caption = "Winched back up. Mind the itchy bits.";
         }
     }
 
@@ -147,8 +124,6 @@ namespace TinyGiantProblems
     // hand-editing it. Positions are relative to Mossback's creature frame.
     public static class WorldStations
     {
-        public static Vector3 liftTopLocal = new Vector3(-3.1f, 12.12f, -15f);
-        public static Vector3 lockerLocal = new Vector3(-2.7f, 12.12f, -13f);
         public static Vector3 yardWorld = new Vector3(-42f, 0, -8f);
 
         public static void Build(Expedition game)
@@ -156,19 +131,23 @@ namespace TinyGiantProblems
             var frame = game.creature.transform;
             var root = new GameObject("Guild stations").transform;
 
-            // Tool locker on the harness, at the existing supply chest.
-            var locker = new GameObject("Guild Tool Locker").AddComponent<ToolLocker>();
-            locker.transform.SetParent(frame, false);
-            locker.transform.localPosition = lockerLocal;
-            locker.transform.localScale = Vector3.one / frame.lossyScale.x;
-            locker.radius = 3.4f;
-            Sign(locker.transform, "TOOL LOCKER", new Vector3(0, 2.4f, 0), UIKit.Gold);
-
-            // Salvage yard on the meadow, reached by the lift.
+            // Salvage yard on the meadow. (No tool locker or lift on Mossback's back.)
             var ground = GroundAt(yardWorld, frame);
             var yard = new GameObject("Salvage Yard").transform; yard.SetParent(root, false);
             yard.position = ground;
             yard.rotation = Quaternion.LookRotation(Vector3.ProjectOnPlane(frame.position - ground, Vector3.up).normalized, Vector3.up);
+            var toward = Vector3.ProjectOnPlane(frame.position - ground, Vector3.up).normalized;
+
+            // The Guild House holds the locker, sell counter and wardrobe; the free
+            // winch post stands just outside its front door.
+            var houseGround = GroundAt(ground - toward * 10, frame);
+            if (GuildHouse.Build(root, houseGround, toward))
+            {
+                var side = Vector3.Cross(Vector3.up, toward);
+                var postSpot = GroundAt(GuildHouse.DoorOutside.position + toward * 3.5f + side * 5.5f, frame);
+                BuildWinchPost(root, postSpot, toward);
+                return;
+            }
 
             var sell = new GameObject("Sell Station").AddComponent<SellStation>();
             sell.transform.SetParent(yard, false);
@@ -191,34 +170,23 @@ namespace TinyGiantProblems
             if (!chest) GameArt.Shape("Locker", PrimitiveType.Cube, yardLocker.transform, Vector3.up * .6f, new Vector3(1.2f, 1.2f, .8f), new Color(.98f, .63f, .16f));
             Sign(yardLocker.transform, "TOOL LOCKER", new Vector3(0, 2.3f, 0), UIKit.Gold);
 
-            // The lift: a top platform on the harness and a bottom pad in the yard.
-            var topPoint = new GameObject("Lift top").transform; topPoint.SetParent(frame, false); topPoint.localPosition = liftTopLocal;
-            var bottomPoint = new GameObject("Lift bottom").transform; bottomPoint.SetParent(yard, false); bottomPoint.localPosition = Vector3.zero;
-            var cableGo = new GameObject("Lift cable"); cableGo.transform.SetParent(root, false);
-            var cable = cableGo.AddComponent<LineRenderer>();
-            cable.positionCount = 2; cable.startWidth = cable.endWidth = .07f;
-            cable.sharedMaterial = GameArt.Colored(new Color(.3f, .22f, .14f));
-            var car = new GameObject("Lift gondola").transform; car.SetParent(root, false);
-            GameArt.Shape("Gondola floor", PrimitiveType.Cylinder, car, Vector3.zero, new Vector3(1.6f, .06f, 1.6f), new Color(.36f, .19f, .11f));
-            GameArt.Shape("Gondola rope", PrimitiveType.Cylinder, car, Vector3.up * 1.1f, new Vector3(.05f, 1.1f, .05f), new Color(.3f, .22f, .14f));
-            GameArt.Shape("Gondola hook", PrimitiveType.Sphere, car, Vector3.up * 2.2f, Vector3.one * .3f, new Color(1, .73f, .29f), .8f);
+            BuildWinchPost(yard, yard.position, toward);
+        }
 
-            var liftTop = new GameObject("Guild Lift (top)").AddComponent<GuildLift>();
-            liftTop.transform.SetParent(topPoint, false);
-            liftTop.transform.localScale = Vector3.one / frame.lossyScale.x;
-            liftTop.radius = 2.6f;
-            var winch = GameArt.Model("rescue-winch/rescue-winch", liftTop.transform, 1.6f);
-            if (winch) winch.transform.localPosition = new Vector3(-1.4f, 0, 0);
-            Sign(liftTop.transform, "LIFT DOWN · SALVAGE YARD", new Vector3(0, 2.6f, 0), UIKit.Cream);
+        public static void MakeSign(Transform parent, string text, Vector3 offset, Color color, float scale = 1) { Sign(parent, text, offset, color); if (scale != 1) parent.GetChild(parent.childCount - 1).localScale *= scale; }
 
-            var liftBottom = new GameObject("Guild Lift (bottom)").AddComponent<GuildLift>();
-            liftBottom.transform.SetParent(bottomPoint, false);
-            liftBottom.radius = 2.8f;
-            GameArt.Shape("Lift pad", PrimitiveType.Cylinder, liftBottom.transform, Vector3.up * .05f, new Vector3(3, .1f, 3), new Color(.36f, .19f, .11f));
-            Sign(liftBottom.transform, "LIFT UP · MOSSBACK", new Vector3(0, 2.8f, 0), UIKit.Cream);
-
-            liftTop.Setup(topPoint, bottomPoint, true, cable, car);
-            liftBottom.Setup(topPoint, bottomPoint, false, null, null);
+        // Winch post: the free way back up.
+        static void BuildWinchPost(Transform parent, Vector3 at, Vector3 toward)
+        {
+            var post = new GameObject("Winch Post").AddComponent<WinchPost>();
+            post.transform.SetParent(parent, false);
+            post.transform.position = at;
+            post.transform.rotation = Quaternion.LookRotation(toward);
+            post.radius = 3f;
+            var winch = GameArt.Model("rescue-winch/rescue-winch", post.transform, 1.6f);
+            if (!winch) GameArt.Shape("Winch", PrimitiveType.Cylinder, post.transform, Vector3.up * .6f, new Vector3(.8f, .6f, .8f), new Color(.3f, .55f, .55f));
+            GameArt.Shape("Winch pad", PrimitiveType.Cylinder, post.transform, Vector3.up * .05f, new Vector3(3, .1f, 3), new Color(.36f, .19f, .11f));
+            Sign(post.transform, "WINCH UP · MOSSBACK", new Vector3(0, 2.8f, 0), UIKit.Cream);
         }
 
         static Vector3 GroundAt(Vector3 world, Transform creature)
