@@ -39,8 +39,6 @@ namespace TinyGiantProblems
                 tools.transform.localRotation = Quaternion.identity;
                 tools.transform.localScale = Vector3.one;
             }
-            var old = player.GetComponent<TechnicianAnimator>();
-            if (old) old.enabled = false;
             return rig;
         }
     }

@@ -198,8 +198,8 @@ namespace TinyGiantProblems
             if (dir.sqrMagnitude < .5f) { stand -= frame.forward * 1.6f; dir = target - stand; dir.y = 0; }
             else stand = target - dir.normalized * Mathf.Min(1.6f, dir.magnitude);
             stand.y = frame.TransformPoint(standLocal).y;
-            // No harness deck any more: stand on Mossback's back itself.
-            if (HarnessRemoval.Applied && HarnessRemoval.Surface(frame, stand, out var ground)) stand = ground.point;
+            // Stand on Mossback's back itself.
+            if (MossbackSurface.Surface(frame, stand, out var ground)) stand = ground.point;
             p.Warp(stand + Vector3.up * .3f);
             p.yaw = Quaternion.LookRotation(dir.sqrMagnitude > .01f ? dir : frame.forward).eulerAngles.y;
             p.pitch = 30;

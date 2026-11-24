@@ -66,7 +66,6 @@ namespace TinyGiantProblems
         {
             if(id==manager.LocalClientId) connectedOnce=true;
             if(!manager.IsServer && id==manager.LocalClientId) { game.Begin(true); hud.NetworkStatus="Connected to crew"; }
-            Debug.Log("TGP_CREW_CONNECTED "+id);
         }
         void OnDisconnected(ulong id)
         {

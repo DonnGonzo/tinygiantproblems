@@ -149,28 +149,7 @@ namespace TinyGiantProblems
                 return;
             }
 
-            var sell = new GameObject("Sell Station").AddComponent<SellStation>();
-            sell.transform.SetParent(yard, false);
-            sell.transform.localPosition = new Vector3(5, 0, 2);
-            sell.radius = 3.6f;
-            var bench = GameArt.Model("guild-workshop-furniture-kit/workbench", sell.transform, 2.6f);
-            if (!bench) GameArt.Shape("Counter", PrimitiveType.Cube, sell.transform, Vector3.up * .5f, new Vector3(2.4f, 1, 1), new Color(.36f, .19f, .11f));
-            var bin = GameArt.Model("chest/open-chest", sell.transform, 1.5f);
-            if (bin) { bin.transform.localPosition = new Vector3(1.9f, 0, .3f); sell.SetLid(bin.transform); }
-            GameArt.Shape("Yard ring", PrimitiveType.Cylinder, sell.transform, Vector3.up * .03f, new Vector3(5.5f, .02f, 5.5f), new Color(1, .73f, .29f), 0, 1.2f);
-            Sign(sell.transform, "SALVAGE YARD · SELL HERE", new Vector3(0, 3.3f, 0), UIKit.Gold);
-            var shelf = GameArt.Model("guild-workshop-furniture-kit/shelf", yard, 2.4f);
-            if (shelf) shelf.transform.localPosition = new Vector3(8.5f, 0, 3.5f);
-
-            var yardLocker = new GameObject("Yard Tool Locker").AddComponent<ToolLocker>();
-            yardLocker.transform.SetParent(yard, false);
-            yardLocker.transform.localPosition = new Vector3(-4.5f, 0, 2);
-            yardLocker.radius = 3.2f;
-            var chest = GameArt.Model("tool-case/tool-case", yardLocker.transform, 1.3f);
-            if (!chest) GameArt.Shape("Locker", PrimitiveType.Cube, yardLocker.transform, Vector3.up * .6f, new Vector3(1.2f, 1.2f, .8f), new Color(.98f, .63f, .16f));
-            Sign(yardLocker.transform, "TOOL LOCKER", new Vector3(0, 2.3f, 0), UIKit.Gold);
-
-            BuildWinchPost(yard, yard.position, toward);
+            Debug.LogError("Guild House models are missing from the ItemLibrary; no stations were built.");
         }
 
         public static void MakeSign(Transform parent, string text, Vector3 offset, Color color, float scale = 1) { Sign(parent, text, offset, color); if (scale != 1) parent.GetChild(parent.childCount - 1).localScale *= scale; }

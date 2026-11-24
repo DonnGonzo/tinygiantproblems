@@ -18,7 +18,6 @@ namespace TinyGiantProblems
 
             var player = game.player;
             if (!player.GetComponent<ToolAbilities>()) player.gameObject.AddComponent<ToolAbilities>().motor = player;
-            if (!player.GetComponent<TechnicianAnimator>()) player.gameObject.AddComponent<TechnicianAnimator>().motor = player;
             if (!player.GetComponentInChildren<TechnicianToolVisuals>(true))
             {
                 // Scenes built before the GiantTiny models were applied have no held-tool rig.
@@ -31,7 +30,6 @@ namespace TinyGiantProblems
             if (!player.GetComponent<FallHurt>()) player.gameObject.AddComponent<FallHurt>().motor = player;
             TechnicianModelInstaller.Install(player);
             if (!player.GetComponent<PlacementSystem>()) player.gameObject.AddComponent<PlacementSystem>().motor = player;
-            HarnessRemoval.Apply(game);
             MapBoundary.Build(game);
 
             var ui = new GameObject("Guild UI");

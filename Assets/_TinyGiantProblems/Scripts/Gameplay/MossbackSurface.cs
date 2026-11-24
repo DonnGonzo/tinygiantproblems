@@ -2,43 +2,10 @@ using UnityEngine;
 
 namespace TinyGiantProblems
 {
-    // The fixed wooden harness walkway on Mossback's back is gone: technicians
-    // now walk on the creature itself and bring their own Floating Platform.
-    // Runs at load, before the stations are built. Everything that used to sit
-    // on the walkway (checkpoint, tether winches, care jobs, extraction point,
-    // ) is set down onto the back.
-    public static class HarnessRemoval
+    // Queries against Mossback's own body surface (the back the technician
+    // walks on), ignoring props, placed objects and care jobs.
+    public static class MossbackSurface
     {
-        public static bool Applied { get; private set; }
-
-        public static void Apply(Expedition game)
-        {
-            if (Applied || !game || !game.creature) return;
-            var frame = game.creature.transform;
-
-            foreach (var zone in frame.GetComponentsInChildren<ClimbableZone>(true))
-                foreach (Transform part in zone.transform)
-                {
-                    if (part.GetComponent<CareJob>()) continue;
-                    foreach (var r in part.GetComponentsInChildren<Renderer>(true)) r.enabled = false;
-                    foreach (var c in part.GetComponentsInChildren<Collider>(true)) c.enabled = false;
-                }
-            foreach (var name in new[] { "Finished harness rigging", "Guild expedition fittings" })
-            {
-                var t = frame.Find(name);
-                if (t) t.gameObject.SetActive(false);
-            }
-            Physics.SyncTransforms();
-
-            // The old stops hung over the steep hindquarters; stand them on the
-            // level ridge just behind the spine instead (creature-local x/z).
-            Stand(frame, game.player.checkpoint, new Vector2(-.8f, -2f), .1f);
-            foreach (var a in game.player.anchors) Drop(frame, a, 0);
-            foreach (var job in game.jobs) Drop(frame, job.transform, .05f);
-            if (game.extraction) Stand(frame, game.extraction, new Vector2(.2f, -2.6f), .05f);
-            Applied = true;
-        }
-
         // Highest creature surface under a world point (ignores props and players).
         public static bool Surface(Transform frame, Vector3 world, out RaycastHit hit)
         {
@@ -72,14 +39,14 @@ namespace TinyGiantProblems
                 }
             return found;
         }
-        static void Stand(Transform frame, Transform t, Vector2 local, float lift)
+        public static void Stand(Transform frame, Transform t, Vector2 local, float lift)
         {
             if (!t) return;
             if (FindStand(frame, local, out var p)) t.position = p + Vector3.up * lift;
             else Drop(frame, t, lift);
         }
 
-        static void Drop(Transform frame, Transform t, float lift)
+        public static void Drop(Transform frame, Transform t, float lift)
         {
             if (t && Surface(frame, t.position, out var hit)) t.position = hit.point + Vector3.up * lift;
         }
