@@ -76,9 +76,7 @@ namespace TinyGiantProblems
         void Update()
         {
             if (!IsOpen) return;
-            var kb = Keyboard.current;
-            if (kb != null && kb.eKey.wasPressedThisFrame && Time.unscaledTime - openedAt > .2f) { Close(); return; }
-            if (Gamepad.current != null && Gamepad.current.buttonEast.wasPressedThisFrame) { Close(); return; }
+            if ((GameInput.Interact.WasPressedThisFrame() || GameInput.Brace.WasPressedThisFrame()) && Time.unscaledTime - openedAt > .2f) { Close(); return; }
             Refresh();
         }
 

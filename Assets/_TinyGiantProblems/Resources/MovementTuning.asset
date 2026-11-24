@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18b711ef89ce2f343bac9295c654dfe9, type: 3}
+  m_Name: MovementTuning
+  m_EditorClassIdentifier: Assembly-CSharp::TinyGiantProblems.MovementTuning
+  walkSpeed: 4.6
+  sprintSpeed: 7.4
+  acceleration: 30
+  deceleration: 38
+  airAcceleration: 9
+  turnSpeed: 720
+  maxSlope: 52
+  slideSpeed: 6
+  jumpHeight: 1.35
+  gravity: 22
+  fallGravityMultiplier: 1.45
+  lowJumpMultiplier: 1.9
+  maxFallSpeed: 30
+  coyoteTime: 0.13
+  jumpBuffer: 0.15
+  mouseSensitivity: 0.12
+  gamepadSensitivity: 160
+  invertY: 0
+  minPitch: -12
+  maxPitch: 65
+  distance: 8
+  minDistance: 3.5
+  maxDistance: 15
+  followDamping: 0.08
+  collisionRadius: 0.3
+  collisionRecover: 0.35
+  focusHeight: 1.3

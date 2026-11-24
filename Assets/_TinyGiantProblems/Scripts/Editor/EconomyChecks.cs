@@ -63,6 +63,12 @@ namespace TinyGiantProblems.Editor
             var crateInv = new Inventory(); crateInv.Add(ItemId.Burr, 4);
             int full = crateInv.TakeAllDebris(out int crated);
             Check(crated == 4 && Mathf.RoundToInt(full * SupplyCrate.Rate) == 27, "Supply Crate pays 75% of the yard price");
+            var controls = Resources.Load<UnityEngine.InputSystem.InputActionAsset>("Input/TinyGiantControls");
+            bool allBound = controls;
+            if (controls) foreach (var a in controls.FindActionMap("Player").actions) { bool kb = false, pad = false; foreach (var b in a.bindings) { if (b.path.StartsWith("<Keyboard>") || b.path.StartsWith("<Mouse>")) kb = true; if (b.path.StartsWith("<Gamepad>")) pad = true; } if (!kb && !a.name.StartsWith("Hotbar") && a.name != "Zoom") allBound = false; if (!pad && !a.name.StartsWith("Slot") && a.name != "HotbarScroll" && a.name != "ZoomModifier" && a.name != "Recover") allBound = false; }
+            Check(allBound, "Every control has keyboard/mouse and gamepad bindings in the rebindable action asset");
+            var tune = Resources.Load<MovementTuning>("MovementTuning");
+            Check(tune && tune.acceleration > 0 && tune.coyoteTime > 0 && tune.jumpBuffer > 0, "Movement tuning asset exists with acceleration, coyote time and jump buffer");
             Check(ItemLibrary.Instance && ItemLibrary.Instance.Prefab(GuildHouse.ExteriorKey) && ItemLibrary.Instance.Prefab(GuildHouse.InteriorKey), "Guild House exterior and interior models are in the item library");
             Check(System.Type.GetType("TinyGiantProblems.GuildLift, Assembly-CSharp") == null && System.Type.GetType("TinyGiantProblems.WinchPost, Assembly-CSharp") != null, "Guild Lift is gone; the yard winch post replaces it");
             var look = (Color[])TechnicianLook.Defaults.Clone(); look[TechnicianLook.Trousers] = new Color(.1f, .2f, .6f);

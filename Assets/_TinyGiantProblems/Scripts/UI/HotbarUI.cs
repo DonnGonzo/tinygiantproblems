@@ -28,7 +28,6 @@ namespace TinyGiantProblems
         ItemId lastItem;
         public int DragFrom { get; private set; } = -1;
         readonly List<(RectTransform rt, TextMeshProUGUI text, float born)> toasts = new List<(RectTransform, TextMeshProUGUI, float)>();
-        InputAction scrollPad;
 
         public bool IsOpen => pack && pack.gameObject.activeSelf;
         public void Open() { if (pack && !pack.gameObject.activeSelf) { pack.gameObject.SetActive(true); GameUI.RefreshCursor(); } }
@@ -95,9 +94,6 @@ namespace TinyGiantProblems
             prompt = UIKit.Label(root, "", 21, UIKit.Cream, new Vector2(.5f, 0), new Vector2(0, 252), new Vector2(900, 34), TextAlignmentOptions.Center);
             playingOnly = new[] { hotbarBar.gameObject, selectedName.gameObject, coinBadge.gameObject, ordersPanel.gameObject, prompt.gameObject };
 
-            scrollPad = new InputAction("Backpack", InputActionType.Button);
-            scrollPad.AddBinding("<Keyboard>/tab"); scrollPad.AddBinding("<Keyboard>/i"); scrollPad.AddBinding("<Gamepad>/select");
-            scrollPad.Enable();
             if (economy) { economy.Toast += OnToast; shownCoins = economy.Coins; }
         }
 
@@ -148,36 +144,25 @@ namespace TinyGiantProblems
         {
             if (!playing) return;
             bool shopOpen = GuildShopUI.Instance && GuildShopUI.Instance.IsOpen;
-            if (scrollPad.WasPressedThisFrame() && !shopOpen)
+            if (GameInput.Backpack.WasPressedThisFrame() && !shopOpen)
             {
                 if (IsOpen) Close(); else Open();
             }
             if (GameUI.CapturesInput) return;
-            var kb = Keyboard.current; var mouse = Mouse.current; var pad = Gamepad.current;
-            if (mouse != null && !(kb != null && kb.ctrlKey.isPressed))
+            bool zoomHeld = GameInput.ZoomModifier.IsPressed();
+            if (!zoomHeld)
             {
-                float y = mouse.scroll.ReadValue().y;
+                float y = GameInput.HotbarScroll.ReadValue<float>();
                 if (y > .01f) inv.Scroll(-1); else if (y < -.01f) inv.Scroll(1);
             }
-            if (kb != null)
+            for (int i = 0; i < 9; i++) if (GameInput.Slot(i).WasPressedThisFrame()) inv.Select(i);
+            if (GameInput.HotbarNext.WasPressedThisFrame()) inv.Scroll(1);
+            if (GameInput.HotbarPrev.WasPressedThisFrame()) inv.Scroll(-1);
+            if (GameInput.Drop.WasPressedThisFrame()) DropFromSlot(inv.selected, zoomHeld ? 999 : 1);
+            if (GameInput.Interact.WasPressedThisFrame() && !WinchPost.Hauling && !GameUI.JustClosed)
             {
-                for (int i = 0; i < 9; i++) if (kb[(Key)((int)Key.Digit1 + i)].wasPressedThisFrame) inv.Select(i);
-                if (kb.qKey.wasPressedThisFrame) DropFromSlot(inv.selected, kb.ctrlKey.isPressed ? 999 : 1);
-                if (kb.eKey.wasPressedThisFrame && !WinchPost.Hauling && !GameUI.JustClosed)
-                {
-                    var station = Station.Nearest(game.player.transform.position);
-                    if (station) station.Interact();
-                }
-            }
-            if (pad != null)
-            {
-                if (pad.rightShoulder.wasPressedThisFrame) inv.Scroll(1);
-                if (pad.leftShoulder.wasPressedThisFrame) inv.Scroll(-1);
-                if (pad.buttonWest.wasPressedThisFrame && !WinchPost.Hauling && !GameUI.JustClosed)
-                {
-                    var station = Station.Nearest(game.player.transform.position);
-                    if (station) station.Interact();
-                }
+                var station = Station.Nearest(game.player.transform.position);
+                if (station) station.Interact();
             }
         }
 

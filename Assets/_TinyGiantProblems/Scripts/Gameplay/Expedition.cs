@@ -33,7 +33,7 @@ namespace TinyGiantProblems
         void Awake() { Instance = this; Application.runInBackground = true; }
         void Update()
         {
-            if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame || Gamepad.current != null && Gamepad.current.startButton.wasPressedThisFrame)
+            if (GameInput.Pause.WasPressedThisFrame())
             { if (GameUI.CloseTopmost()) { } else if (IsPlaying) SetPause(!Paused); }
             if (!IsPlaying || Paused) return;
             var dt = Time.deltaTime;

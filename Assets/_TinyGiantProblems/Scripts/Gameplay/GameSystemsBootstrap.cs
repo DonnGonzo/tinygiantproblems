@@ -16,6 +16,7 @@ namespace TinyGiantProblems
             game.gameObject.AddComponent<MessField>();
             game.gameObject.AddComponent<DebrisSystem>();
 
+            GameSettings.Apply();
             var player = game.player;
             if (!player.GetComponent<ToolAbilities>()) player.gameObject.AddComponent<ToolAbilities>().motor = player;
             if (!player.GetComponentInChildren<TechnicianToolVisuals>(true))

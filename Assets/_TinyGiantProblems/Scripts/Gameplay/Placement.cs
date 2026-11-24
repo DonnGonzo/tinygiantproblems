@@ -86,8 +86,7 @@ namespace TinyGiantProblems
                 }
                 if (valid && motor.UsePressedThisFrame) PlaceSelected(def);
             }
-            var kb = Keyboard.current;
-            if (motor && motor.Active && !GameUI.CapturesInput && kb != null && kb.gKey.wasPressedThisFrame) PickUpNearest();
+            if (motor && motor.Active && !GameUI.CapturesInput && GameInput.PickUp.WasPressedThisFrame()) PickUpNearest();
         }
 
         // ---- aiming ----
