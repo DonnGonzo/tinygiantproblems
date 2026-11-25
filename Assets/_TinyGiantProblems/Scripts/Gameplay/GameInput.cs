@@ -31,7 +31,8 @@ namespace TinyGiantProblems
         public static InputAction ZoomModifier => Get("ZoomModifier");
         public static InputAction Recover => Get("Recover");
         public static InputAction Pause => Get("Pause");
-        public static InputAction Slot(int index) => Get("Slot" + (index + 1));
+        static InputAction[] slots;
+        public static InputAction Slot(int index) { if (slots == null) { slots = new InputAction[9]; for (int i = 0; i < 9; i++) slots[i] = Get("Slot" + (i + 1)); } return slots[index]; }
 
         // True when the last input came from a gamepad (for prompts and look scaling).
         public static bool UsingGamepad { get; private set; }
@@ -55,15 +56,22 @@ namespace TinyGiantProblems
             };
         }
 
-        public static void SaveOverrides() { PlayerPrefs.SetString(OverridesKey, Asset.SaveBindingOverridesAsJson()); PlayerPrefs.Save(); }
-        public static void ResetOverrides() { Asset.RemoveAllBindingOverrides(); PlayerPrefs.DeleteKey(OverridesKey); PlayerPrefs.Save(); }
+        public static void SaveOverrides() { PlayerPrefs.SetString(OverridesKey, Asset.SaveBindingOverridesAsJson()); PlayerPrefs.Save(); displayCache.Clear(); BindingsChanged?.Invoke(); }
+        public static void ResetOverrides() { Asset.RemoveAllBindingOverrides(); PlayerPrefs.DeleteKey(OverridesKey); PlayerPrefs.Save(); displayCache.Clear(); BindingsChanged?.Invoke(); }
+        public static event System.Action BindingsChanged;
 
         // Human-readable binding for prompts, e.g. "E" or "X".
+        // Cached per action and device family (prompts ask every frame).
+        static readonly System.Collections.Generic.Dictionary<(InputAction, bool), string> displayCache = new System.Collections.Generic.Dictionary<(InputAction, bool), string>();
         public static string Display(InputAction action)
         {
+            var key = (action, UsingGamepad);
+            if (displayCache.TryGetValue(key, out var text)) return text;
             int index = action.GetBindingIndex(InputBinding.MaskByGroup(UsingGamepad ? "Gamepad" : "Keyboard&Mouse"));
             if (index < 0) index = 0;
-            return action.GetBindingDisplayString(index);
+            text = action.GetBindingDisplayString(index);
+            displayCache[key] = text;
+            return text;
         }
     }
 }

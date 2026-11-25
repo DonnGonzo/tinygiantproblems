@@ -32,12 +32,14 @@ namespace TinyGiantProblems
             if (!player.GetComponent<FallHurt>()) player.gameObject.AddComponent<FallHurt>().motor = player;
             TechnicianModelInstaller.Install(player);
             if (!player.GetComponent<PlacementSystem>()) player.gameObject.AddComponent<PlacementSystem>().motor = player;
+            if (!player.GetComponent<GameFeel>()) player.gameObject.AddComponent<GameFeel>();
             MapBoundary.Build(game);
 
             var ui = new GameObject("Guild UI");
             ui.AddComponent<HotbarUI>();
             ui.AddComponent<GuildShopUI>();
             ui.AddComponent<GuildMemberEditor>();
+            ui.AddComponent<MenuUI>();
             WorldStations.Build(game);
         }
     }

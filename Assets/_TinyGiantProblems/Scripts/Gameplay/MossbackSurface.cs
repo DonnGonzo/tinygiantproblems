@@ -7,12 +7,15 @@ namespace TinyGiantProblems
     public static class MossbackSurface
     {
         // Highest creature surface under a world point (ignores props and players).
+        static readonly RaycastHit[] hits = new RaycastHit[32];
         public static bool Surface(Transform frame, Vector3 world, out RaycastHit hit)
         {
             var origin = new Vector3(world.x, world.y + 30, world.z);
             hit = default; bool found = false;
-            foreach (var h in Physics.RaycastAll(origin, Vector3.down, 80, ~0, QueryTriggerInteraction.Ignore))
+            int n = Physics.RaycastNonAlloc(origin, Vector3.down, hits, 80, ~0, QueryTriggerInteraction.Ignore);   // mites call this every frame
+            for (int i = 0; i < n; i++)
             {
+                var h = hits[i];
                 if (!h.collider.transform.IsChildOf(frame) || h.collider.GetComponentInParent<PropCollisionPolicy>()) continue;
                 if (h.collider.GetComponentInParent<PlacedObject>() || h.collider.GetComponentInParent<CareJob>()) continue;
                 if (!found || h.point.y > hit.point.y) { hit = h; found = true; }

@@ -192,20 +192,25 @@ namespace TinyGiantProblems
                 var s = inv.slots[v.index];
                 bool hidden = v.index == DragFrom;
                 var def = s.IsEmpty || hidden ? null : ItemCatalog.Get(s.id);
+                bool selected = v.index == inv.selected;
+                int stamp = ((int)(def != null ? def.id : ItemId.None) * 4096 + (def != null ? s.count : 0)) * 4 + (selected ? 2 : 0) + (v.hover && IsOpen ? 1 : 0);
+                if (stamp == v.stamp) continue;   // nothing changed for this slot
+                v.stamp = stamp;
                 UIKit.SetIcon(v.swatch, v.glyph, def);
                 v.swatch.transform.GetChild(0).gameObject.SetActive(def != null && !ItemIcons.HasPicture(def));
                 v.count.text = def != null && s.count > 1 ? s.count.ToString() : "";
-                bool selected = v.index == inv.selected;
                 v.background.color = selected ? new Color(.2f, .36f, .34f, 1) : v.hover && IsOpen ? new Color(.18f, .31f, .31f, 1) : new Color(.13f, .24f, .25f, 1);
                 v.swatch.rectTransform.localScale = Vector3.one * (selected ? 1.06f : 1f);
             }
         }
 
+        int drawnCoins = int.MinValue;
+        float nextPrompt;
         void DrawCoins()
         {
             int target = economy.Coins;
             if (shownCoins != target) shownCoins = (int)Mathf.MoveTowards(shownCoins, target, Mathf.Max(1, Mathf.Abs(target - shownCoins) * 6 * Time.unscaledDeltaTime));
-            coins.text = $"{shownCoins:N0}";
+            if (shownCoins != drawnCoins) { drawnCoins = shownCoins; coins.text = shownCoins.ToString("N0"); }
             coinPulse = Mathf.MoveTowards(coinPulse, 0, Time.unscaledDeltaTime * .5f);
             coins.transform.localScale = Vector3.one * (1 + coinPulse * coinPulse * .25f);
             var c = coinsDelta.color; c.a = Mathf.Clamp01(coinPulse * 2); coinsDelta.color = c;
@@ -242,6 +247,8 @@ namespace TinyGiantProblems
         void DrawPrompt(bool playing)
         {
             if (!playing) return;
+            if (Time.unscaledTime < nextPrompt) return;   // ten times a second reads instantly
+            nextPrompt = Time.unscaledTime + .1f;
             string text = "";
             var p = game.player;
             var station = WinchPost.Hauling ? null : Station.Nearest(p.transform.position);
@@ -265,10 +272,10 @@ namespace TinyGiantProblems
                     else if (def.id == ItemId.SnackLauncher) text = ab.SnackReady > 0 ? $"Snack launcher reloading {ab.SnackReady:0}s" : "USE to lob a snack toward Mossback's mouth";
                     else if (def.id == ItemId.Glider) text = ab.Gliding ? "Gliding..." : "Equipped: falls become gentle glides";
                     else if (def.placeable && PlacementSystem.Instance) text = PlacementSystem.Instance.Hint;
-                    else if (def.id == ItemId.Claw) { var claw = ClimbingClaw.For(p); text = claw && claw.Exhausted ? "Claw stamina spent: rest on solid ground" : claw && claw.Active ? $"Clawing up · stamina {claw.stamina:0}%" : "Walk into Mossback's flanks to climb · SPACE to let go"; }
+                    else if (def.id == ItemId.Claw) { var claw = ClimbingClaw.For(p); text = claw && claw.Exhausted ? "Claw stamina spent: rest on solid ground" : claw && claw.Active ? $"Clawing up · stamina {claw.stamina:0}%" : "Walk into a flank or a claw wall to climb · " + GameInput.Display(GameInput.Jump) + " to let go"; }
                 }
             }
-            prompt.text = text;
+            if (prompt.text != text) prompt.text = text;
         }
 
         void DrawToasts()
@@ -350,6 +357,7 @@ namespace TinyGiantProblems
         public Image background, swatch;
         public TextMeshProUGUI glyph, count, key;
         public bool hover;
+        public int stamp = -1;
 
         public void OnBeginDrag(PointerEventData e) { if (e.button == PointerEventData.InputButton.Left) ui.BeginDrag(index); }
         public void OnDrag(PointerEventData e) { }

@@ -19,6 +19,16 @@ namespace TinyGiantProblems
         public static AudioClip Whoosh => whoosh ? whoosh : whoosh = Noise("whoosh", .35f, .25f, 1, 200, 900);
         public static AudioClip Equip => equip ? equip : equip = Sweep("equip", 300, 620, .05f, .25f);
         public static AudioClip Munch => munch ? munch : munch = Noise("munch", .3f, .4f, 14);
+        // Movement and UI feedback.
+        static AudioClip jump, land, step, click, hover, objective, fanfare, thud;
+        public static AudioClip Jump => jump ? jump : jump = Sweep("jump", 240, 520, .09f, .22f);
+        public static AudioClip Land => land ? land : land = Noise("land", .14f, .5f, 1, 120, 400);
+        public static AudioClip Step => step ? step : step = Noise("step", .05f, .28f, 1, 300, 900);
+        public static AudioClip Click => click ? click : click = Sweep("click", 1400, 900, .035f, .2f);
+        public static AudioClip Hover => hover ? hover : hover = Sweep("hover", 1800, 1900, .02f, .06f);
+        public static AudioClip Objective => objective ? objective : objective = Notes("objective", new[] { 659f, 988f, 1319f }, .07f, .22f);
+        public static AudioClip Fanfare => fanfare ? fanfare : fanfare = Notes("fanfare", new[] { 523f, 659f, 784f, 1047f, 784f, 1047f }, .11f, .24f);
+        public static AudioClip Thud => thud ? thud : thud = Noise("thud", .25f, .7f, 1, 60, 220);
 
         static float Env(float t, float len) => Mathf.Clamp01(t / .006f) * Mathf.Clamp01((len - t) / (len * .6f));
 

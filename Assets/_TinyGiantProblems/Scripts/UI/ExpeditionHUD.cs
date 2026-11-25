@@ -10,7 +10,7 @@ namespace TinyGiantProblems
         public TMP_FontAsset font;
         Expedition game;
         RectTransform root;
-        TextMeshProUGUI status, jobs, caption, prompt, tools, warning, debrief;
+        TextMeshProUGUI status, jobs, caption, prompt, warning, debrief, pauseControls;
         GameObject briefingPanel, pausePanel, debriefPanel;
         GameObject[] gameplayPanels;
         readonly Color ink = new Color(.045f, .105f, .12f, .94f);
@@ -34,16 +34,10 @@ namespace TinyGiantProblems
             jobs = Label(left, "", 18, cream, new Vector2(20, -108), new Vector2(305, 124));
             var right = Panel(root, "Vitals", new Vector2(1, 1), new Vector2(-28, -26), new Vector2(290, 150));
             status = Label(right, "", 18, cream, new Vector2(18, -16), new Vector2(255, 125));
-            // Tool selection moved to the hotbar (HotbarUI); this strip keeps the control reminder.
-            var bottom = Panel(root, "Controls", new Vector2(.5f, 0), new Vector2(0, 102), new Vector2(980, 26));
-            bottom.GetComponent<UnityEngine.UI.Image>().color = new Color(0, 0, 0, 0);
-            tools = Label(bottom, "", 1, cream, new Vector2(0, 0), new Vector2(1, 1));
-            var hint = Label(bottom, "WASD move · SPACE jump · F grip/brace · SCROLL or 1-9 tools · TAB bag · E interact · Q drop · R reel · CTRL+SCROLL zoom · ESC menu", 14, new Color(.7f,.81f,.77f), new Vector2(0,-2), new Vector2(980,24));
-            hint.alignment = TextAlignmentOptions.Center;
             caption = Label(root, "", 19, cream, new Vector2(0, 165), new Vector2(1080, 52), new Vector2(.5f, 0)); caption.alignment = TextAlignmentOptions.Center;
             prompt = Label(root, "", 21, gold, new Vector2(0, 212), new Vector2(850, 40), new Vector2(.5f, 0)); prompt.alignment = TextAlignmentOptions.Center;
             warning = Label(root, "", 33, gold, new Vector2(0, -35), new Vector2(720, 85), new Vector2(.5f, 1)); warning.alignment = TextAlignmentOptions.Center;
-            gameplayPanels=new[] {left.gameObject,right.gameObject,bottom.gameObject,caption.gameObject,prompt.gameObject,warning.gameObject};
+            gameplayPanels=new[] {left.gameObject,right.gameObject,caption.gameObject,prompt.gameObject,warning.gameObject};
             briefingPanel = Modal("Briefing", "TINY GIANT\nPROBLEMS", "A little care. A very big adventure.\n\nPick a mission on the board, then board Mossback.\nSell salvage in the Guild House, buy better tools.\nWhen he rumbles, hold BRACE or go flying!", out var briefing);
             Place(briefing,new Vector2(0,.5f),new Vector2(32,0),new Vector2(640,712));
             Button(briefing, "BOARD MOSSBACK  /  SOLO", -370, () => { FindAnyObjectByType<CrewSession>()?.Shutdown(); NetworkStatus="Solo expedition"; game.Begin(); });
@@ -59,19 +53,25 @@ namespace TinyGiantProblems
             Button(briefing, "GUILD TOOL LOCKER", -608, () => GuildShopUI.Instance?.Open());
             Button(briefing, "GUILD MEMBER  (CLOTHES & COLOURS)", -666, () => GuildMemberEditor.Instance?.Open());
             BuildMissionBoard();
-            pausePanel = Modal("Pause", "TAKE A BREATHER", "Mossback appreciates a careful technician.\n\nMouse to orbit · scroll to zoom · gamepad supported\nHold BACKSPACE for the safety winch.", out var pause);
-            Button(pause, "RESUME", -300, () => game.SetPause(false));
-            Button(pause, "SAFETY WINCH (BACK TO START)", -360, () => { game.player.Recover(); game.SetPause(false); });
-            Button(pause, "MUSIC ON / OFF", -420, () => game.music.mute = !game.music.mute);
-            Button(pause, "FIELD OF VIEW 60 / 80", -480, () => game.player.orbitCamera.fieldOfView = game.player.orbitCamera.fieldOfView < 70 ? 80 : 60);
-            Button(pause, "RETURN TO BRIEFING", -540, ReturnToGuild);
-            Button(pause, "RESET GUILD PROGRESS (COINS + TOOLS)", -600, () => GuildEconomy.Instance?.ResetProgress());
+            UIKit.MakeButton(briefing, "SETTINGS", new Vector2(1, 1), new Vector2(-28, -96), new Vector2(140, 34), () => MenuUI.Instance?.OpenSettings(), out var st); st.fontSize = 14;
+            UIKit.MakeButton(briefing, "MAIN MENU", new Vector2(1, 1), new Vector2(-28, -138), new Vector2(140, 34), () => MenuUI.Instance?.ShowMainMenu(), out var mt); mt.fontSize = 14;
+            UIAnim.Add(briefingPanel); if (boardPanel) UIAnim.Add(boardPanel.gameObject);
+            pausePanel = Modal("Pause", "TAKE A BREATHER", "", out var pause);
+            Place(pause, new Vector2(.5f, .5f), Vector2.zero, new Vector2(640, 720));
+            pauseControls = Label(pause, "", 16, new Color(.78f, .86f, .82f), new Vector2(45, -205), new Vector2(550, 150));
+            Button(pause, "RESUME", -380, () => game.SetPause(false));
+            Button(pause, "SETTINGS", -436, () => MenuUI.Instance?.OpenSettings());
+            Button(pause, "SAFETY WINCH (BACK TO START)", -492, () => { game.player.Recover(); game.SetPause(false); });
+            Button(pause, "RETURN TO MISSION BOARD", -548, ReturnToGuild);
+            Button(pause, "MAIN MENU", -604, () => MenuUI.Instance?.ShowMainMenu());
+            UIAnim.Add(pausePanel);
             debriefPanel = Modal("Debrief", "SMALL WORK.\nGIANT DIFFERENCE.", "", out var result);
             debrief = Label(result, "", 22, cream, new Vector2(45,-225), new Vector2(550,150)); debrief.alignment = TextAlignmentOptions.Center;
             Place(result, new Vector2(.5f, .5f), Vector2.zero, new Vector2(640, 690));
             debrief.rectTransform.sizeDelta = new Vector2(550, 300); debrief.fontSize = 20;
             Button(result, "NEXT MISSION", -545, () => game.Begin());
             Button(result, "BACK TO GUILD", -605, ReturnToGuild);
+            UIAnim.Add(debriefPanel, .9f);
         }
         // Where the technician is: in the Guild House, out in the meadow, or on
         // Mossback (his back, a flank while climbing, or a placed platform).
@@ -89,15 +89,52 @@ namespace TinyGiantProblems
             return p.grounded ? "Meadow" : "In the air";
         }
 
+        // Text below is rebuilt only when the values it shows change (no per-frame garbage).
+        string lastZone, lastNet; int lastComfort = -1, lastGrip = -1;
+        void DrawStatus()
+        {
+            if (Time.frameCount % 6 != 0 && lastComfort >= 0) return;   // the zone raycast need not run every frame
+            string zone = ZoneLabel(); int comfort = Mathf.RoundToInt(game.Comfort), grip = Mathf.RoundToInt(game.player.grip);
+            if (zone == lastZone && comfort == lastComfort && grip == lastGrip && (object)NetworkStatus == lastNet) return;
+            lastZone = zone; lastComfort = comfort; lastGrip = grip; lastNet = NetworkStatus;
+            status.text = $"MOSSBACK  /  {zone}\nComfort   {comfort}%\nGrip          {grip}%\n{NetworkStatus}";
+        }
+
+        CareJob lastJob; int lastJobPct = -1, lastWarnSecs = -1; ExpeditionPhase lastPhase; bool lastTether; string lastReaction;
+        void DrawPromptAndWarning()
+        {
+            int pct = game.Nearest ? Mathf.FloorToInt(game.Nearest.state.Progress * 100) : -1;
+            if (game.Nearest != lastJob || pct != lastJobPct || game.Phase != lastPhase || game.player.tethered != lastTether)
+            {
+                lastJob = game.Nearest; lastJobPct = pct; lastPhase = game.Phase; lastTether = game.player.tethered;
+                prompt.text = game.Nearest ? $"{game.Nearest.title}  ·  {game.Nearest.tool}  ·  HOLD {GameInput.Display(GameInput.Use).ToUpper()}  {pct}%"
+                    : game.Phase == ExpeditionPhase.Extraction ? "All done! Go to the extraction beacon and press " + GameInput.Display(GameInput.Interact) + " to finish."
+                    : game.player.tethered ? "Tether secured  ·  hold " + GameInput.Display(GameInput.Reel) + " to reel" : "";
+            }
+            int secs = game.WarningRemaining > 0 ? Mathf.CeilToInt(game.WarningRemaining) : 0;
+            if (secs != lastWarnSecs || (object)game.Reaction != lastReaction)
+            {
+                lastWarnSecs = secs; lastReaction = game.Reaction;
+                warning.text = secs > 0 ? $"{game.Reaction} IN {secs}\n<size=21>HOLD {GameInput.Display(GameInput.Brace).ToUpper()} TO BRACE</size>" : "";
+                if (secs > 0) UIAnim.Punch(warning.rectTransform, .12f);
+            }
+        }
+
         // Main objectives of the active mission (side tasks and challenges are
         // in the hotbar's panel). Rebuilt only when something changed.
         TextMeshProUGUI missionTag, missionTitle;
-        string lastObjectives;
+        string lastObjectives; int objectiveStamp;
         readonly System.Text.StringBuilder sb = new System.Text.StringBuilder();
         void DrawObjectives()
         {
             var m = MissionManager.Instance;
             if (!m || !m.Active) return;
+            // Cheap fingerprint of the objective state: rebuild the text only when it moves.
+            int stamp = m.MainComplete ? 1 : 0;
+            for (int i = 0; i < m.progress.Length; i++) stamp = stamp * 31 + m.progress[i] * 2 + (m.done[i] ? 1 : 0);
+            stamp = stamp * 31 + m.Active.GetInstanceID();
+            if (stamp == objectiveStamp && lastObjectives != null) return;
+            objectiveStamp = stamp;
             sb.Clear();
             int n = 1;
             for (int i = 0; i < m.Active.objectives.Length; i++)
@@ -111,25 +148,33 @@ namespace TinyGiantProblems
             }
             if (m.MainComplete) sb.Append("<color=#FFBC4A>> Extract at the beacon</color>");
             var text = sb.ToString();
-            if (text != lastObjectives) { jobs.text = lastObjectives = text; missionTitle.text = m.Active.title; missionTag.text = $"SMALL WORKS GUILD  /  TIER {m.Active.tier}"; }
+            if (text != lastObjectives) { if (lastObjectives != null) UIAnim.Punch(jobs.rectTransform, .06f); jobs.text = lastObjectives = text; missionTitle.text = m.Active.title; missionTag.text = $"SMALL WORKS GUILD  /  TIER {m.Active.tier}"; }
+        }
+
+        static string ControlsSummary()
+        {
+            string D(UnityEngine.InputSystem.InputAction a) => "<color=#FFBC4A>" + GameInput.Display(a) + "</color>";
+            return $"{D(GameInput.Jump)} jump   {D(GameInput.Sprint)} sprint   {D(GameInput.Brace)} brace/grip   {D(GameInput.Use)} use tool\n" +
+                   $"{D(GameInput.Interact)} interact   {D(GameInput.Backpack)} bag   {D(GameInput.Drop)} drop   {D(GameInput.Reel)} reel\n" +
+                   $"Scroll or 1-9 pick a tool   {D(GameInput.ZoomModifier)} + scroll zoom\nHold {D(GameInput.Recover)} for the safety winch.   Rebind keys in Settings.";
         }
 
         void ReturnToGuild() { FindAnyObjectByType<CrewSession>()?.Shutdown(); game.SetPause(false); game.Phase=ExpeditionPhase.Briefing; Cursor.lockState=CursorLockMode.None; Cursor.visible=true; NetworkStatus="Solo expedition"; }
         void Update()
         {
             if (!game) return;
-            briefingPanel.SetActive(game.Phase == ExpeditionPhase.Briefing);
+            bool menu = MenuUI.MainMenuOpen;
+            briefingPanel.SetActive(game.Phase == ExpeditionPhase.Briefing && !menu);
+            if (game.Paused && !pausePanel.activeSelf) pauseControls.text = ControlsSummary();
             pausePanel.SetActive(game.Paused);
             debriefPanel.SetActive(game.Phase == ExpeditionPhase.Debrief);
             foreach(var panel in gameplayPanels) panel.SetActive(game.IsPlaying && !game.Paused);
-            status.text = $"MOSSBACK  /  {ZoneLabel()}\nComfort   {game.Comfort:0}%\nGrip          {game.player.grip:0}%\n{NetworkStatus}";
+            DrawStatus();
             DrawObjectives();
-            tools.text = "";
             caption.text = game.Caption;
-            prompt.text = game.Nearest ? $"{game.Nearest.title}  ·  {game.Nearest.tool}  ·  HOLD USE  {game.Nearest.state.Progress:P0}" : game.Phase == ExpeditionPhase.Extraction ? "All done! Go to the extraction beacon and press " + GameInput.Display(GameInput.Interact) + " to finish." : game.player.tethered ? "Tether secured  ·  hold " + GameInput.Display(GameInput.Reel) + " to reel" : "";
-            warning.text = game.WarningRemaining > 0 ? $"{game.Reaction} IN {Mathf.CeilToInt(game.WarningRemaining)}\n<size=21>HOLD {GameInput.Display(GameInput.Brace).ToUpper()} TO BRACE</size>" : "";
+            DrawPromptAndWarning();
             if (game.Phase == ExpeditionPhase.Debrief) DrawDebrief(); else lastDebrief = null;
-            if (boardPanel) boardPanel.gameObject.SetActive(game.Phase == ExpeditionPhase.Briefing);
+            if (boardPanel) boardPanel.gameObject.SetActive(game.Phase == ExpeditionPhase.Briefing && !menu);
             if (game.Phase == ExpeditionPhase.Briefing) DrawMissionBoard();
         }
 
@@ -248,7 +293,7 @@ namespace TinyGiantProblems
         {
             var p = Panel(panel, label, new Vector2(.5f,1), new Vector2(0,y), new Vector2(490,46));
             p.GetComponent<UnityEngine.UI.Image>().color = new Color(.22f,.39f,.35f);
-            var button = p.gameObject.AddComponent<UnityEngine.UI.Button>(); button.targetGraphic = p.GetComponent<UnityEngine.UI.Image>(); button.onClick.AddListener(action);
+            var button = p.gameObject.AddComponent<UnityEngine.UI.Button>(); button.targetGraphic = p.GetComponent<UnityEngine.UI.Image>(); button.onClick.AddListener(() => ProceduralSfx.Play(ProceduralSfx.Click, .5f)); button.onClick.AddListener(action);
             var t = Label(p,label,18,cream,new Vector2(0,-5),new Vector2(490,35)); t.alignment = TextAlignmentOptions.Center;
         }
         static void Place(RectTransform rt, Vector2 anchor, Vector2 position, Vector2 size) { rt.anchorMin = rt.anchorMax = rt.pivot = anchor; rt.anchoredPosition = position; rt.sizeDelta = size; }

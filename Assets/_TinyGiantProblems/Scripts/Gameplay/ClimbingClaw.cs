@@ -45,7 +45,7 @@ namespace TinyGiantProblems
             var dir = was && SurfaceNormal != Vector3.zero ? -SurfaceNormal : pushDirection;
             if (!Probe(dir, out hit) && !(was && Probe(pushDirection, out hit))) return false;
             // Mossback himself, or a guild climbing wall (ClimbWall).
-            bool wall = hit.collider.GetComponent<ClimbWall>();
+            bool wall = hit.collider.TryGetComponent<ClimbWall>(out _);
             if (!wall && !hit.collider.transform.IsChildOf(game.creature.transform)) return false;
             if (hit.normal.y > .62f) return false; // Walkable: just walk.
             if (hit.collider.GetComponentInParent<ClimbableZone>() && !was && motor.grounded && input.y <= 0) return false;

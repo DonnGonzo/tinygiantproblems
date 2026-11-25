@@ -35,7 +35,7 @@ namespace TinyGiantProblems
         void Awake() { Instance = this; Application.runInBackground = true; }
         void Update()
         {
-            if (GameInput.Pause.WasPressedThisFrame())
+            if (GameInput.Pause.WasPressedThisFrame() && !MenuUI.Rebinding && Time.frameCount - MenuUI.RebindEndedFrame > 1 && !MenuUI.MainMenuOpen)
             { if (GameUI.CloseTopmost()) { } else if (IsPlaying) SetPause(!Paused); }
             if (!IsPlaying || Paused) return;
             var dt = Time.deltaTime;

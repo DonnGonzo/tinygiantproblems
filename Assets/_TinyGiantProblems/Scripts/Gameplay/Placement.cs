@@ -90,6 +90,7 @@ namespace TinyGiantProblems
         }
 
         // ---- aiming ----
+        static readonly RaycastHit[] aimHits = new RaycastHit[24];
         void Aim(ItemDef def)
         {
             valid = false; targetParent = null;
@@ -98,13 +99,14 @@ namespace TinyGiantProblems
             var origin = cam ? cam.position : transform.position + Vector3.up * 1.6f;
             var dir = cam ? cam.forward : motor.model.forward;
             float reachFromCam = reach + (cam ? Vector3.Distance(cam.position, transform.position) : 0);
-            var hits = Physics.RaycastAll(origin, dir, reachFromCam, ~0, QueryTriggerInteraction.Ignore);
-            Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+            // Nearest hit that is not the technician or the ghost (runs every frame while aiming).
+            int n = Physics.RaycastNonAlloc(origin, dir, aimHits, reachFromCam, ~0, QueryTriggerInteraction.Ignore);
             RaycastHit hit = default; bool found = false;
-            foreach (var h in hits)
+            for (int i = 0; i < n; i++)
             {
+                var h = aimHits[i];
                 if (h.collider.transform.IsChildOf(transform) || ghost && h.collider.transform.IsChildOf(ghost.transform)) continue;
-                hit = h; found = true; break;
+                if (!found || h.distance < hit.distance) { hit = h; found = true; }
             }
             // Fallback: the spot just ahead of the technician's feet.
             if (!found)

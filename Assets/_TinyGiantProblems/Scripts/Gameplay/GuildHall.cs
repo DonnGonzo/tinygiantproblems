@@ -273,9 +273,9 @@ namespace TinyGiantProblems
         // --------------------------------------------------------- ground floor
         static void BuildGroundFloor()
         {
-            float i = HalfX - Wall, k = HalfZ - Wall;
+            float k = HalfZ - Wall;
             // Rug in the hall.
-            var rug = GameArt.Shape("Rug", PrimitiveType.Cylinder, structure, new Vector3(0, .03f, 3.4f), new Vector3(5.6f, .012f, 5.6f), Palette.Rug);
+            GameArt.Shape("Rug", PrimitiveType.Cylinder, structure, new Vector3(0, .03f, 3.4f), new Vector3(5.6f, .012f, 5.6f), Palette.Rug);
             GameArt.Shape("Rug border", PrimitiveType.Cylinder, structure, new Vector3(0, .025f, 3.4f), new Vector3(6.1f, .01f, 6.1f), Palette.Trim);
 
             // Fireplace on the back wall (under the gallery).
@@ -386,7 +386,7 @@ namespace TinyGiantProblems
             for (int n = 0; n < 46; n++)
             {
                 float x = -2.9f + (float)rng.NextDouble() * 5.8f, y = .5f + n * (Loft - 1) / 46f + (float)rng.NextDouble() * .3f;
-                var h = GameArt.Shape("Hold", PrimitiveType.Sphere, structure, new Vector3(x, y, 1.84f), new Vector3(.24f, .18f, .14f), holds[n % holds.Length]);
+                GameArt.Shape("Hold", PrimitiveType.Sphere, structure, new Vector3(x, y, 1.84f), new Vector3(.24f, .18f, .14f), holds[n % holds.Length]);
             }
             WorldSign(new Vector3(0, 3.2f, 1.9f), "CLAW WALL", .38f);
 

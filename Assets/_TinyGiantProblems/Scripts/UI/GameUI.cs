@@ -116,7 +116,7 @@ namespace TinyGiantProblems
         {
             var img = Panel(parent, label, anchor, position, size, ButtonColor, true);
             var b = img.gameObject.AddComponent<Button>();
-            b.targetGraphic = img; b.onClick.AddListener(action);
+            b.targetGraphic = img; b.onClick.AddListener(() => ProceduralSfx.Play(ProceduralSfx.Click, .5f)); b.onClick.AddListener(action);
             var colors = b.colors; colors.highlightedColor = new Color(1.25f, 1.25f, 1.25f); colors.pressedColor = new Color(.8f, .8f, .8f); b.colors = colors;
             text = Label(img.transform, label, 17, Cream, new Vector2(.5f, .5f), Vector2.zero, size, TextAlignmentOptions.Center);
             return b;

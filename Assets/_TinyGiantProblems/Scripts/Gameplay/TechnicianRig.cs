@@ -47,6 +47,7 @@ namespace TinyGiantProblems
 
         static float Damp(float current, float target, float speed, float dt) => Mathf.Lerp(current, target, 1 - Mathf.Exp(-speed * dt));
 
+        Vector3[] eulers;
         void LateUpdate()
         {
             if (!motor || bones == null || bones.Length < (int)Bone.Count) return;
@@ -88,7 +89,8 @@ namespace TinyGiantProblems
 
             // Reset to rest, then layer.
             for (int i = 0; i < (int)Bone.Count; i++) { bones[i].localPosition = restPositions[i]; bones[i].localRotation = Quaternion.identity; }
-            var e = new Vector3[(int)Bone.Count];
+            if (eulers == null) eulers = new Vector3[(int)Bone.Count]; else System.Array.Clear(eulers, 0, eulers.Length);
+            var e = eulers;
             var hipOffset = Vector3.zero;
 
             float s = Mathf.Sin(phase), c = Mathf.Cos(phase);

@@ -64,7 +64,7 @@ namespace TinyGiantProblems
             bool playing = game && game.IsPlaying;
             // The vacuum has a grip: rear up, then strike back once.
             if (worked && !attacked && progress > .3f && State != MiteState.Windup && attackCooldown <= 0)
-            { State = MiteState.Windup; stateTimer = .55f; if (game) game.Caption = "[Angry chittering] The Bramblemite rears up. BRACE (F / B)!"; }
+            { State = MiteState.Windup; stateTimer = .55f; if (game) game.Caption = "[Angry chittering] The Bramblemite rears up. BRACE (" + GameInput.Display(GameInput.Brace) + ")!"; }
             switch (State)
             {
                 case MiteState.Windup:
