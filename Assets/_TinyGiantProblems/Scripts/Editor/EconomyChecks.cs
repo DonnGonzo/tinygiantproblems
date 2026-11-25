@@ -41,18 +41,33 @@ namespace TinyGiantProblems.Editor
             var json = JsonUtility.ToJson(inv); var copy = JsonUtility.FromJson<Inventory>(json); copy.Sanitize();
             Check(copy.Count(ItemId.Brush) == Inventory.Size && copy.selected == 8, "Inventory survives a save round trip");
 
-            var board = TaskBoard.MossbackContract(new[] { "A", "B", "C" });
-            Check(board.Report(TaskKind.CareJob, 1, 1) == 40 && board.CareOrder(1).paid, "Care job pays its bounty once");
-            Check(board.Report(TaskKind.CareJob, 1, 1) == 0, "Bounty cannot be paid twice");
-            int paid = 0; for (int i = 0; i < 8; i++) paid += board.Report(TaskKind.ClearMess, 1, (int)MessKind.Grime);
-            Check(paid == 35, "Grime order pays after eight patches");
-            Check(board.Report(TaskKind.ClearMess, 1, (int)MessKind.Burr) == 0, "Mess kinds track separately");
-            Check(board.Report(TaskKind.SellDebris, 12) == 50, "Selling twelve pieces completes the salvage order");
-
-            int starterValue = 0, mandatory = 0;
-            foreach (var o in TaskBoard.MossbackContract(new[] { "A", "B", "C" }).orders) if (!o.optional) mandatory += o.bounty;
+            var catalog = MissionCatalog.Instance;
+            Check(catalog && catalog.missions.Length >= 6, "Mission catalog has at least six missions");
+            if (catalog)
+            {
+                var ids = new HashSet<string>(); bool idsOk = true, reqOk = true, mainOk = true, tierOk = true; int lastTier = 1;
+                bool timed = false, noDamage = false, collect = false;
+                foreach (var m in catalog.missions)
+                {
+                    if (!m || string.IsNullOrEmpty(m.id) || !ids.Add(m.id)) { idsOk = false; continue; }
+                    foreach (var r in m.requires) if (!ids.Contains(r)) reqOk = false;   // only earlier missions
+                    bool hasMain = false; foreach (var o in m.objectives) if (!o.optional) hasMain = true;
+                    if (!hasMain) mainOk = false;
+                    if (m.tier < lastTier) tierOk = false; lastTier = m.tier;
+                    foreach (var c in m.challenges) { if (c.kind == ChallengeKind.TimeLimit) timed = true; if (c.kind == ChallengeKind.NoFallHurt || c.kind == ChallengeKind.NoSting) noDamage = true; if (c.kind == ChallengeKind.AllTrinkets) collect = true; }
+                }
+                Check(idsOk, "Mission ids are unique"); Check(reqOk, "Missions only require earlier missions"); Check(mainOk, "Every mission has a main objective");
+                Check(tierOk && catalog.missions[catalog.missions.Length - 1].tier > catalog.missions[0].tier, "Difficulty tier ramps up through the catalog");
+                Check(timed && noDamage && collect, "Timed, no-damage and collectible challenges exist");
+                Check(catalog.missions[0].requires.Length == 0, "First mission is unlocked from the start");
+                int early = 0; foreach (var o in catalog.missions[0].objectives) early += o.reward;
+                Check(ItemCatalog.Get(ItemId.Sprayer).price <= early, "First mission pays enough mid-run to buy the Sprayer for the hot spot");
+                var t = catalog.missions[catalog.missions.Length - 1];
+                Check(t.ReactionScale < catalog.missions[0].ReactionScale && t.MessScale > catalog.missions[0].MessScale, "Higher tiers mean faster reactions and more mess");
+            }
+            int starterValue = 0;
             foreach (var d in ItemCatalog.All) if (d.starter) starterValue++;
-            Check(starterValue == 2 && ItemCatalog.Get(ItemId.Sprayer).price <= mandatory - 60, "Sprayer is affordable from one run of work orders before the hot spot");
+            Check(starterValue == 2, "Two starter tools");
             foreach (var d in ItemCatalog.All)
                 if (!string.IsNullOrEmpty(d.model)) Check(ItemLibrary.Instance && ItemLibrary.Instance.Prefab(d.model), "Item library has a model for " + d.name);
             Check(ItemLibrary.Instance && ItemLibrary.Instance.baseMaterial && ItemLibrary.Instance.particleMaterial, "Item library materials are assigned");

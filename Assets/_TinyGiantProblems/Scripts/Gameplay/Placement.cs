@@ -168,6 +168,7 @@ namespace TinyGiantProblems
             var obj = Spawn(def.id, targetParent, targetPos, targetRot);
             if (!obj) { e.Inventory.Add(def.id, 1); return; }
             ProceduralSfx.Play(ProceduralSfx.Pop, .8f);
+            if (def.id == ItemId.Platform) e.Report(TaskKind.PlacePlatform); else e.Report(TaskKind.PlaceKit, 1, (int)def.id);
             if (Expedition.Instance) Expedition.Instance.Caption = def.id == ItemId.Platform ? "Floating Platform set down. Stand on it, then build platform kits on its deck." : def.name + " placed.";
             Save();
         }

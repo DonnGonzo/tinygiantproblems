@@ -12,6 +12,7 @@ namespace TinyGiantProblems
         {
             var game = Object.FindAnyObjectByType<Expedition>();
             if (!game || game.GetComponent<GuildEconomy>()) return;
+            game.gameObject.AddComponent<MissionManager>();
             game.gameObject.AddComponent<GuildEconomy>();
             game.gameObject.AddComponent<MessField>();
             game.gameObject.AddComponent<DebrisSystem>();

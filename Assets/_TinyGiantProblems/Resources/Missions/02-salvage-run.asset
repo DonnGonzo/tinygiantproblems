@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed211b00db96f864a9f6408a4af00314, type: 3}
+  m_Name: 02-salvage-run
+  m_EditorClassIdentifier: Assembly-CSharp::TinyGiantProblems.MissionDef
+  id: 02-salvage-run
+  title: Salvage Run
+  brief: Mossback sheds moss, burrs and twigs everywhere. Gather salvage off the
+    meadow and sell it inside the Guild House.
+  tier: 1
+  requires:
+  - 01-very-bad-itch
+  objectives:
+  - title: Pick up salvage
+    kind: 13
+    subtype: -1
+    target: 15
+    optional: 0
+    reward: 0
+  - title: Sell salvage at the Guild House
+    kind: 2
+    subtype: -1
+    target: 12
+    optional: 0
+    reward: 0
+  - title: Clear any mess
+    kind: 1
+    subtype: -1
+    target: 6
+    optional: 0
+    reward: 0
+  - title: Recover the lost survey drone
+    kind: 4
+    subtype: -1
+    target: 1
+    optional: 1
+    reward: 60
+  - title: Find a hidden trinket
+    kind: 3
+    subtype: -1
+    target: 1
+    optional: 1
+    reward: 40
+  challenges:
+  - title: Never thrown off by a sneeze or shake
+    kind: 2
+    seconds: 0
+    reward: 50
+  - title: Done in under 6 minutes
+    kind: 0
+    seconds: 360
+    reward: 50
+  rewardCoins: 140
+  rewardItem: 0

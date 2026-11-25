@@ -43,7 +43,9 @@ namespace TinyGiantProblems
         public bool Using => stunned <= 0 && (automate ? UseOverride : GameInput.Use.IsPressed() && !GameUI.CapturesInput);
         // Paralysis from a Bramblemite sting or a hard fall: no movement, jumping or tool use.
         public float stunned;
-        public void Stun(float seconds) { if (grace <= 0) stunned = Mathf.Max(stunned, seconds); }
+        public void Stun(float seconds) { if (grace > 0) return; stunned = Mathf.Max(stunned, seconds); stings++; }
+        // Run counters read by mission challenges.
+        public int launches, stings;
         public bool UsePressedThisFrame => automate ? useOverrideEdge : GameInput.Use.WasPressedThisFrame() && !GameUI.CapturesInput;
         bool useOverrideEdge, lastUseOverride;
         public bool Moving => capsule && new Vector2(capsule.velocity.x, capsule.velocity.z).sqrMagnitude > .4f;
@@ -282,7 +284,7 @@ namespace TinyGiantProblems
             velocity = Vector3.ClampMagnitude(impulse, 28); planarVelocity = Vector3.zero; SetSupport(null); grace = 3;
             climbing = false; clawing = false;
             // Big throws send the body tumbling until it lands (TechnicianRig).
-            if (impulse.magnitude > 9) { tumbling = true; launchedAt = Time.time; Shake(.5f, .35f); }
+            if (impulse.magnitude > 9) { tumbling = true; launchedAt = Time.time; Shake(.5f, .35f); launches++; }
         }
         // Thrown by a sneeze/shake: limp tumble, almost no air control.
         public bool tumbling;

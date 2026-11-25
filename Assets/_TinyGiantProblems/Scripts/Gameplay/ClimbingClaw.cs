@@ -15,6 +15,7 @@ namespace TinyGiantProblems
         public float stamina = 100, maxStamina = 100;
         public float drainMoving = 8f, drainHanging = 4f, refill = 30, reach = 1.15f;
         public bool Active { get; private set; }
+        float climbStartY = float.NaN;
         public bool Exhausted { get; private set; }
         public bool Equipped => GuildEconomy.Instance && GuildEconomy.Instance.Inventory.SelectedDef?.id == ItemId.Claw;
         public Vector3 SurfaceNormal { get; private set; }
@@ -114,6 +115,8 @@ namespace TinyGiantProblems
         {
             if (!motor) return;
             float dt = Time.deltaTime;
+            if (Active) { if (float.IsNaN(climbStartY)) climbStartY = transform.position.y; else GuildEconomy.Instance?.Report(TaskKind.ClawClimb, Mathf.FloorToInt(transform.position.y - climbStartY)); }
+            else if (motor.grounded) climbStartY = float.NaN;
             if (!Active && motor.grounded)
             {
                 stamina = Mathf.Min(maxStamina, stamina + refill * dt);

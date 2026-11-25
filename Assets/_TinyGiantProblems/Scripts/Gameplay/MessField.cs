@@ -264,9 +264,11 @@ namespace TinyGiantProblems
             ClearedCount = 0; Total = 0; shownClean = 0;
             var rng = new System.Random(seed++);
             Physics.SyncTransforms();
-            Spawn(MessKind.Grime, grimeCount, rng);
-            Spawn(MessKind.Burr, burrCount, rng);
-            Spawn(MessKind.Mite, miteCount, rng);
+            var mission = MissionManager.Instance ? MissionManager.Instance.Selected : null;
+            float density = mission ? mission.MessScale : 1;
+            Spawn(MessKind.Grime, Mathf.RoundToInt(grimeCount * density), rng);
+            Spawn(MessKind.Burr, Mathf.RoundToInt(burrCount * density), rng);
+            Spawn(MessKind.Mite, Mathf.RoundToInt(miteCount * density), rng);
             // Some grime hides a collectable find that only shows once scrubbed away.
             var grime = spots.FindAll(s => s.kind == MessKind.Grime);
             for (int i = 0; i < hiddenFinds && grime.Count > 0; i++)

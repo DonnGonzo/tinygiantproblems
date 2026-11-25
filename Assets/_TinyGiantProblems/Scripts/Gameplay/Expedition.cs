@@ -18,6 +18,8 @@ namespace TinyGiantProblems
         public string Reaction = "";
         public float nextReaction = 32;
         public int reactionCount;
+        // Mission difficulty: < 1 makes sneezes and shakes come sooner.
+        public float reactionScale = 1;
         public CareJob Nearest { get; private set; }
         public bool IsPlaying => Phase == ExpeditionPhase.Working || Phase == ExpeditionPhase.Extraction;
         public int Completed { get { int n = 0; foreach (var j in jobs) if (j.state.Complete) n++; return n; } }
@@ -59,7 +61,7 @@ namespace TinyGiantProblems
                 }
                 else if (nextReaction <= 0) Warn();
                 Irritation = Mathf.Clamp(Irritation + dt * .12f, 0, 100);
-                if (CareRules.CanExtract(Completed, Comfort)) Phase = ExpeditionPhase.Extraction;
+                if (CanExtract) Phase = ExpeditionPhase.Extraction;
             }
             if (Phase == ExpeditionPhase.Extraction && Vector3.Distance(player.transform.position, extraction.position) < 3.5f && player.InteractPressed) Finish();
         }
@@ -101,13 +103,14 @@ namespace TinyGiantProblems
         {
             creature.GetComponent<MossbackMotion>()?.Impact(Reaction);
             effects.PlayOneShot(Reaction == "SNEEZE" ? sneeze : shake, .75f);
-            nextReaction=Random.Range(26f,43f);
+            nextReaction=Random.Range(26f,43f)*reactionScale;
             creature.reactionPulse=1.2f;
             WarningRemaining = 0;
             // Only technicians actually standing on (or climbing) Mossback get thrown.
             bool onMossback = player.climbing || Physics.Raycast(player.transform.position + Vector3.up * .5f, Vector3.down, out var under, 2.5f, ~0, QueryTriggerInteraction.Ignore) && under.collider.transform.IsChildOf(creature.transform);
             bool secure = player.braced || player.tethered || !onMossback;
             if (secure) player.Shake(Reaction == "SNEEZE" ? .55f : .8f, .7f);
+            if (secure && onMossback) GuildEconomy.Instance?.Report(TaskKind.BraceReaction);
             else player.Launch(ReactionThrow(Reaction));
             Caption = !onMossback ? "[Distant rumble] Mossback "+(Reaction == "SNEEZE" ? "sneezes" : "shakes")+" out in the meadow." : secure ? "[Secure!] Nice bracing. Back to work." : Reaction == "SNEEZE" ? "[AAAH-CHOO!] Blasted off the back! Brace (F) when Mossback inhales." : "[Whoooosh!] Shaken loose! Brace (F) when the fur starts to rumble.";
             ReactionImpact?.Invoke(Reaction);
@@ -137,7 +140,7 @@ namespace TinyGiantProblems
         public void Begin(bool replicated = false)
         {
             if (IsRemote && !replicated) { Caption = "The host starts the next expedition."; return; }
-            Phase = ExpeditionPhase.Working; Comfort = 38; Irritation = 30; Elapsed = 0; nextReaction = Random.Range(26f,39f);
+            Phase = ExpeditionPhase.Working; Comfort = 38; Irritation = 30; Elapsed = 0; reactionScale = 1;
             creature.reactionPulse=0;creature.GetComponent<MossbackMotion>()?.ResetMotion();
             creature.ResetFramePose();
             WarningRemaining = 0; reactionCount = 0; Reaction = "";
@@ -146,15 +149,20 @@ namespace TinyGiantProblems
             Caption = "Walk Mossback's back to each care site and use the matching tool. A Floating Platform gives you somewhere steady to stand.";
             MissionBegan?.Invoke();
             Began?.Invoke();
+            nextReaction = Random.Range(26f, 39f) * reactionScale;
         }
         public void Finish(bool authoritative = false)
         {
-            if (!CareRules.CanExtract(Completed, Comfort)) return;
+            if (!CanExtract) return;
             if (IsRemote && !authoritative) { ExtractionRequested?.Invoke(); return; }
             Phase = ExpeditionPhase.Debrief;
             Cursor.lockState = CursorLockMode.None; Cursor.visible = true;
-            PlayerPrefs.SetInt("GuildBest", Mathf.Max(PlayerPrefs.GetInt("GuildBest"), Reward)); PlayerPrefs.Save();
+            var missions = MissionManager.Instance;
+            if (missions && missions.Active) missions.Complete();
+            else GuildEconomy.Instance?.Earn(Reward, "Contract payout · Guild pay");
         }
+        // Extraction opens when the mission's main objectives are done.
+        public bool CanExtract { get { var m = MissionManager.Instance; return m && m.Active ? m.MainComplete : CareRules.CanExtract(Completed, Comfort); } }
         public void SetPause(bool value)
         {
             Paused = value;

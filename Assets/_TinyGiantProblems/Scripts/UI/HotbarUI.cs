@@ -88,7 +88,7 @@ namespace TinyGiantProblems
 
             // Work orders under the contract panel
             ordersPanel = UIKit.Panel(root, "Work orders", new Vector2(0, 1), new Vector2(28, -284), new Vector2(340, 236), UIKit.Ink).rectTransform;
-            UIKit.Label(ordersPanel, "SIDE WORK ORDERS  ·  BOUNTIES", 14, UIKit.Gold, new Vector2(0, 1), new Vector2(18, -12), new Vector2(310, 22));
+            UIKit.Label(ordersPanel, "SIDE TASKS  ·  CHALLENGES", 14, UIKit.Gold, new Vector2(0, 1), new Vector2(18, -12), new Vector2(310, 22));
             orders = UIKit.Label(ordersPanel, "", 15, UIKit.Cream, new Vector2(0, 1), new Vector2(18, -38), new Vector2(310, 190));
 
             prompt = UIKit.Label(root, "", 21, UIKit.Cream, new Vector2(.5f, 0), new Vector2(0, 252), new Vector2(900, 34), TextAlignmentOptions.Center);
@@ -211,18 +211,32 @@ namespace TinyGiantProblems
             var c = coinsDelta.color; c.a = Mathf.Clamp01(coinPulse * 2); coinsDelta.color = c;
         }
 
+        readonly System.Text.StringBuilder ordersSb = new System.Text.StringBuilder();
+        string lastOrders; float nextOrdersRedraw;
         void DrawOrders()
         {
-            var board = economy.Board; if (board == null) return;
-            var sb = new System.Text.StringBuilder();
-            foreach (var o in board.orders)
+            var m = MissionManager.Instance; if (!m || !m.Active) return;
+            if (Time.unscaledTime < nextOrdersRedraw) return;   // a few times a second is plenty
+            nextOrdersRedraw = Time.unscaledTime + .25f;
+            ordersSb.Clear();
+            for (int i = 0; i < m.Active.objectives.Length; i++)
             {
-                if (o.kind == TaskKind.CareJob) continue;
-                string progress = o.target > 1 ? $" {o.progress}/{o.target}" : "";
-                if (o.paid) sb.Append($"<color=#86D8A0>DONE  {o.title}</color>  <color=#86D8A0>+{o.bounty}</color>\n");
-                else sb.Append($"{(o.optional ? "<color=#B7C9BF>opt</color> " : "")}{o.title}<color=#B7C9BF>{progress}</color>  <color=#FFBC4A>{o.bounty}</color>\n");
+                var o = m.Active.objectives[i]; if (!o.optional) continue;
+                if (m.done[i]) ordersSb.Append("<color=#86D8A0>DONE  ").Append(o.title).Append("  +").Append(o.reward).Append("</color>\n");
+                else
+                {
+                    ordersSb.Append(o.title);
+                    if (o.target > 1) ordersSb.Append("<color=#B7C9BF> ").Append(m.progress[i]).Append('/').Append(o.target).Append("</color>");
+                    ordersSb.Append("  <color=#FFBC4A>").Append(o.reward).Append("</color>\n");
+                }
             }
-            orders.text = sb.ToString();
+            for (int i = 0; i < m.Active.challenges.Length; i++)
+            {
+                var c = m.Active.challenges[i];
+                ordersSb.Append("<color=#9FD3FF>* ").Append(c.title).Append("</color>  <color=#B7C9BF>").Append(m.ChallengeStatus(i)).Append("</color>\n");
+            }
+            var text = ordersSb.ToString();
+            if (text != lastOrders) orders.text = lastOrders = text;
         }
 
         void DrawPrompt(bool playing)
