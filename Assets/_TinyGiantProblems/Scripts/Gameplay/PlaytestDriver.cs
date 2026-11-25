@@ -123,16 +123,16 @@ namespace TinyGiantProblems
                 Check(p.transform.position.y < g.creature.transform.position.y - 5, "Glider brings the technician down to the meadow");
                 Capture("14-salvage-yard");
                 // The sell counter is inside the Guild House: walk in through the open door.
-                Check(GuildHouse.DoorOutside, "Guild House stands in the meadow");
-                if (GuildHouse.DoorOutside)
+                Check(GuildHall.DoorOutside, "Guild House stands in the meadow");
+                if (GuildHall.DoorOutside)
                 {
-                    p.Warp(GuildHouse.DoorOutside.position + Vector3.up * .2f);
-                    p.yaw = Quaternion.LookRotation(-GuildHouse.Exterior.forward).eulerAngles.y;
+                    p.Warp(GuildHall.DoorOutside.position + Vector3.up * .2f);
+                    p.yaw = Quaternion.LookRotation(-GuildHall.Root.forward).eulerAngles.y;
                     p.MoveOverride = new Vector3(0, 0, 1);
                     yield return new WaitForSeconds(2.2f);
                     p.MoveOverride = Vector3.zero;
                 }
-                Check(GuildHouse.PlayerInside, "Walking through the open door takes you inside the Guild House");
+                Check(GuildHall.PlayerInside, "Walking through the open door takes you inside the Guild House");
                 SellStation sell = null;
                 foreach (var s in Station.All) if (s is SellStation ss) sell = ss;
                 if (sell)
@@ -147,11 +147,11 @@ namespace TinyGiantProblems
                     Check(econ.Coins > coins && econ.Inventory.Count(ItemId.Twig) == 0, "Selling converts salvage to coins");
                     Capture("16-sold");
                 }
-                p.yaw = Quaternion.LookRotation(GuildHouse.Exterior.forward).eulerAngles.y;
+                p.yaw = Quaternion.LookRotation(GuildHall.Root.forward).eulerAngles.y;
                 p.MoveOverride = new Vector3(0, 0, 1);
                 yield return new WaitForSeconds(3f);
                 p.MoveOverride = Vector3.zero;
-                Check(!GuildHouse.PlayerInside, "Walking back out through the door returns you to the meadow");
+                Check(!GuildHall.PlayerInside, "Walking back out through the door returns you to the meadow");
                 p.Warp(post.transform.position + Vector3.forward * 1.5f);
                 yield return new WaitForSeconds(.3f);
                 post.Interact();
@@ -168,6 +168,145 @@ namespace TinyGiantProblems
             Status = checks.Exists(c => !c.StartsWith("PASS")) ? "FAILED" : "PASSED";
             Debug.Log("Playtest " + Status + "\n" + string.Join("\n", checks));
             Finished?.Invoke();
+        }
+
+        // ---- Guild Hall routes: every traversal path in Docs/GuildHouse-Layout.md ----
+        public void RunHall() => StartCoroutine(HallRoutes());
+
+        IEnumerator HallRoutes()
+        {
+            Status = "Running"; checks.Clear(); errors = 0;
+            Application.logMessageReceived += OnLog;
+            Directory.CreateDirectory(Folder);
+            var g = Expedition.Instance; var p = g.player; var econ = GuildEconomy.Instance; var r = GuildHall.Root;
+            if (!g.IsPlaying) g.Begin();
+            g.nextReaction = 9999; p.automate = true;
+            var savedInventory = JsonUtility.ToJson(econ.Inventory);
+            foreach (var id in new[] { ItemId.Claw, ItemId.Glider }) if (!econ.Inventory.Has(id)) econ.Inventory.Add(id, 1);
+            yield return new WaitForSeconds(.5f);
+            float Y() => r.InverseTransformPoint(p.transform.position).y;
+            Vector3 Local() => r.InverseTransformPoint(p.transform.position);
+
+            int finds = 0; foreach (var d in DebrisPickup.All) if (d && (d.item == ItemId.ShinyPebble || d.item == ItemId.GuildBadge) && r.InverseTransformPoint(d.transform.position).sqrMagnitude < 20 * 20) finds++;
+            Check(finds >= 3, $"Three hidden trinkets wait in the hall ({finds})");
+
+            // Walk in through the front door.
+            p.Warp(GuildHall.DoorOutside.position + Vector3.up * .3f); Face(p, -r.forward);
+            p.MoveOverride = Vector3.forward; yield return new WaitForSeconds(3.2f); p.MoveOverride = Vector3.zero;
+            Check(GuildHall.PlayerInside && Y() > -.2f, $"Front steps and door lead inside (local {Local()})");
+
+            // Stations answer from where you stand in front of them.
+            Check(Station.Nearest(r.TransformPoint(new Vector3(-7.3f, .5f, 0))) is ToolLocker, "Tool Locker is reachable");
+            Check(Station.Nearest(r.TransformPoint(new Vector3(7.3f, .5f, 0))) is SellStation, "Sell counter is reachable");
+            Check(Station.Nearest(r.TransformPoint(new Vector3(-5f, .5f, -3.6f))) is Wardrobe, "Wardrobe is reachable");
+
+            // Stairs up to the right gallery.
+            Put(p, r, new Vector3(1.9f, .2f, 6.5f), r.right);
+            p.MoveOverride = Vector3.forward; yield return new WaitForSeconds(2.6f); p.MoveOverride = Vector3.zero; yield return new WaitForSeconds(.3f);
+            Check(Y() > 3.8f, $"Stairs lead up to the gallery (y {Y():0.00})");
+            Capture("hall-01-stairs-top");
+
+            // Crate climb: barrel 1.0, crate 2.0, bookcase 3.0, gallery 4.0.
+            Put(p, r, new Vector3(-2.4f, .2f, 4.9f), -r.right);
+            yield return Hop(p, r, new Vector3(-4f, 1f, 4.9f));
+            Check(Mathf.Abs(Y() - 1f) < .25f, $"Jump onto the barrel (y {Y():0.00})");
+            yield return Hop(p, r, new Vector3(-5.4f, 2f, 5.8f));
+            Check(Mathf.Abs(Y() - 2f) < .25f, $"Jump onto the crate (y {Y():0.00})");
+            yield return Hop(p, r, new Vector3(-6.8f, 3f, 5.1f));
+            Check(Mathf.Abs(Y() - 3f) < .25f, $"Jump onto the bookcase (y {Y():0.00})");
+            yield return Hop(p, r, new Vector3(-8.8f, 4f, 5.2f));
+            Check(Mathf.Abs(Y() - 4f) < .25f, $"Jump onto the left gallery (y {Y():0.00})");
+            Capture("hall-02-crate-climb");
+
+            // Shelf tower from the back gallery up to the high beam.
+            Put(p, r, new Vector3(6.5f, 4.2f, -6.2f), r.forward);
+            yield return new WaitForSeconds(.3f);
+            var tower = new[] { new Vector3(6.5f, 4.9f, -3.8f), new Vector3(4.9f, 5.8f, -3.8f), new Vector3(4.9f, 6.7f, -2.4f), new Vector3(6.5f, 7.6f, -1.05f), new Vector3(6.5f, 8f, 0) };
+            for (int i = 0; i < tower.Length; i++)
+            {
+                yield return Hop(p, r, tower[i]);
+                Check(Mathf.Abs(Y() - tower[i].y) < .25f, $"Shelf tower step {i + 1} (y {Y():0.00}, want {tower[i].y})");
+            }
+            Capture("hall-03-shelf-tower");
+            // Walk the high beam out of the gable door onto the balcony and grab the badge.
+            int badges = econ.Inventory.Count(ItemId.GuildBadge);
+            Face(p, r.right); p.MoveOverride = Vector3.forward;
+            float walk = Time.time;
+            while (Time.time - walk < 4f && Local().x < GuildHall.HalfX + 1.4f) yield return null;
+            p.MoveOverride = Vector3.zero; yield return new WaitForSeconds(.8f);
+            Check(Local().x > GuildHall.HalfX && Mathf.Abs(Y() - 8f) < .3f, $"High beam leads out to the gable balcony ({Local()})");
+            Check(econ.Inventory.Count(ItemId.GuildBadge) > badges, "Guild badge on the balcony can be picked up");
+            Capture("hall-04-balcony");
+            // Glide off the open end.
+            Select(econ, ItemId.Glider);
+            yield return new WaitForSeconds(.2f);
+            bool glided = false; float t0 = Time.time;
+            p.MoveOverride = Vector3.forward;
+            var abilities = p.GetComponent<ToolAbilities>();
+            while (Time.time - t0 < 5f) { if (abilities && abilities.Gliding) glided = true; yield return null; }
+            p.MoveOverride = Vector3.zero;
+            Check(glided, "Glider works off the balcony");
+
+            // Claw climb straight up the wall to the loft.
+            Select(econ, ItemId.Claw);
+            Put(p, r, new Vector3(0, .2f, 3.0f), -r.forward);
+            yield return new WaitForSeconds(.3f);
+            p.MoveOverride = Vector3.forward; t0 = Time.time; float best = 0;
+            while (Time.time - t0 < 14f && Y() < 7.9f) { best = Mathf.Max(best, Y()); yield return null; }
+            yield return new WaitForSeconds(1.2f);
+            p.MoveOverride = Vector3.zero; yield return new WaitForSeconds(.5f);
+            Check(Y() > 7.8f && Local().z < 1.5f, $"Claw climbs the wall and tops out on the loft (y {Y():0.00}, best {best:0.0}, local {Local()})");
+            Capture("hall-05-claw-top");
+
+            // Hidden spots: under the stairs and behind the wardrobe.
+            int pebbles = econ.Inventory.Count(ItemId.ShinyPebble);
+            Put(p, r, new Vector3(6.8f, .2f, 4.0f), r.forward);
+            p.MoveOverride = Vector3.forward; yield return new WaitForSeconds(1.3f); p.MoveOverride = Vector3.zero; yield return new WaitForSeconds(.6f);
+            Check(econ.Inventory.Count(ItemId.ShinyPebble) > pebbles, $"Pebble under the stairs can be reached ({Local()})");
+            pebbles = econ.Inventory.Count(ItemId.ShinyPebble);
+            Put(p, r, new Vector3(-6.55f, .2f, -4.4f), -r.forward);
+            p.MoveOverride = Vector3.forward; yield return new WaitForSeconds(.9f); p.MoveOverride = Vector3.zero;
+            Face(p, r.right); p.MoveOverride = Vector3.forward; yield return new WaitForSeconds(.9f); p.MoveOverride = Vector3.zero; yield return new WaitForSeconds(.6f);
+            Check(econ.Inventory.Count(ItemId.ShinyPebble) > pebbles, $"Pebble behind the wardrobe can be reached ({Local()})");
+
+            p.automate = false;
+            var back = JsonUtility.FromJson<Inventory>(savedInventory); back.Sanitize(); econ.Inventory.slots = back.slots;
+            Check(errors == 0, $"No errors or exceptions logged ({errors})");
+            Application.logMessageReceived -= OnLog;
+            File.WriteAllLines(Folder + "/hall-report.txt", checks);
+            Status = checks.Exists(c => !c.StartsWith("PASS")) ? "FAILED" : "PASSED";
+            Finished?.Invoke();
+        }
+
+        static void Face(TechnicianMotor p, Vector3 dir)
+        {
+            dir.y = 0; p.yaw = Quaternion.LookRotation(dir).eulerAngles.y;
+            p.model.rotation = Quaternion.LookRotation(dir.normalized);
+        }
+
+        static void Put(TechnicianMotor p, Transform r, Vector3 local, Vector3 facing)
+        {
+            p.Warp(r.TransformPoint(local)); p.MoveOverride = Vector3.zero; Face(p, facing);
+        }
+
+        // Face the target, jump while running at it, stop once over it.
+        static IEnumerator Hop(TechnicianMotor p, Transform r, Vector3 targetLocal)
+        {
+            var target = r.TransformPoint(targetLocal);
+            var flat = target - p.transform.position; flat.y = 0;
+            Face(p, flat);
+            yield return new WaitForSeconds(.15f);
+            p.MoveOverride = Vector3.forward; p.JumpOverride = true;
+            float t0 = Time.time;
+            while (Time.time - t0 < 1.4f)
+            {
+                flat = target - p.transform.position; flat.y = 0;
+                if (flat.magnitude < .35f) break;
+                if (Time.time - t0 > .1f) Face(p, flat);
+                yield return null;
+            }
+            p.MoveOverride = Vector3.zero;
+            yield return new WaitForSeconds(.7f);
         }
 
         static MessSpot Closest(MessField f, MessKind kind, Vector3 from)

@@ -288,15 +288,5 @@
     "sha256": "e3feee5060bb239b44b0e1903fb4710c087e3f11ea2ff696239bfb0fa3a98682",
     "sourceTriangles": 12000,
     "collisionTriangles": 2500
-  },
-  "guild-house/guild-house.obj": {
-    "sha256": "4adb51fa8c54594aab11302e03b1a91c3fcb8ff21c794d3f81a14a7ec2ce228e",
-    "sourceTriangles": 89998,
-    "collisionTriangles": 2500
-  },
-  "guild-house-interior/guild-house-interior.obj": {
-    "sha256": "82687a59ea7b43b30de4609a0cea16b4189ac64af68abce82efacd0b9b817efe",
-    "sourceTriangles": 80000,
-    "collisionTriangles": 2500
   }
 }

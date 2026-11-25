@@ -78,7 +78,7 @@ namespace TinyGiantProblems
         string ZoneLabel()
         {
             var p = game.player;
-            if (GuildHouse.PlayerInside) return "Guild House";
+            if (GuildHall.PlayerInside) return "Guild House";
             var frame = game.creature ? game.creature.transform : null;
             if (frame && Physics.Raycast(p.transform.position + Vector3.up * .5f, Vector3.down, out var hit, 3f, ~0, QueryTriggerInteraction.Ignore))
             {

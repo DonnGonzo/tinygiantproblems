@@ -44,20 +44,22 @@ namespace TinyGiantProblems
             if (!pushing) return false;
             var dir = was && SurfaceNormal != Vector3.zero ? -SurfaceNormal : pushDirection;
             if (!Probe(dir, out hit) && !(was && Probe(pushDirection, out hit))) return false;
-            if (!hit.collider.transform.IsChildOf(game.creature.transform)) return false;
+            // Mossback himself, or a guild climbing wall (ClimbWall).
+            bool wall = hit.collider.GetComponent<ClimbWall>();
+            if (!wall && !hit.collider.transform.IsChildOf(game.creature.transform)) return false;
             if (hit.normal.y > .62f) return false; // Walkable: just walk.
             if (hit.collider.GetComponentInParent<ClimbableZone>() && !was && motor.grounded && input.y <= 0) return false;
             // Under a bulge (belly, jaw, tail root) the head meets the overhang
             // first: climb along its underside so the technician works outward
             // and around it instead of pressing into it.
-            if (input.y > 0 && Physics.SphereCast(transform.position + Vector3.up * 1.2f, .25f, Vector3.up, out var over, .9f, ~0, QueryTriggerInteraction.Ignore)
+            if (!wall && input.y > 0 && Physics.SphereCast(transform.position + Vector3.up * 1.2f, .25f, Vector3.up, out var over, .9f, ~0, QueryTriggerInteraction.Ignore)
                 && over.normal.y < -.15f && over.collider.transform.IsChildOf(game.creature.transform))
                 hit = over;
             // In the crevice where a leg meets the belly the probe can catch an
             // inner face; never hold a surface that faces back into the body.
-            var outward = Outward(game);
+            var outward = wall ? new Vector3(hit.normal.x, 0, hit.normal.z).normalized : Outward(game);
             var flat = new Vector3(hit.normal.x, 0, hit.normal.z);
-            if (flat.sqrMagnitude > .04f && Vector3.Dot(flat.normalized, outward) < -.25f) { if (!was) return false; hit.normal = Vector3.Lerp(hit.normal, outward, .8f).normalized; }
+            if (!wall && flat.sqrMagnitude > .04f && Vector3.Dot(flat.normalized, outward) < -.25f) { if (!was) return false; hit.normal = Vector3.Lerp(hit.normal, outward, .8f).normalized; }
             SurfaceNormal = hit.normal;
             Active = true;
             bool moving = input.sqrMagnitude > .04f;

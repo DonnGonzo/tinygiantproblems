@@ -84,7 +84,8 @@ namespace TinyGiantProblems.Editor
             Check(allBound, "Every control has keyboard/mouse and gamepad bindings in the rebindable action asset");
             var tune = Resources.Load<MovementTuning>("MovementTuning");
             Check(tune && tune.acceleration > 0 && tune.coyoteTime > 0 && tune.jumpBuffer > 0, "Movement tuning asset exists with acceleration, coyote time and jump buffer");
-            Check(ItemLibrary.Instance && ItemLibrary.Instance.Prefab(GuildHouse.ExteriorKey) && ItemLibrary.Instance.Prefab(GuildHouse.InteriorKey), "Guild House exterior and interior models are in the item library");
+            bool oldHouse = false; if (ItemLibrary.Instance) foreach (var e in ItemLibrary.Instance.entries) if (e.key != null && e.key.StartsWith("guild-house")) oldHouse = true;
+            Check(!oldHouse && System.Type.GetType("TinyGiantProblems.GuildHouse, Assembly-CSharp") == null && System.Type.GetType("TinyGiantProblems.GuildHall, Assembly-CSharp") != null, "Old imported Guild House is gone; the modular Guild Hall replaces it");
             Check(System.Type.GetType("TinyGiantProblems.GuildLift, Assembly-CSharp") == null && System.Type.GetType("TinyGiantProblems.WinchPost, Assembly-CSharp") != null, "Guild Lift is gone; the yard winch post replaces it");
             var look = (Color[])TechnicianLook.Defaults.Clone(); look[TechnicianLook.Trousers] = new Color(.1f, .2f, .6f);
             var lookBack = TechnicianLook.FromJson(TechnicianLook.ToJson(look));

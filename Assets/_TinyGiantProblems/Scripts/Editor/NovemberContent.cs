@@ -14,7 +14,7 @@ namespace TinyGiantProblems.Editor
     // re-exporting any of the GLBs.
     public static class NovemberContent
     {
-        public static readonly string[] Folders = { "technician", "climbing-claw", "mountain", "floating-platform", "guild-house", "guild-house-interior" };
+        public static readonly string[] Folders = { "technician", "climbing-claw", "mountain", "floating-platform" };
 
         [MenuItem("Tiny Giant Problems/November content/Rebuild all")]
         public static void RebuildAll()
@@ -40,7 +40,7 @@ namespace TinyGiantProblems.Editor
                 bool regions = slug == "technician" || File.Exists(folder + "/" + slug + ".palette.json");
                 importer.materialImportMode = regions ? ModelImporterMaterialImportMode.ImportStandard : ModelImporterMaterialImportMode.None;
                 // The guild house meshes are cut at runtime (doorway, inner floors), which needs CPU-readable data.
-                importer.isReadable = slug == "technician" || slug.StartsWith("guild-house");
+                importer.isReadable = slug == "technician";
                 importer.indexFormat = ModelImporterIndexFormat.UInt32;
                 // Decimation leaves the source normals stale; smooth fresh ones.
                 importer.importNormals = ModelImporterNormals.Calculate;
@@ -57,7 +57,7 @@ namespace TinyGiantProblems.Editor
                 float scale = 1f / Mathf.Max(b.size.x, b.size.y, b.size.z);
                 model.transform.localScale = Vector3.one * scale;
                 model.transform.localPosition = -new Vector3(b.center.x, b.min.y, b.center.z) * scale;
-                if (slug == "mountain" || slug == "floating-platform" || slug == "guild-house" || slug == "guild-house-interior")
+                if (slug == "mountain" || slug == "floating-platform")
                 {
                     var filter = model.GetComponentInChildren<MeshFilter>();
                     var collider = filter.gameObject.AddComponent<MeshCollider>();
@@ -148,7 +148,7 @@ namespace TinyGiantProblems.Editor
         {
             var lib = Resources.Load<ItemLibrary>("ItemLibrary");
             var list = lib.entries.ToList();
-            foreach (var key in new[] { "climbing-claw/climbing-claw", "mountain/mountain", "floating-platform/floating-platform", "guild-house/guild-house", "guild-house-interior/guild-house-interior", "extraction-beacon/beacon-clean", "guild-workshop-furniture-kit/stool", "technician-cosmetic-kit/hat", "technician-cosmetic-kit/scarf", TechnicianRigBuilder.Key })
+            foreach (var key in new[] { "climbing-claw/climbing-claw", "mountain/mountain", "floating-platform/floating-platform", "extraction-beacon/beacon-clean", "guild-workshop-furniture-kit/stool", "technician-cosmetic-kit/hat", "technician-cosmetic-kit/scarf", TechnicianRigBuilder.Key })
             {
                 var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(GiantTinyAssets.Root + "/" + key + ".prefab");
                 if (!prefab) throw new InvalidOperationException("Missing prefab " + key);

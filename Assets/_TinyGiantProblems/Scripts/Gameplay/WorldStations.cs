@@ -140,16 +140,11 @@ namespace TinyGiantProblems
 
             // The Guild House holds the locker, sell counter and wardrobe; the free
             // winch post stands just outside its front door.
-            var houseGround = GroundAt(ground - toward * 10, frame);
-            if (GuildHouse.Build(root, houseGround, toward))
-            {
-                var side = Vector3.Cross(Vector3.up, toward);
-                var postSpot = GroundAt(GuildHouse.DoorOutside.position + toward * 3.5f + side * 5.5f, frame);
-                BuildWinchPost(root, postSpot, toward);
-                return;
-            }
-
-            Debug.LogError("Guild House models are missing from the ItemLibrary; no stations were built.");
+            var houseGround = GroundAt(ground - toward * 12, frame);
+            GuildHall.Build(root, houseGround, toward);
+            var side = Vector3.Cross(Vector3.up, toward);
+            var postSpot = GroundAt(GuildHall.DoorOutside.position + toward * 3.5f + side * 5.5f, frame);
+            BuildWinchPost(root, postSpot, toward);
         }
 
         public static void MakeSign(Transform parent, string text, Vector3 offset, Color color, float scale = 1) { Sign(parent, text, offset, color); if (scale != 1) parent.GetChild(parent.childCount - 1).localScale *= scale; }

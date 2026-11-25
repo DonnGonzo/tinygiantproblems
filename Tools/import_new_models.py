@@ -30,8 +30,6 @@ MODELS = {
     'claws.glb': ('climbing-claw', 5000, 'largest'),
     'mountain.glb': ('mountain', 10000, None),
     'floaring platform.glb': ('floating-platform', 12000, None),
-    'house.glb': ('guild-house', 90000, 'largest'),
-    'house interior.glb': ('guild-house-interior', 80000, None),
 }
 
 
@@ -208,12 +206,12 @@ def export_obj_regions(path, vertices, normals, uvs, faces, labels, names=None):
 # small palette, give each decimated face the majority colour of its nearest
 # source faces, smooth, and export one usemtl group per palette colour.
 # The palette is written next to the OBJ (<slug>.palette.json) for Unity.
-PALETTE_MODELS = {'guild-house': 9, 'guild-house-interior': 8}
-ROOF_LINE = {'guild-house': .5}  # fraction of the height where the roof starts
+PALETTE_MODELS = {}  # the imported guild house was replaced by the modular GuildHall
+ROOF_LINE = {}  # fraction of the height where the roof starts
 # The generated buildings sit rotated inside their own space. Turn them (degrees
 # about Y, found by minimising the footprint's bounding box) so walls line up
 # with the axes; the extra multiple of 90 puts the main door at +Z in Unity.
-ALIGN = {'guild-house': 28.5, 'guild-house-interior': 63.5}
+ALIGN = {}
 
 
 def align_yaw(v, n, degrees):
