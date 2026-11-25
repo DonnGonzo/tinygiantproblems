@@ -87,6 +87,7 @@ namespace TinyGiantProblems
             foreach (var d in DebrisPickup.All) if (d && ItemCatalog.Get(d.item).sellValue >= 30) finds++;
             game.Caption = $"[Scanner ping] {pinged} messes nearby · {finds} valuable finds loose on the map.";
             ProceduralSfx.Play(ProceduralSfx.Whoosh, .6f);
+            GuildEconomy.Instance?.Report(TaskKind.Scan);
         }
 
         void Snack(Expedition game, GuildEconomy economy)

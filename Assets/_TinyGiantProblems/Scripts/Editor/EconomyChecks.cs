@@ -41,21 +41,57 @@ namespace TinyGiantProblems.Editor
             var json = JsonUtility.ToJson(inv); var copy = JsonUtility.FromJson<Inventory>(json); copy.Sanitize();
             Check(copy.Count(ItemId.Brush) == Inventory.Size && copy.selected == 8, "Inventory survives a save round trip");
 
-            var board = TaskBoard.MossbackContract(new[] { "A", "B", "C" });
-            Check(board.Report(TaskKind.CareJob, 1, 1) == 40 && board.CareOrder(1).paid, "Care job pays its bounty once");
-            Check(board.Report(TaskKind.CareJob, 1, 1) == 0, "Bounty cannot be paid twice");
-            int paid = 0; for (int i = 0; i < 8; i++) paid += board.Report(TaskKind.ClearMess, 1, (int)MessKind.Grime);
-            Check(paid == 35, "Grime order pays after eight patches");
-            Check(board.Report(TaskKind.ClearMess, 1, (int)MessKind.Burr) == 0, "Mess kinds track separately");
-            Check(board.Report(TaskKind.SellDebris, 12) == 50, "Selling twelve pieces completes the salvage order");
-
-            int starterValue = 0, mandatory = 0;
-            foreach (var o in TaskBoard.MossbackContract(new[] { "A", "B", "C" }).orders) if (!o.optional) mandatory += o.bounty;
+            var catalog = MissionCatalog.Instance;
+            Check(catalog && catalog.missions.Length >= 6, "Mission catalog has at least six missions");
+            if (catalog)
+            {
+                var ids = new HashSet<string>(); bool idsOk = true, reqOk = true, mainOk = true, tierOk = true; int lastTier = 1;
+                bool timed = false, noDamage = false, collect = false;
+                foreach (var m in catalog.missions)
+                {
+                    if (!m || string.IsNullOrEmpty(m.id) || !ids.Add(m.id)) { idsOk = false; continue; }
+                    foreach (var r in m.requires) if (!ids.Contains(r)) reqOk = false;   // only earlier missions
+                    bool hasMain = false; foreach (var o in m.objectives) if (!o.optional) hasMain = true;
+                    if (!hasMain) mainOk = false;
+                    if (m.tier < lastTier) tierOk = false; lastTier = m.tier;
+                    foreach (var c in m.challenges) { if (c.kind == ChallengeKind.TimeLimit) timed = true; if (c.kind == ChallengeKind.NoFallHurt || c.kind == ChallengeKind.NoSting) noDamage = true; if (c.kind == ChallengeKind.AllTrinkets) collect = true; }
+                }
+                Check(idsOk, "Mission ids are unique"); Check(reqOk, "Missions only require earlier missions"); Check(mainOk, "Every mission has a main objective");
+                Check(tierOk && catalog.missions[catalog.missions.Length - 1].tier > catalog.missions[0].tier, "Difficulty tier ramps up through the catalog");
+                Check(timed && noDamage && collect, "Timed, no-damage and collectible challenges exist");
+                Check(catalog.missions[0].requires.Length == 0, "First mission is unlocked from the start");
+                int early = 0; foreach (var o in catalog.missions[0].objectives) early += o.reward;
+                Check(ItemCatalog.Get(ItemId.Sprayer).price <= early, "First mission pays enough mid-run to buy the Sprayer for the hot spot");
+                var t = catalog.missions[catalog.missions.Length - 1];
+                Check(t.ReactionScale < catalog.missions[0].ReactionScale && t.MessScale > catalog.missions[0].MessScale, "Higher tiers mean faster reactions and more mess");
+            }
+            int starterValue = 0;
             foreach (var d in ItemCatalog.All) if (d.starter) starterValue++;
-            Check(starterValue == 2 && ItemCatalog.Get(ItemId.Sprayer).price <= mandatory - 60, "Sprayer is affordable from one run of work orders before the hot spot");
+            Check(starterValue == 2, "Two starter tools");
             foreach (var d in ItemCatalog.All)
                 if (!string.IsNullOrEmpty(d.model)) Check(ItemLibrary.Instance && ItemLibrary.Instance.Prefab(d.model), "Item library has a model for " + d.name);
             Check(ItemLibrary.Instance && ItemLibrary.Instance.baseMaterial && ItemLibrary.Instance.particleMaterial, "Item library materials are assigned");
+            int placeables = 0, kits = 0;
+            foreach (var d in ItemCatalog.All) if (d.placeable) { placeables++; if (d.needsPlatform) kits++; }
+            Check(placeables == 5 && kits == 4 && !ItemCatalog.Get(ItemId.Platform).needsPlatform, "Platform goes on Mossback, four kits go on a platform");
+            Check(ItemCatalog.ShopOrder.Contains(ItemCatalog.Get(ItemId.Platform)) && ItemCatalog.Get(ItemId.Platform).price > ItemCatalog.Get(ItemId.Glider).price, "Floating Platform is sold and priced above the glider");
+            var crateInv = new Inventory(); crateInv.Add(ItemId.Burr, 4);
+            int full = crateInv.TakeAllDebris(out int crated);
+            Check(crated == 4 && Mathf.RoundToInt(full * SupplyCrate.Rate) == 27, "Supply Crate pays 75% of the yard price");
+            var controls = Resources.Load<UnityEngine.InputSystem.InputActionAsset>("Input/TinyGiantControls");
+            bool allBound = controls;
+            if (controls) foreach (var a in controls.FindActionMap("Player").actions) { bool kb = false, pad = false; foreach (var b in a.bindings) { if (b.path.StartsWith("<Keyboard>") || b.path.StartsWith("<Mouse>")) kb = true; if (b.path.StartsWith("<Gamepad>")) pad = true; } if (!kb && !a.name.StartsWith("Hotbar") && a.name != "Zoom") allBound = false; if (!pad && !a.name.StartsWith("Slot") && a.name != "HotbarScroll" && a.name != "ZoomModifier" && a.name != "Recover") allBound = false; }
+            Check(allBound, "Every control has keyboard/mouse and gamepad bindings in the rebindable action asset");
+            var tune = Resources.Load<MovementTuning>("MovementTuning");
+            Check(tune && tune.acceleration > 0 && tune.coyoteTime > 0 && tune.jumpBuffer > 0, "Movement tuning asset exists with acceleration, coyote time and jump buffer");
+            bool oldHouse = false; if (ItemLibrary.Instance) foreach (var e in ItemLibrary.Instance.entries) if (e.key != null && e.key.StartsWith("guild-house")) oldHouse = true;
+            Check(!oldHouse && System.Type.GetType("TinyGiantProblems.GuildHouse, Assembly-CSharp") == null && System.Type.GetType("TinyGiantProblems.GuildHall, Assembly-CSharp") != null, "Old imported Guild House is gone; the modular Guild Hall replaces it");
+            Check(System.Type.GetType("TinyGiantProblems.GuildLift, Assembly-CSharp") == null && System.Type.GetType("TinyGiantProblems.WinchPost, Assembly-CSharp") != null, "Guild Lift is gone; the yard winch post replaces it");
+            var look = (Color[])TechnicianLook.Defaults.Clone(); look[TechnicianLook.Trousers] = new Color(.1f, .2f, .6f);
+            var lookBack = TechnicianLook.FromJson(TechnicianLook.ToJson(look));
+            Check(lookBack[TechnicianLook.Trousers] == look[TechnicianLook.Trousers] && lookBack.Length == TechnicianLook.RegionNames.Length, "Guild member colours survive a save round trip");
+            Check(TechnicianLook.FromJson("not json")[TechnicianLook.Hat] == TechnicianLook.Defaults[TechnicianLook.Hat], "Broken colour save falls back to defaults");
+            foreach (var d in ItemCatalog.All) if (ItemIcons.HasPicture(d)) Check(Resources.Load<Texture2D>("ItemIcons/" + d.id), "Baked icon for " + d.name);
 
             Directory.CreateDirectory("TestResults");
             File.WriteAllLines("TestResults/economy-checks.txt", results);

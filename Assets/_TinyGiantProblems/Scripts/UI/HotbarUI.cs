@@ -28,7 +28,6 @@ namespace TinyGiantProblems
         ItemId lastItem;
         public int DragFrom { get; private set; } = -1;
         readonly List<(RectTransform rt, TextMeshProUGUI text, float born)> toasts = new List<(RectTransform, TextMeshProUGUI, float)>();
-        InputAction scrollPad;
 
         public bool IsOpen => pack && pack.gameObject.activeSelf;
         public void Open() { if (pack && !pack.gameObject.activeSelf) { pack.gameObject.SetActive(true); GameUI.RefreshCursor(); } }
@@ -55,7 +54,7 @@ namespace TinyGiantProblems
             selectionFrame = UIKit.Panel(hotbarBar, "Selection", new Vector2(0, .5f), Vector2.zero, Vector2.one * (Slot + 10), UIKit.Gold);
             for (int i = 0; i < Inventory.HotbarSize; i++)
                 views.Add(MakeSlot(hotbarBar, i, new Vector2(10 + i * (Slot + Gap), 0), true));
-            selectedName = UIKit.Label(root, "", 20, UIKit.Cream, new Vector2(.5f, 0), new Vector2(0, 100), new Vector2(600, 30), TextAlignmentOptions.Center);
+            selectedName = UIKit.Label(root, "", 20, UIKit.Cream, new Vector2(.5f, 0), new Vector2(0, 132), new Vector2(600, 30), TextAlignmentOptions.Center);
             selectedGroup = selectedName.gameObject.AddComponent<CanvasGroup>();
 
             // Backpack window
@@ -89,15 +88,12 @@ namespace TinyGiantProblems
 
             // Work orders under the contract panel
             ordersPanel = UIKit.Panel(root, "Work orders", new Vector2(0, 1), new Vector2(28, -284), new Vector2(340, 236), UIKit.Ink).rectTransform;
-            UIKit.Label(ordersPanel, "SIDE WORK ORDERS  ·  BOUNTIES", 14, UIKit.Gold, new Vector2(0, 1), new Vector2(18, -12), new Vector2(310, 22));
+            UIKit.Label(ordersPanel, "SIDE TASKS  ·  CHALLENGES", 14, UIKit.Gold, new Vector2(0, 1), new Vector2(18, -12), new Vector2(310, 22));
             orders = UIKit.Label(ordersPanel, "", 15, UIKit.Cream, new Vector2(0, 1), new Vector2(18, -38), new Vector2(310, 190));
 
             prompt = UIKit.Label(root, "", 21, UIKit.Cream, new Vector2(.5f, 0), new Vector2(0, 252), new Vector2(900, 34), TextAlignmentOptions.Center);
             playingOnly = new[] { hotbarBar.gameObject, selectedName.gameObject, coinBadge.gameObject, ordersPanel.gameObject, prompt.gameObject };
 
-            scrollPad = new InputAction("Backpack", InputActionType.Button);
-            scrollPad.AddBinding("<Keyboard>/tab"); scrollPad.AddBinding("<Keyboard>/i"); scrollPad.AddBinding("<Gamepad>/select");
-            scrollPad.Enable();
             if (economy) { economy.Toast += OnToast; shownCoins = economy.Coins; }
         }
 
@@ -148,36 +144,25 @@ namespace TinyGiantProblems
         {
             if (!playing) return;
             bool shopOpen = GuildShopUI.Instance && GuildShopUI.Instance.IsOpen;
-            if (scrollPad.WasPressedThisFrame() && !shopOpen)
+            if (GameInput.Backpack.WasPressedThisFrame() && !shopOpen)
             {
                 if (IsOpen) Close(); else Open();
             }
             if (GameUI.CapturesInput) return;
-            var kb = Keyboard.current; var mouse = Mouse.current; var pad = Gamepad.current;
-            if (mouse != null && !(kb != null && kb.ctrlKey.isPressed))
+            bool zoomHeld = GameInput.ZoomModifier.IsPressed();
+            if (!zoomHeld)
             {
-                float y = mouse.scroll.ReadValue().y;
+                float y = GameInput.HotbarScroll.ReadValue<float>();
                 if (y > .01f) inv.Scroll(-1); else if (y < -.01f) inv.Scroll(1);
             }
-            if (kb != null)
+            for (int i = 0; i < 9; i++) if (GameInput.Slot(i).WasPressedThisFrame()) inv.Select(i);
+            if (GameInput.HotbarNext.WasPressedThisFrame()) inv.Scroll(1);
+            if (GameInput.HotbarPrev.WasPressedThisFrame()) inv.Scroll(-1);
+            if (GameInput.Drop.WasPressedThisFrame()) DropFromSlot(inv.selected, zoomHeld ? 999 : 1);
+            if (GameInput.Interact.WasPressedThisFrame() && !WinchPost.Hauling && !GameUI.JustClosed)
             {
-                for (int i = 0; i < 9; i++) if (kb[(Key)((int)Key.Digit1 + i)].wasPressedThisFrame) inv.Select(i);
-                if (kb.qKey.wasPressedThisFrame) DropFromSlot(inv.selected, kb.ctrlKey.isPressed ? 999 : 1);
-                if (kb.eKey.wasPressedThisFrame && !GuildLift.Riding && !GameUI.JustClosed)
-                {
-                    var station = Station.Nearest(game.player.transform.position);
-                    if (station) station.Interact();
-                }
-            }
-            if (pad != null)
-            {
-                if (pad.rightShoulder.wasPressedThisFrame) inv.Scroll(1);
-                if (pad.leftShoulder.wasPressedThisFrame) inv.Scroll(-1);
-                if (pad.buttonWest.wasPressedThisFrame && !GuildLift.Riding && !GameUI.JustClosed)
-                {
-                    var station = Station.Nearest(game.player.transform.position);
-                    if (station) station.Interact();
-                }
+                var station = Station.Nearest(game.player.transform.position);
+                if (station) station.Interact();
             }
         }
 
@@ -207,48 +192,68 @@ namespace TinyGiantProblems
                 var s = inv.slots[v.index];
                 bool hidden = v.index == DragFrom;
                 var def = s.IsEmpty || hidden ? null : ItemCatalog.Get(s.id);
-                v.swatch.color = def != null ? def.color : new Color(0, 0, 0, 0);
-                v.swatch.transform.GetChild(0).gameObject.SetActive(def != null);
-                v.glyph.text = def != null ? def.glyph : "";
-                v.count.text = def != null && s.count > 1 ? s.count.ToString() : "";
                 bool selected = v.index == inv.selected;
+                int stamp = ((int)(def != null ? def.id : ItemId.None) * 4096 + (def != null ? s.count : 0)) * 4 + (selected ? 2 : 0) + (v.hover && IsOpen ? 1 : 0);
+                if (stamp == v.stamp) continue;   // nothing changed for this slot
+                v.stamp = stamp;
+                UIKit.SetIcon(v.swatch, v.glyph, def);
+                v.swatch.transform.GetChild(0).gameObject.SetActive(def != null && !ItemIcons.HasPicture(def));
+                v.count.text = def != null && s.count > 1 ? s.count.ToString() : "";
                 v.background.color = selected ? new Color(.2f, .36f, .34f, 1) : v.hover && IsOpen ? new Color(.18f, .31f, .31f, 1) : new Color(.13f, .24f, .25f, 1);
                 v.swatch.rectTransform.localScale = Vector3.one * (selected ? 1.06f : 1f);
             }
         }
 
+        int drawnCoins = int.MinValue;
+        float nextPrompt;
         void DrawCoins()
         {
             int target = economy.Coins;
             if (shownCoins != target) shownCoins = (int)Mathf.MoveTowards(shownCoins, target, Mathf.Max(1, Mathf.Abs(target - shownCoins) * 6 * Time.unscaledDeltaTime));
-            coins.text = $"{shownCoins:N0}";
+            if (shownCoins != drawnCoins) { drawnCoins = shownCoins; coins.text = shownCoins.ToString("N0"); }
             coinPulse = Mathf.MoveTowards(coinPulse, 0, Time.unscaledDeltaTime * .5f);
             coins.transform.localScale = Vector3.one * (1 + coinPulse * coinPulse * .25f);
             var c = coinsDelta.color; c.a = Mathf.Clamp01(coinPulse * 2); coinsDelta.color = c;
         }
 
+        readonly System.Text.StringBuilder ordersSb = new System.Text.StringBuilder();
+        string lastOrders; float nextOrdersRedraw;
         void DrawOrders()
         {
-            var board = economy.Board; if (board == null) return;
-            var sb = new System.Text.StringBuilder();
-            foreach (var o in board.orders)
+            var m = MissionManager.Instance; if (!m || !m.Active) return;
+            if (Time.unscaledTime < nextOrdersRedraw) return;   // a few times a second is plenty
+            nextOrdersRedraw = Time.unscaledTime + .25f;
+            ordersSb.Clear();
+            for (int i = 0; i < m.Active.objectives.Length; i++)
             {
-                if (o.kind == TaskKind.CareJob) continue;
-                string progress = o.target > 1 ? $" {o.progress}/{o.target}" : "";
-                if (o.paid) sb.Append($"<color=#86D8A0>DONE  {o.title}</color>  <color=#86D8A0>+{o.bounty}</color>\n");
-                else sb.Append($"{(o.optional ? "<color=#B7C9BF>opt</color> " : "")}{o.title}<color=#B7C9BF>{progress}</color>  <color=#FFBC4A>{o.bounty}</color>\n");
+                var o = m.Active.objectives[i]; if (!o.optional) continue;
+                if (m.done[i]) ordersSb.Append("<color=#86D8A0>DONE  ").Append(o.title).Append("  +").Append(o.reward).Append("</color>\n");
+                else
+                {
+                    ordersSb.Append(o.title);
+                    if (o.target > 1) ordersSb.Append("<color=#B7C9BF> ").Append(m.progress[i]).Append('/').Append(o.target).Append("</color>");
+                    ordersSb.Append("  <color=#FFBC4A>").Append(o.reward).Append("</color>\n");
+                }
             }
-            orders.text = sb.ToString();
+            for (int i = 0; i < m.Active.challenges.Length; i++)
+            {
+                var c = m.Active.challenges[i];
+                ordersSb.Append("<color=#9FD3FF>* ").Append(c.title).Append("</color>  <color=#B7C9BF>").Append(m.ChallengeStatus(i)).Append("</color>\n");
+            }
+            var text = ordersSb.ToString();
+            if (text != lastOrders) orders.text = lastOrders = text;
         }
 
         void DrawPrompt(bool playing)
         {
             if (!playing) return;
+            if (Time.unscaledTime < nextPrompt) return;   // ten times a second reads instantly
+            nextPrompt = Time.unscaledTime + .1f;
             string text = "";
             var p = game.player;
-            var station = GuildLift.Riding ? null : Station.Nearest(p.transform.position);
+            var station = WinchPost.Hauling ? null : Station.Nearest(p.transform.position);
             var mess = MessField.Instance;
-            if (GuildLift.Riding) text = "Riding the Guild Lift...";
+            if (WinchPost.Hauling) text = "Winching up...";
             else if (station) text = station.Prompt;
             else if (!game.Nearest && mess && mess.Aimed)
             {
@@ -266,9 +271,11 @@ namespace TinyGiantProblems
                     else if (def.id == ItemId.Scanner) text = ab.ScanReady > 0 ? $"Scanner recharging {ab.ScanReady:0}s" : "USE to ping nearby mess and finds";
                     else if (def.id == ItemId.SnackLauncher) text = ab.SnackReady > 0 ? $"Snack launcher reloading {ab.SnackReady:0}s" : "USE to lob a snack toward Mossback's mouth";
                     else if (def.id == ItemId.Glider) text = ab.Gliding ? "Gliding..." : "Equipped: falls become gentle glides";
+                    else if (def.placeable && PlacementSystem.Instance) text = PlacementSystem.Instance.Hint;
+                    else if (def.id == ItemId.Claw) { var claw = ClimbingClaw.For(p); text = claw && claw.Exhausted ? "Claw stamina spent: rest on solid ground" : claw && claw.Active ? $"Clawing up · stamina {claw.stamina:0}%" : "Walk into a flank or a claw wall to climb · " + GameInput.Display(GameInput.Jump) + " to let go"; }
                 }
             }
-            prompt.text = text;
+            if (prompt.text != text) prompt.text = text;
         }
 
         void DrawToasts()
@@ -293,7 +300,7 @@ namespace TinyGiantProblems
             if (!IsOpen || inv.slots[index].IsEmpty) return;
             DragFrom = index;
             var def = ItemCatalog.Get(inv.slots[index].id);
-            ghostSwatch.color = def.color; ghostGlyph.text = def.glyph;
+            UIKit.SetIcon(ghostSwatch, ghostGlyph, def);
             ghostCount.text = inv.slots[index].count > 1 ? inv.slots[index].count.ToString() : "";
             ghost.gameObject.SetActive(true);
             ghost.SetAsLastSibling();
@@ -350,6 +357,7 @@ namespace TinyGiantProblems
         public Image background, swatch;
         public TextMeshProUGUI glyph, count, key;
         public bool hover;
+        public int stamp = -1;
 
         public void OnBeginDrag(PointerEventData e) { if (e.button == PointerEventData.InputButton.Left) ui.BeginDrag(index); }
         public void OnDrag(PointerEventData e) { }

@@ -1,0 +1,35 @@
+{
+  "source": "mountain.glb",
+  "sha256": "cc17a41fc4f9ed83f316bbbf36b28d6469871d365dbd855472a8f2e3567f98c5",
+  "material": {
+    "pbrMetallicRoughness": {
+      "metallicFactor": 1.0,
+      "roughnessFactor": 1.0,
+      "baseColorFactor": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "baseColorTexture": {
+        "index": 0,
+        "texCoord": 0
+      },
+      "metallicRoughnessTexture": {
+        "index": 1,
+        "texCoord": 0
+      }
+    },
+    "doubleSided": true,
+    "occlusionTexture": {
+      "index": 1,
+      "texCoord": 0,
+      "strength": 1.0
+    },
+    "normalTexture": {
+      "index": 2,
+      "texCoord": 0,
+      "scale": 1.0
+    }
+  }
+}

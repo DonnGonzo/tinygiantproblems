@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed211b00db96f864a9f6408a4af00314, type: 3}
+  m_Name: 03-mite-patrol
+  m_EditorClassIdentifier: Assembly-CSharp::TinyGiantProblems.MissionDef
+  id: 03-mite-patrol
+  title: Mite Patrol
+  brief: Bramblemites are breeding in his coat. Chase them down with the vacuum (they
+    run!) and bottle them for the yard.
+  tier: 2
+  requires:
+  - 02-salvage-run
+  objectives:
+  - title: Vacuum Bramblemites
+    kind: 1
+    subtype: 2
+    target: 7
+    optional: 0
+    reward: 0
+  - title: Sell bottled mites
+    kind: 2
+    subtype: -1
+    target: 5
+    optional: 0
+    reward: 0
+  - title: Comfort at 60%
+    kind: 12
+    subtype: -1
+    target: 60
+    optional: 0
+    reward: 0
+  - title: Scan the coat for stragglers
+    kind: 11
+    subtype: -1
+    target: 1
+    optional: 1
+    reward: 30
+  - title: Scrub grime patches
+    kind: 1
+    subtype: 0
+    target: 6
+    optional: 1
+    reward: 30
+  challenges:
+  - title: Never stung (brace when they rear up!)
+    kind: 4
+    seconds: 0
+    reward: 70
+  - title: No safety-winch rescues
+    kind: 3
+    seconds: 0
+    reward: 40
+  rewardCoins: 200
+  rewardItem: 5

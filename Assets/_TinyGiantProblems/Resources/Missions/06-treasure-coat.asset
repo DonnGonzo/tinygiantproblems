@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed211b00db96f864a9f6408a4af00314, type: 3}
+  m_Name: 06-treasure-coat
+  m_EditorClassIdentifier: Assembly-CSharp::TinyGiantProblems.MissionDef
+  id: 06-treasure-coat
+  title: Treasure in the Coat
+  brief: Grime hides lost guild treasures. Scan, scrub and dig them out, then cash
+    them in.
+  tier: 3
+  requires:
+  - 04-high-ground
+  objectives:
+  - title: Find hidden trinkets
+    kind: 3
+    subtype: -1
+    target: 2
+    optional: 0
+    reward: 0
+  - title: Scrub grime patches
+    kind: 1
+    subtype: 0
+    target: 10
+    optional: 0
+    reward: 0
+  - title: Sell salvage
+    kind: 2
+    subtype: -1
+    target: 15
+    optional: 0
+    reward: 0
+  - title: Scan for finds
+    kind: 11
+    subtype: -1
+    target: 2
+    optional: 1
+    reward: 30
+  - title: Recover the lost survey drone
+    kind: 4
+    subtype: -1
+    target: 1
+    optional: 1
+    reward: 60
+  challenges:
+  - title: Find every hidden trinket
+    kind: 5
+    seconds: 0
+    reward: 90
+  - title: Done in under 8 minutes
+    kind: 0
+    seconds: 480
+    reward: 60
+  rewardCoins: 240
+  rewardItem: 0

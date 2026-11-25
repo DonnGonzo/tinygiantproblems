@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 750328864743723116}
+  - component: {fileID: 2681201185603828249}
   m_Layer: 0
   m_Name: rocks
   m_TagString: Untagged
@@ -32,6 +33,21 @@ Transform:
   - {fileID: 4578043346018276291}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2681201185603828249
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6540578914126135509}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a4c7a03ef806324a94b93809723a6a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TinyGiantProblems.PropCollisionPolicy
+  surfaces:
+  - {fileID: 2697318677960965405}
+  traversalArt: 0
 --- !u!1001 &4036002996981593128
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -103,10 +119,40 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8164078558771037576, guid: 9f972d85485d42648ad27a671f7b3012, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2697318677960965405}
   m_SourcePrefab: {fileID: 100100000, guid: 9f972d85485d42648ad27a671f7b3012, type: 3}
 --- !u!4 &4578043346018276291 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 9f972d85485d42648ad27a671f7b3012, type: 3}
   m_PrefabInstance: {fileID: 4036002996981593128}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &5282266504716464544 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8164078558771037576, guid: 9f972d85485d42648ad27a671f7b3012, type: 3}
+  m_PrefabInstance: {fileID: 4036002996981593128}
+  m_PrefabAsset: {fileID: 0}
+--- !u!64 &2697318677960965405
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5282266504716464544}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -2432090755550338912, guid: e423e78c63093fd49853d432494aa702, type: 3}

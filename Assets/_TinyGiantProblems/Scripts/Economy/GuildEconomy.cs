@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace TinyGiantProblems
 {
-    // Wallet, owned tools, inventory and work orders. Lives on the Expedition
+    // Wallet, owned tools and inventory. Lives on the Expedition
     // Authority object; progress persists between expeditions in PlayerPrefs.
     [DefaultExecutionOrder(5)]
     public sealed class GuildEconomy : MonoBehaviour
@@ -16,10 +16,8 @@ namespace TinyGiantProblems
         public int ContractPayout { get; private set; }
         public readonly HashSet<ItemId> Owned = new HashSet<ItemId>();
         public Inventory Inventory = new Inventory();
-        public TaskBoard Board { get; private set; }
         public float CleanSpeed => Owns(ItemId.TurboBristles) ? 1.5f : 1f;
         public event Action<string, int> Toast;
-        public event Action<WorkOrder> OrderCompleted;
 
         Expedition game;
         ExpeditionPhase lastPhase;
@@ -36,7 +34,7 @@ namespace TinyGiantProblems
             game = GetComponent<Expedition>();
             if (!game) game = Expedition.Instance;
             Load();
-            NewBoard();
+            jobDone = new bool[game && game.jobs != null ? game.jobs.Length : 0];
             Inventory.Changed += () => dirty = true;
         }
 
@@ -57,19 +55,7 @@ namespace TinyGiantProblems
         void OnBegin()
         {
             RunEarnings = 0; ContractPayout = 0;
-            NewBoard();
-        }
-
-        void NewBoard()
-        {
-            var titles = game && game.jobs != null ? game.jobs.Select(j => j.title).ToList() : new List<string>();
-            Board = TaskBoard.MossbackContract(titles);
-            Board.Completed = o =>
-            {
-                Toast?.Invoke("Work order complete · " + o.title, o.bounty);
-                OrderCompleted?.Invoke(o);
-            };
-            jobDone = new bool[titles.Count];
+            jobDone = new bool[game.jobs.Length];
         }
 
         void Update()
@@ -82,12 +68,7 @@ namespace TinyGiantProblems
                     if (done && !jobDone[i] && game.IsPlaying) Report(TaskKind.CareJob, 1, i);
                     jobDone[i] = done;
                 }
-            if (game.Phase == ExpeditionPhase.Debrief && lastPhase != ExpeditionPhase.Debrief)
-            {
-                ContractPayout = game.Reward;
-                Earn(ContractPayout, "Contract payout · Guild pay");
-                Save();
-            }
+            if (game.Phase == ExpeditionPhase.Debrief && lastPhase != ExpeditionPhase.Debrief) Save();
             lastPhase = game.Phase;
             saveTimer -= Time.unscaledDeltaTime;
             if (dirty && saveTimer <= 0) { Save(); saveTimer = 2; }
@@ -95,12 +76,14 @@ namespace TinyGiantProblems
 
         public bool Owns(ItemId id) => Owned.Contains(id);
 
+        // Game events toward mission objectives (MissionManager owns progress).
         public void Report(TaskKind kind, int amount = 1, int subtype = -1)
         {
-            if (Board == null) return;
-            int paid = Board.Report(kind, amount, subtype);
-            if (paid > 0) { AddCoins(paid); ProceduralSfx.Play(ProceduralSfx.Coin, .9f); }
+            var missions = MissionManager.Instance;
+            if (missions) missions.Report(kind, amount, subtype);
         }
+
+        public void Notify(string text) => Toast?.Invoke(text, 0);
 
         public void Earn(int amount, string reason)
         {
@@ -131,7 +114,8 @@ namespace TinyGiantProblems
                 return false;
             }
             Coins -= d.price;
-            Owned.Add(d.id);
+            // Placeables are consumables: one per purchase, never re-granted on load.
+            if (!d.placeable) Owned.Add(d.id);
             if (d.IsTool) Inventory.Add(d.id, 1);
             ApplyUpgrades();
             Toast?.Invoke("Bought " + d.name, -d.price);
@@ -140,11 +124,13 @@ namespace TinyGiantProblems
             return true;
         }
 
-        public int SellAll(out int pieces)
+        // rate < 1: remote sale (platform Supply Crate) at a reduced price.
+        public int SellAll(out int pieces, float rate = 1f)
         {
             var breakdown = new Dictionary<ItemId, int>();
             int value = Inventory.TakeAllDebris(out pieces, breakdown);
             if (pieces == 0) return 0;
+            value = Mathf.RoundToInt(value * rate);
             AddCoins(value);
             Toast?.Invoke($"Sold {pieces} salvage", value);
             ProceduralSfx.Play(ProceduralSfx.Sell, 1);
@@ -161,6 +147,7 @@ namespace TinyGiantProblems
             if (left < count)
             {
                 var d = ItemCatalog.Get(id);
+                Report(TaskKind.CollectDebris, count - left);
                 if (id == ItemId.ShinyPebble || id == ItemId.GuildBadge) Report(TaskKind.FindTrinket);
                 if (id == ItemId.LostDrone) Toast?.Invoke("Found the lost survey drone! Sell it at the yard.", 0);
                 ProceduralSfx.Play(ProceduralSfx.Pickup, .6f);
@@ -218,11 +205,12 @@ namespace TinyGiantProblems
         public void ResetProgress()
         {
             PlayerPrefs.DeleteKey(SaveKey);
+            PlacementSystem.ClearSaved();
+            if (MissionManager.Instance) MissionManager.Instance.ResetProgress();
             var changed = Inventory.Changed;
             Load();
             Inventory.Changed = changed;
             Inventory.Changed?.Invoke();
-            NewBoard();
             Toast?.Invoke("Guild progress reset", 0);
         }
     }
